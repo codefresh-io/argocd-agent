@@ -3,14 +3,12 @@ package argo
 import (
 	"fmt"
 	"github.com/golang/glog"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/klog"
 	"log"
 	"os"
 	"path/filepath"
@@ -40,26 +38,18 @@ func Watch() {
 		glog.Errorln(err)
 	}
 
-	crdClient := clientset.Resource(applicationCRD)
-
-	crd, errCrd := crdClient.Namespace("argocd").Get("task", metav1.GetOptions{})
-	if errCrd != nil {
-		klog.Fatalf("Error getting CRD %v", errCrd)
-	}
-	klog.Infof("Got CRD: %v", crd)
-
 	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Second*30)
 	applicationInformer := kubeInformerFactory.ForResource(applicationCRD).Informer()
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			fmt.Printf("service added: %s \n", obj)
+			process(obj)
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("service deleted: %s \n", obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			fmt.Printf("service changed: %s \n", newObj)
+			process(newObj)
 		},
 	})
 
