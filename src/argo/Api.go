@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -38,10 +37,12 @@ func getToken(username string, password string, host string) string {
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
+	defer resp.Body.Close()
+
 	return result["token"].(string)
 }
 
-func GetResourceTree(applicationName string, host string) {
+func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	token := getToken("admin", "newpassword", "https://34.71.103.174")
 
 	client := buildHttpClient()
@@ -54,9 +55,43 @@ func GetResourceTree(applicationName string, host string) {
 		log.Fatalln(err)
 	}
 
-	result, _ := ioutil.ReadAll(resp.Body)
+	var result *ResourceTree
 
-	log.Print(string(result))
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func GetManagedResources(applicationName string) ManagedResource {
+	token := getToken("admin", "newpassword", "https://34.71.103.174")
+
+	client := buildHttpClient()
+
+	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/applications/"+applicationName+"/managed-resources", nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var result ManagedResource
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		//return nil, err
+	}
+
+	return result
 }
 
 //async getManagedResources() {

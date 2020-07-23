@@ -43,13 +43,15 @@ func Watch() {
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			process(obj)
+			env := PrepareEnvironment("task", obj)
+			log.Println(env)
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("service deleted: %s \n", obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			process(newObj)
+			env := PrepareEnvironment("task", newObj)
+			log.Println(env)
 		},
 	})
 
