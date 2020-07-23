@@ -22,11 +22,13 @@ func initDeploymentsStatuses(applicationName string) map[string]string {
 	return statuses
 }
 
-func prepareEnvironmentActivity(applicationName string) *EnvironmentDeploymentItem {
+func prepareEnvironmentActivity(applicationName string) []EnvironmentActivity {
 
 	resource := GetManagedResources(applicationName)
 
 	statuses := initDeploymentsStatuses(applicationName)
+
+	var activities []EnvironmentActivity
 
 	for _, item := range resource.Items {
 		if item.Kind == "Deployment" {
@@ -37,10 +39,20 @@ func prepareEnvironmentActivity(applicationName string) *EnvironmentDeploymentIt
 				log.Println(err.Error())
 			}
 
+			var targetImages []string
+			for _, container := range targetState.Spec.Template.Spec.Containers {
+				targetImages = append(targetImages, container.Image)
+			}
+
 			var liveState ManagedResourceState
 			err = json.Unmarshal([]byte(item.LiveState), &liveState)
 			if err != nil {
 				log.Println(err.Error())
+			}
+
+			var liveImages []string
+			for _, container := range liveState.Spec.Template.Spec.Containers {
+				liveImages = append(liveImages, container.Image)
 			}
 
 			log.Println(liveState)
@@ -48,10 +60,17 @@ func prepareEnvironmentActivity(applicationName string) *EnvironmentDeploymentIt
 			status := statuses[liveState.Metadata.Uid]
 
 			log.Println("Live deployment status " + status)
+
+			activities = append(activities, EnvironmentActivity{
+				Name:         item.Name,
+				TargetImages: targetImages,
+				Status:       status,
+				LiveImages:   liveImages,
+			})
 		}
 	}
 
-	return nil
+	return activities
 }
 
 func PrepareEnvironment(applicationName string, item interface{}) Environment {
@@ -78,6 +97,7 @@ func PrepareEnvironment(applicationName string, item interface{}) Environment {
 		SyncStatus:   syncStatus,
 		SyncRevision: syncRevision,
 		Name:         name,
+		Activities:   prepareEnvironmentActivity(applicationName),
 	}
 
 }

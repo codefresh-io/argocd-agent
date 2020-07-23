@@ -56,10 +56,10 @@ type Environment struct {
 	SyncStatus   string
 	SyncRevision string
 	Name         string
-	Deployments  EnvironmentDeploymentItem
+	Activities   []EnvironmentActivity
 }
 
-type EnvironmentDeploymentItem struct {
+type EnvironmentActivity struct {
 	Name         string
 	TargetImages []string
 	Status       string
