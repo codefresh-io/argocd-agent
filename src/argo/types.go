@@ -49,19 +49,3 @@ type ManagedResourceTemplateSpec struct {
 type ManagedResourceTemplateContainer struct {
 	Image string
 }
-
-type Environment struct {
-	FinishedAt   string
-	HealthStatus string
-	SyncStatus   string
-	SyncRevision string
-	Name         string
-	Activities   []EnvironmentActivity
-}
-
-type EnvironmentActivity struct {
-	Name         string
-	TargetImages []string
-	Status       string
-	LiveImages   []string
-}

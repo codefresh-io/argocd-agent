@@ -2,6 +2,7 @@ package argo
 
 import (
 	"encoding/json"
+	"github.com/codefresh-io/argocd-listener/src/codefresh"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
 )
@@ -22,13 +23,13 @@ func initDeploymentsStatuses(applicationName string) map[string]string {
 	return statuses
 }
 
-func prepareEnvironmentActivity(applicationName string) []EnvironmentActivity {
+func prepareEnvironmentActivity(applicationName string) []codefresh.EnvironmentActivity {
 
 	resource := GetManagedResources(applicationName)
 
 	statuses := initDeploymentsStatuses(applicationName)
 
-	var activities []EnvironmentActivity
+	var activities []codefresh.EnvironmentActivity
 
 	for _, item := range resource.Items {
 		if item.Kind == "Deployment" {
@@ -61,7 +62,7 @@ func prepareEnvironmentActivity(applicationName string) []EnvironmentActivity {
 
 			log.Println("Live deployment status " + status)
 
-			activities = append(activities, EnvironmentActivity{
+			activities = append(activities, codefresh.EnvironmentActivity{
 				Name:         item.Name,
 				TargetImages: targetImages,
 				Status:       status,
@@ -73,7 +74,7 @@ func prepareEnvironmentActivity(applicationName string) []EnvironmentActivity {
 	return activities
 }
 
-func PrepareEnvironment(applicationName string, item interface{}) Environment {
+func PrepareEnvironment(applicationName string, item interface{}) codefresh.Environment {
 	converted := item.(*unstructured.Unstructured)
 
 	status := converted.Object["status"].(map[string]interface{})
@@ -91,7 +92,7 @@ func PrepareEnvironment(applicationName string, item interface{}) Environment {
 	metadata := converted.Object["metadata"].(map[string]interface{})
 	name := metadata["name"].(string)
 
-	return Environment{
+	return codefresh.Environment{
 		FinishedAt:   finishedAt,
 		HealthStatus: healthStatus["status"].(string),
 		SyncStatus:   syncStatus,

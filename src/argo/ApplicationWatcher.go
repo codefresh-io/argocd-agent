@@ -2,6 +2,7 @@ package argo
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/src/codefresh"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -44,6 +45,7 @@ func Watch() {
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			env := PrepareEnvironment("task", obj)
+			codefresh.SendEnvironment(env)
 			log.Println(env)
 		},
 		DeleteFunc: func(obj interface{}) {
@@ -51,6 +53,7 @@ func Watch() {
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			env := PrepareEnvironment("task", newObj)
+			codefresh.SendEnvironment(env)
 			log.Println(env)
 		},
 	})
