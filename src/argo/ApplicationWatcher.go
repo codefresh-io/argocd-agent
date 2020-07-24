@@ -39,12 +39,12 @@ func Watch() {
 		glog.Errorln(err)
 	}
 
-	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Second*30)
+	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
 	applicationInformer := kubeInformerFactory.ForResource(applicationCRD).Informer()
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			env := PrepareEnvironment("task", obj)
+			env := PrepareEnvironment(obj)
 			codefresh.SendEnvironment(env)
 			log.Println(env)
 		},
@@ -52,7 +52,7 @@ func Watch() {
 			fmt.Printf("service deleted: %s \n", obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			env := PrepareEnvironment("task", newObj)
+			env := PrepareEnvironment(newObj)
 			codefresh.SendEnvironment(env)
 			log.Println(env)
 		},

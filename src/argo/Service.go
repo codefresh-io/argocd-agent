@@ -12,10 +12,10 @@ func initDeploymentsStatuses(applicationName string) map[string]string {
 	resourceTree, _ := GetResourceTree(applicationName)
 	for _, node := range resourceTree.Nodes {
 		if node.Kind == "Deployment" {
-			if node.Health.status == "" {
+			if node.Health.Status == "" {
 				statuses[node.Uid] = "Missing"
 			} else {
-				statuses[node.Uid] = node.Health.status
+				statuses[node.Uid] = node.Health.Status
 			}
 
 		}
@@ -55,13 +55,7 @@ func prepareEnvironmentActivity(applicationName string) []codefresh.EnvironmentA
 			for _, container := range liveState.Spec.Template.Spec.Containers {
 				liveImages = append(liveImages, container.Image)
 			}
-
-			log.Println(liveState)
-
 			status := statuses[liveState.Metadata.Uid]
-
-			log.Println("Live deployment status " + status)
-
 			activities = append(activities, codefresh.EnvironmentActivity{
 				Name:         item.Name,
 				TargetImages: targetImages,
@@ -74,16 +68,13 @@ func prepareEnvironmentActivity(applicationName string) []codefresh.EnvironmentA
 	return activities
 }
 
-func PrepareEnvironment(applicationName string, item interface{}) codefresh.Environment {
+func PrepareEnvironment(item interface{}) codefresh.Environment {
+
 	converted := item.(*unstructured.Unstructured)
 
 	status := converted.Object["status"].(map[string]interface{})
 
-	operationState := status["operationState"].(map[string]interface{})
-	finishedAt := operationState["finishedAt"].(string)
-
 	healthStatus := status["health"].(map[string]interface{})
-
 	syncStatusObj := status["sync"].(map[string]interface{})
 
 	syncStatus := syncStatusObj["status"].(string)
@@ -92,13 +83,28 @@ func PrepareEnvironment(applicationName string, item interface{}) codefresh.Envi
 	metadata := converted.Object["metadata"].(map[string]interface{})
 	name := metadata["name"].(string)
 
-	return codefresh.Environment{
-		FinishedAt:   finishedAt,
+	env := codefresh.Environment{
 		HealthStatus: healthStatus["status"].(string),
 		SyncStatus:   syncStatus,
 		SyncRevision: syncRevision,
 		Name:         name,
-		Activities:   prepareEnvironmentActivity(applicationName),
+		Activities:   prepareEnvironmentActivity(name),
 	}
 
+	opStateInterface := status["operationState"]
+
+	if opStateInterface != nil {
+		operationState := opStateInterface.(map[string]interface{})
+		finishedAt := operationState["finishedAt"].(string)
+		env.FinishedAt = finishedAt
+	}
+
+	return env
+
+}
+
+func RetrieveName(item interface{}) string {
+	converted := item.(*unstructured.Unstructured)
+	metadata := converted.Object["metadata"].(map[string]interface{})
+	return metadata["name"].(string)
 }

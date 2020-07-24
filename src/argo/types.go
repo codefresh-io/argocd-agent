@@ -11,7 +11,7 @@ type Node struct {
 }
 
 type Health struct {
-	status string
+	Status string
 }
 
 type ManagedResource struct {

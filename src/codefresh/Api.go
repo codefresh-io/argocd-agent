@@ -15,7 +15,7 @@ func buildHttpClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func SendEnvironment(environment Environment) {
+func SendEnvironment(environment Environment) map[string]interface{} {
 	client := buildHttpClient()
 
 	bytesRepresentation, err := json.Marshal(environment)
@@ -33,5 +33,7 @@ func SendEnvironment(environment Environment) {
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
-	log.Println(result)
+	defer resp.Body.Close()
+
+	return result
 }

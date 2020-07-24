@@ -3,8 +3,8 @@ package codefresh
 type Environment struct {
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
-	SyncStatus   string                `json:"syncStatus"`
-	SyncRevision string                `json:"syncRevision"`
+	SyncStatus   string                `json:"status"`
+	SyncRevision string                `json:"revision"`
 	Name         string                `json:"name"`
 	Activities   []EnvironmentActivity `json:"activities"`
 }
