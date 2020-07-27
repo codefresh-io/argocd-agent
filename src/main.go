@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/codefresh-io/argocd-listener/src/argo"
+	"github.com/codefresh-io/argocd-listener/src/pkg/argo"
 )
 
 func main() {

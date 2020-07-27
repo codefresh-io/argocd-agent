@@ -2,7 +2,7 @@ package argo
 
 import (
 	"encoding/json"
-	"github.com/codefresh-io/argocd-listener/src/codefresh"
+	"github.com/codefresh-io/argocd-listener/src/pkg/codefresh"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
 )
@@ -95,8 +95,11 @@ func PrepareEnvironment(item interface{}) codefresh.Environment {
 
 	if opStateInterface != nil {
 		operationState := opStateInterface.(map[string]interface{})
-		finishedAt := operationState["finishedAt"].(string)
-		env.FinishedAt = finishedAt
+		finishedAtInterface := operationState["finishedAt"]
+		if finishedAtInterface != nil {
+			env.FinishedAt = finishedAtInterface.(string)
+		}
+
 	}
 
 	return env

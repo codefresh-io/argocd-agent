@@ -23,8 +23,8 @@ func SendEnvironment(environment Environment) map[string]interface{} {
 		log.Fatalln(err)
 	}
 
-	req, err := http.NewRequest("POST", "http://local.codefresh.io/api/environments-v2/argo", bytes.NewBuffer(bytesRepresentation))
-	req.Header.Add("Authorization", "Bearer 5f1a9baf6adbd676fa3bd6df.6556ecb5b8b4f8fd0ca51155c02af06f")
+	req, err := http.NewRequest("POST", "https://g.codefresh.io/api/environments-v2/argo/events", bytes.NewBuffer(bytesRepresentation))
+	req.Header.Add("Authorization", "Bearer 5f1e81bbedd7b52b9a0fa94a.ef807a95c2a7032281b0f3c3970fcb6b")
 	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := client.Do(req)
