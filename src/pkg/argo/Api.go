@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"github.com/codefresh-io/argocd-listener/src/pkg/store"
 	"log"
 	"net/http"
 )
@@ -15,7 +16,7 @@ func buildHttpClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func getToken(username string, password string, host string) string {
+func GetToken(username string, password string, host string) string {
 
 	client := buildHttpClient()
 
@@ -43,7 +44,7 @@ func getToken(username string, password string, host string) string {
 }
 
 func GetResourceTree(applicationName string) (*ResourceTree, error) {
-	token := getToken("admin", "newpassword", "https://34.71.103.174")
+	token := store.GetStore().Token
 
 	client := buildHttpClient()
 
@@ -69,7 +70,7 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 }
 
 func GetManagedResources(applicationName string) ManagedResource {
-	token := getToken("admin", "newpassword", "https://34.71.103.174")
+	token := store.GetStore().Token
 
 	client := buildHttpClient()
 
@@ -93,51 +94,3 @@ func GetManagedResources(applicationName string) ManagedResource {
 
 	return result
 }
-
-//async getManagedResources() {
-//const resourceTree = await rp({
-//method: 'GET',
-//uri: `${host}/api/v1/applications/${applicationName}/resource-tree`,
-//headers: {
-//'Authorization': `Bearer ${this.token}`
-//},
-//json: true
-//});
-//
-//const deploymentStatuses = resourceTree.nodes.filter(node => node.kind === 'Deployment').map(deploy => {
-//return {
-//id: deploy.uid,
-//status: _.get(deploy.health, 'status', 'Missing'),
-//}
-//});
-//
-//const result = await rp({
-//method: 'GET',
-//uri: `${host}/api/v1/applications/${applicationName}/managed-resources`,
-//headers: {
-//'Authorization': `Bearer ${this.token}`
-//},
-//json: true
-//});
-//
-//const deployments = _.filter(result.items, (item) => item.kind === 'Deployment');
-//return deployments.map((deployment) => {
-//const targetState = JSON.parse(deployment.targetState);
-//const liveState = JSON.parse(deployment.liveState);
-//
-//const result = {
-//name: deployment.name
-//};
-//
-//if(targetState) {
-//result.targetImages = targetState.spec.template.spec.containers.map(container => container.image);
-//}
-//
-//if(liveState) {
-//result.status = deploymentStatuses.find(deploymentStatus => deploymentStatus.id === liveState.metadata.uid).status;
-//result.liveImages = liveState.spec.template.spec.containers.map(container => container.image);
-//}
-//return result;
-//
-//});
-//}
