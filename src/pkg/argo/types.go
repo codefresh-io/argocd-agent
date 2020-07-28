@@ -49,3 +49,27 @@ type ManagedResourceTemplateSpec struct {
 type ManagedResourceTemplateContainer struct {
 	Image string
 }
+
+type Project struct {
+	Items []ProjectItem
+}
+
+type ProjectItem struct {
+	Metadata ProjectMetadata
+}
+
+type ProjectMetadata struct {
+	Name string
+}
+
+type Application struct {
+	Items []ApplicationItem
+}
+
+type ApplicationItem struct {
+	Metadata ApplicationMetadata
+}
+
+type ApplicationMetadata struct {
+	Name string
+}
