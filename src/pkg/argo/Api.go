@@ -128,7 +128,7 @@ func GetProjects() []string {
 	return projects
 }
 
-func GetApplications() []string {
+func GetApplications() []ApplicationItem {
 	token := store.GetStore().Token
 
 	client := buildHttpClient()
@@ -151,12 +151,5 @@ func GetApplications() []string {
 		//return nil, err
 	}
 
-	var applications []string
-
-	items := result.Items
-	for _, item := range items {
-		applications = append(applications, item.Metadata.Name)
-	}
-
-	return applications
+	return result.Items
 }

@@ -67,9 +67,14 @@ type Application struct {
 }
 
 type ApplicationItem struct {
-	Metadata ApplicationMetadata
+	Metadata ApplicationMetadata `json:"metadata"`
+	Spec     ApplicationSpec     `json:"spec"`
 }
 
 type ApplicationMetadata struct {
-	Name string
+	Name string `json:"name"`
+}
+
+type ApplicationSpec struct {
+	Project string `json:"project"`
 }
