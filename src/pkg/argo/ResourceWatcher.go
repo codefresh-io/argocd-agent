@@ -22,10 +22,15 @@ var (
 		Version:  "v1alpha1",
 		Resource: "applications",
 	}
+
+	projectCRD = schema.GroupVersionResource{
+		Group:    "argoproj.io",
+		Version:  "v1alpha1",
+		Resource: "appprojects",
+	}
 )
 
-func Watch() {
-
+func watchApplicationChanges() {
 	kubeconfig := filepath.Join(
 		os.Getenv("HOME"), ".kube", "config",
 	)
@@ -47,9 +52,13 @@ func Watch() {
 			env := PrepareEnvironment(obj)
 			codefresh.SendEnvironment(env)
 			log.Println(env)
+
+			applications := GetApplications()
+			log.Println(applications)
 		},
 		DeleteFunc: func(obj interface{}) {
-			fmt.Printf("service deleted: %s \n", obj)
+			applications := GetApplications()
+			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			env := PrepareEnvironment(newObj)
@@ -58,10 +67,35 @@ func Watch() {
 		},
 	})
 
+	projectInformer := kubeInformerFactory.ForResource(projectCRD).Informer()
+
+	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			fmt.Printf("project added: %s \n", obj)
+			projects := GetProjects()
+			fmt.Println(projects)
+		},
+		DeleteFunc: func(obj interface{}) {
+			fmt.Printf("project deleted: %s \n", obj)
+			projects := GetProjects()
+			fmt.Println(projects)
+		},
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			fmt.Printf("project updated: %s \n", newObj)
+		},
+	})
+
 	stop := make(chan struct{})
 	defer close(stop)
 	kubeInformerFactory.Start(stop)
+
 	for {
 		time.Sleep(time.Second)
 	}
+
+}
+
+func Watch() {
+	watchApplicationChanges()
+
 }

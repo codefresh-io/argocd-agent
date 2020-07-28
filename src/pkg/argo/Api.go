@@ -94,3 +94,62 @@ func GetManagedResources(applicationName string) ManagedResource {
 
 	return result
 }
+
+func GetProjects() []string {
+	token := store.GetStore().Token
+
+	client := buildHttpClient()
+
+	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/projects", nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var result Project
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		//return nil, err
+	}
+
+	var projects []string
+
+	items := result.Items
+	for _, item := range items {
+		projects = append(projects, item.Metadata.Name)
+	}
+
+	return projects
+}
+
+func GetApplications() []ApplicationItem {
+	token := store.GetStore().Token
+
+	client := buildHttpClient()
+
+	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/applications", nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var result Application
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		//return nil, err
+	}
+
+	return result.Items
+}
