@@ -8,11 +8,13 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -30,16 +32,25 @@ var (
 	}
 )
 
-func watchApplicationChanges() {
-	kubeconfig := filepath.Join(
-		os.Getenv("HOME"), ".kube", "config",
-	)
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		log.Fatal(err)
+func buildConfig() *rest.Config {
+	inCluster, _ := strconv.ParseBool(os.Getenv("IN_CLUSTER"))
+	if inCluster {
+		config, _ := rest.InClusterConfig()
+		return config
+	} else {
+		kubeconfig := filepath.Join(
+			os.Getenv("HOME"), ".kube", "config",
+		)
+		config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			log.Fatal(err)
+		}
+		return config
 	}
+}
 
-	clientset, err := dynamic.NewForConfig(config)
+func watchApplicationChanges() {
+	clientset, err := dynamic.NewForConfig(buildConfig())
 	if err != nil {
 		glog.Errorln(err)
 	}

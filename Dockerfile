@@ -6,9 +6,9 @@ WORKDIR /go/src/github.com/codefresh-io/argocd-listener
 
 COPY . .
 
-RUN go get -f -v ./src
+RUN go get -f -v ./src/agent/pkg
 
-RUN CGO_ENABLED=0 go build -o /argocd-listener ./src
+RUN CGO_ENABLED=0 go build -o /argocd-listener ./src/agent/pkg
 
 #
 # ------ Release ------
