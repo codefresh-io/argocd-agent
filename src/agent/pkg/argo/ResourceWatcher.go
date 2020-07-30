@@ -54,10 +54,20 @@ func watchApplicationChanges() {
 			log.Println(env)
 
 			applications := GetApplications()
+			err := codefresh.SendResources("applications", prepareApplications(applications))
+			if err != nil {
+				fmt.Print(err)
+			}
+
 			log.Println(applications)
 		},
 		DeleteFunc: func(obj interface{}) {
 			applications := GetApplications()
+			err := codefresh.SendResources("applications", prepareApplications(applications))
+			if err != nil {
+				fmt.Print(err)
+			}
+
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
@@ -73,11 +83,19 @@ func watchApplicationChanges() {
 		AddFunc: func(obj interface{}) {
 			fmt.Printf("project added: %s \n", obj)
 			projects := GetProjects()
+			err := codefresh.SendResources("projects", prepareProjects(projects))
+			if err != nil {
+				fmt.Print(err)
+			}
 			fmt.Println(projects)
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("project deleted: %s \n", obj)
 			projects := GetProjects()
+			err := codefresh.SendResources("projects", prepareProjects(projects))
+			if err != nil {
+				fmt.Print(err)
+			}
 			fmt.Println(projects)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
@@ -93,6 +111,35 @@ func watchApplicationChanges() {
 		time.Sleep(time.Second)
 	}
 
+}
+
+func prepareApplications(applications []ApplicationItem) []codefresh.AgentApplication {
+	var result []codefresh.AgentApplication
+
+	for _, item := range applications {
+		newItem := codefresh.AgentApplication{
+			Name:    item.Metadata.Name,
+			UID:     item.Metadata.UID,
+			Project: item.Spec.Project,
+		}
+		result = append(result, newItem)
+	}
+
+	return result
+}
+
+func prepareProjects(projects []ProjectItem) []codefresh.AgentProject {
+	var result []codefresh.AgentProject
+
+	for _, item := range projects {
+		newItem := codefresh.AgentProject{
+			Name: item.Metadata.Name,
+			UID:  item.Metadata.UID,
+		}
+		result = append(result, newItem)
+	}
+
+	return result
 }
 
 func Watch() {

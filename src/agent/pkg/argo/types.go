@@ -55,11 +55,12 @@ type Project struct {
 }
 
 type ProjectItem struct {
-	Metadata ProjectMetadata
+	Metadata ProjectMetadata `json:"metadata"`
 }
 
 type ProjectMetadata struct {
-	Name string
+	Name string `json:"name"`
+	UID  string `json:"uid"`
 }
 
 type Application struct {
@@ -73,6 +74,7 @@ type ApplicationItem struct {
 
 type ApplicationMetadata struct {
 	Name string `json:"name"`
+	UID  string `json:"uid"`
 }
 
 type ApplicationSpec struct {

@@ -95,7 +95,7 @@ func GetManagedResources(applicationName string) ManagedResource {
 	return result
 }
 
-func GetProjects() []string {
+func GetProjects() []ProjectItem {
 	token := store.GetStore().Argo.Token
 
 	client := buildHttpClient()
@@ -118,14 +118,7 @@ func GetProjects() []string {
 		//return nil, err
 	}
 
-	var projects []string
-
-	items := result.Items
-	for _, item := range items {
-		projects = append(projects, item.Metadata.Name)
-	}
-
-	return projects
+	return result.Items
 }
 
 func GetApplications() []ApplicationItem {
