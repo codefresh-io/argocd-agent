@@ -1,16 +1,43 @@
-package installer
+package main
 
 import (
+	"errors"
 	"github.com/codefresh-io/argocd-listener/src/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/src/agent/pkg/store"
 	"os"
 )
 
 func main() {
-	token := argo.GetToken(os.Getenv("ARGO_HOST"), os.Getenv("ARGO_USERNAME"), os.Getenv("ARGO_PASSWORD"))
+
+	argoHost, argoHostExistence := os.LookupEnv("ARGO_HOST")
+	if !argoHostExistence {
+		panic(errors.New("ARGO_HOST variable doesnt exist"))
+	}
+
+	argoUsername, argoUsernameExistence := os.LookupEnv("ARGO_USERNAME")
+	if !argoUsernameExistence {
+		panic(errors.New("ARGO_USERNAME variable doesnt exist"))
+	}
+
+	argoPassword, argoPasswordExistence := os.LookupEnv("ARGO_PASSWORD")
+	if !argoPasswordExistence {
+		panic(errors.New("ARGO_PASSWORD variable doesnt exist"))
+	}
+
+	codefreshToken, codefreshTokenExistence := os.LookupEnv("CODEFRESH_TOKEN")
+	if !codefreshTokenExistence {
+		panic(errors.New("CODEFRESH_TOKEN variable doesnt exist"))
+	}
+
+	codefreshHost, codefreshHostExistance := os.LookupEnv("ARGO_PASSWORD")
+	if !codefreshHostExistance {
+		codefreshHost = "https://g.codefresh.io/"
+	}
+
+	token := argo.GetToken(argoHost, argoUsername, argoPassword)
 	store.SetArgoToken(token)
 
-	store.SetCodefresh(os.Getenv("CODEFRESH_HOST"), os.Getenv("CODEFRESH_TOKEN"))
+	store.SetCodefresh(codefreshHost, codefreshToken)
 
 	argo.Watch()
 }

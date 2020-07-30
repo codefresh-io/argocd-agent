@@ -44,7 +44,7 @@ func GetToken(username string, password string, host string) string {
 }
 
 func GetResourceTree(applicationName string) (*ResourceTree, error) {
-	token := store.GetStore().Token
+	token := store.GetStore().Argo.Token
 
 	client := buildHttpClient()
 
@@ -70,7 +70,7 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 }
 
 func GetManagedResources(applicationName string) ManagedResource {
-	token := store.GetStore().Token
+	token := store.GetStore().Argo.Token
 
 	client := buildHttpClient()
 
@@ -96,7 +96,7 @@ func GetManagedResources(applicationName string) ManagedResource {
 }
 
 func GetProjects() []string {
-	token := store.GetStore().Token
+	token := store.GetStore().Argo.Token
 
 	client := buildHttpClient()
 
@@ -129,7 +129,7 @@ func GetProjects() []string {
 }
 
 func GetApplications() []ApplicationItem {
-	token := store.GetStore().Token
+	token := store.GetStore().Argo.Token
 
 	client := buildHttpClient()
 
