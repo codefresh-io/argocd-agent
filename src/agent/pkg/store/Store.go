@@ -6,7 +6,13 @@ var (
 
 type (
 	Values struct {
-		Token string
+		Argo struct {
+			Token string
+		}
+		Codefresh struct {
+			Host  string
+			Token string
+		}
 	}
 )
 
@@ -18,8 +24,15 @@ func GetStore() *Values {
 	return store
 }
 
-func SetToken(token string) *Values {
+func SetArgoToken(token string) *Values {
 	values := GetStore()
-	values.Token = token
+	values.Argo.Token = token
+	return values
+}
+
+func SetCodefresh(host string, token string) *Values {
+	values := GetStore()
+	values.Codefresh.Token = token
+	values.Codefresh.Host = host
 	return values
 }
