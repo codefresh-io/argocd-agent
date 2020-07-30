@@ -17,7 +17,7 @@ func buildHttpClient() *http.Client {
 
 func requestAPI(opt *requestOptions, target interface{}) error {
 	var body []byte
-	finalURL := fmt.Sprintf("%s%s", "http://local.codefresh.io/api", opt.path)
+	finalURL := fmt.Sprintf("%s%s", "https://g.codefresh.io/api", opt.path)
 
 	if opt.body != nil {
 		body, _ = json.Marshal(opt.body)
@@ -29,7 +29,7 @@ func requestAPI(opt *requestOptions, target interface{}) error {
 		return err
 	}
 
-	request.Header.Set("Authorization", "Bearer 5f22cd950ec2e66fd95f53aa.c1bb526e6d17da66bf3a329fea61cb0b")
+	request.Header.Set("Authorization", "Bearer 5f1e81bbedd7b52b9a0fa94a.ef807a95c2a7032281b0f3c3970fcb6b")
 	request.Header.Set("Content-Type", "application/json")
 
 	response, err := buildHttpClient().Do(request)
@@ -60,7 +60,7 @@ func requestAPI(opt *requestOptions, target interface{}) error {
 
 func SendEnvironment(environment Environment) (map[string]interface{}, error) {
 	var result map[string]interface{}
-	err := requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo", body: environment}, result)
+	err := requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, result)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func SendEnvironment(environment Environment) (map[string]interface{}, error) {
 func SendResources(kind string, items interface{}) error {
 	err := requestAPI(&requestOptions{
 		method: "POST",
-		path:   "/argo-agent/argo-demo",
+		path:   "/argo-agent/argo-demo", //TODO: change to integration name from store
 		body:   &AgentState{Kind: kind, Items: items},
 	}, nil)
 	if err != nil {
