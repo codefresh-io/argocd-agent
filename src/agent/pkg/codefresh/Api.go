@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 )
 
@@ -15,25 +15,68 @@ func buildHttpClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func SendEnvironment(environment Environment) map[string]interface{} {
-	client := buildHttpClient()
+func requestAPI(opt *requestOptions, target interface{}) error {
+	var body []byte
+	finalURL := fmt.Sprintf("%s%s", "https://g.codefresh.io/api", opt.path)
 
-	bytesRepresentation, err := json.Marshal(environment)
-	if err != nil {
-		log.Fatalln(err)
+	if opt.body != nil {
+		body, _ = json.Marshal(opt.body)
 	}
 
-	req, err := http.NewRequest("POST", "https://g.codefresh.io/api/environments-v2/argo/events", bytes.NewBuffer(bytesRepresentation))
-	req.Header.Add("Authorization", "Bearer 5f1e81bbedd7b52b9a0fa94a.ef807a95c2a7032281b0f3c3970fcb6b")
-	req.Header.Add("Content-Type", "application/json")
+	request, err := http.NewRequest(opt.method, finalURL, bytes.NewBuffer(body))
 
-	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
 
+	request.Header.Set("Authorization", "Bearer 5f1e81bbedd7b52b9a0fa94a.ef807a95c2a7032281b0f3c3970fcb6b")
+	request.Header.Set("Content-Type", "application/json")
+
+	response, err := buildHttpClient().Do(request)
+
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		cfError := &CodefreshError{}
+		err = json.NewDecoder(response.Body).Decode(cfError)
+
+		if err != nil {
+			return err
+		}
+
+		return fmt.Errorf("%d: %s", response.StatusCode, cfError.Message)
+	}
+
+	err = json.NewDecoder(response.Body).Decode(target)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SendEnvironment(environment Environment) (map[string]interface{}, error) {
 	var result map[string]interface{}
+	err := requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, result)
+	if err != nil {
+		return nil, err
+	}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+	return result, nil
+}
 
-	defer resp.Body.Close()
+func SendResources(kind string, items interface{}) error {
+	err := requestAPI(&requestOptions{
+		method: "POST",
+		path:   "/argo-agent/argo-demo", //TODO: change to integration name from store
+		body:   &AgentState{Kind: kind, Items: items},
+	}, nil)
+	if err != nil {
+		return err
+	}
 
-	return result
+	return nil
 }

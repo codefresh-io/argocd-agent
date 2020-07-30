@@ -29,12 +29,12 @@ func main() {
 		panic(errors.New("CODEFRESH_TOKEN variable doesnt exist"))
 	}
 
-	codefreshHost, codefreshHostExistance := os.LookupEnv("ARGO_PASSWORD")
+	codefreshHost, codefreshHostExistance := os.LookupEnv("CODEFRESH_HOST")
 	if !codefreshHostExistance {
 		codefreshHost = "https://g.codefresh.io/"
 	}
 
-	token := argo.GetToken(argoHost, argoUsername, argoPassword)
+	token := argo.GetToken(argoUsername, argoPassword, argoHost)
 	store.SetArgoToken(token)
 
 	store.SetCodefresh(codefreshHost, codefreshToken)

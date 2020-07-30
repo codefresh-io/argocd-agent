@@ -2,6 +2,7 @@ package argo
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/src/agent/pkg/adapters"
 	"github.com/codefresh-io/argocd-listener/src/agent/pkg/codefresh"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -65,10 +66,20 @@ func watchApplicationChanges() {
 			log.Println(env)
 
 			applications := GetApplications()
+			err := codefresh.SendResources("applications", adapters.AdaptArgoApplications(applications))
+			if err != nil {
+				fmt.Print(err)
+			}
+
 			log.Println(applications)
 		},
 		DeleteFunc: func(obj interface{}) {
 			applications := GetApplications()
+			err := codefresh.SendResources("applications", adapters.AdaptArgoApplications(applications))
+			if err != nil {
+				fmt.Print(err)
+			}
+
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
@@ -84,11 +95,19 @@ func watchApplicationChanges() {
 		AddFunc: func(obj interface{}) {
 			fmt.Printf("project added: %s \n", obj)
 			projects := GetProjects()
+			err := codefresh.SendResources("projects", adapters.AdaptArgoProjects(projects))
+			if err != nil {
+				fmt.Print(err)
+			}
 			fmt.Println(projects)
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("project deleted: %s \n", obj)
 			projects := GetProjects()
+			err := codefresh.SendResources("projects", adapters.AdaptArgoProjects(projects))
+			if err != nil {
+				fmt.Print(err)
+			}
 			fmt.Println(projects)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
