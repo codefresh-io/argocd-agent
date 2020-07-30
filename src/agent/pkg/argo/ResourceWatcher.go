@@ -2,7 +2,7 @@ package argo
 
 import (
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/src/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/src/agent/pkg/codefresh"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"

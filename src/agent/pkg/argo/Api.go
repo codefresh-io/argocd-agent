@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"github.com/codefresh-io/argocd-listener/src/pkg/store"
+	"github.com/codefresh-io/argocd-listener/src/agent/pkg/store"
 	"log"
 	"net/http"
 )

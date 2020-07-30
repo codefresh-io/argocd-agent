@@ -2,7 +2,7 @@ package argo
 
 import (
 	"encoding/json"
-	"github.com/codefresh-io/argocd-listener/src/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/src/agent/pkg/codefresh"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
 )

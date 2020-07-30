@@ -1,18 +1,18 @@
 package cmd
 
 import (
-	"github.com/codefresh-io/argocd-listener/src/pkg/kube"
-	"github.com/codefresh-io/argocd-listener/src/pkg/templates"
-	"github.com/codefresh-io/argocd-listener/src/pkg/templates/kubernetes"
+	"github.com/codefresh-io/argocd-listener/src/installer/pkg/kube"
+	"github.com/codefresh-io/argocd-listener/src/installer/pkg/templates"
+	"github.com/codefresh-io/argocd-listener/src/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"os/user"
+	"path"
 )
 
 var installCmdOptions struct {
-	ClusterName            string
-	ClusterNamespace       string
-	clusterNameInCodefresh string
-	kube                   struct {
+	kube struct {
 		namespace    string
 		inCluster    bool
 		context      string
@@ -36,13 +36,19 @@ var installCmd = &cobra.Command{
 	Long:  `All software has versions. This is Hugo's`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		installCmdOptions.Namespace = "default"
+		var kubeConfigPath string
+		currentUser, _ := user.Current()
+		if currentUser != nil {
+			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+		}
 
-		cs, _ := kube.ClientBuilder("argocd", "default", "/Users/pashavictorovich/.kube/config", false).BuildClient()
+		kubeOptions := installCmdOptions.kube
+
+		cs, _ := kube.ClientBuilder(kubeOptions.namespace, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
 		installOptions := templates.InstallOptions{
 			Templates:      kubernetes.TemplatesMap(),
 			TemplateValues: structs.Map(installCmdOptions),
-			Namespace:      "default",
+			Namespace:      kubeOptions.namespace,
 			KubeClientSet:  cs,
 		}
 
@@ -60,7 +66,8 @@ func init() {
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "https://g.codefresh.io", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "test", "")
 
-	//installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which venona should be installed [$KUBE_NAMESPACE]")
-	//installCmd.Flags().StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which venona should be installed (default is current-context) [$KUBE_CONTEXT]")
+	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which venona should be installed [$KUBE_NAMESPACE]")
+	installCmd.Flags().StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which venona should be installed (default is current-context) [$KUBE_CONTEXT]")
+	installCmd.Flags().BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if venona is been installed from inside a cluster")
 
 }

@@ -2,7 +2,7 @@ package templates
 
 import (
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/src/pkg/obj/kubeobj"
+	"github.com/codefresh-io/argocd-listener/src/installer/pkg/obj/kubeobj"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
