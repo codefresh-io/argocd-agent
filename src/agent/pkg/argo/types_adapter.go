@@ -1,11 +1,10 @@
-package adapters
+package argo
 
 import (
-	"github.com/codefresh-io/argocd-listener/src/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/src/agent/pkg/codefresh"
 )
 
-func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh.AgentApplication {
+func AdaptArgoApplications(applications []ApplicationItem) []codefresh.AgentApplication {
 	var result []codefresh.AgentApplication
 
 	for _, item := range applications {
@@ -20,7 +19,7 @@ func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh.Agen
 	return result
 }
 
-func AdaptArgoProjects(projects []argo.ProjectItem) []codefresh.AgentProject {
+func AdaptArgoProjects(projects []ProjectItem) []codefresh.AgentProject {
 	var result []codefresh.AgentProject
 
 	for _, item := range projects {

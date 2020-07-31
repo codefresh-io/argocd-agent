@@ -7,6 +7,7 @@ import (
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os/user"
 	"path"
 )
@@ -44,7 +45,12 @@ var installCmd = &cobra.Command{
 
 		kubeOptions := installCmdOptions.kube
 
-		cs, _ := kube.ClientBuilder(kubeOptions.namespace, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
+		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
+
+		if err != nil {
+			panic(err)
+		}
+
 		installOptions := templates.InstallOptions{
 			Templates:      kubernetes.TemplatesMap(),
 			TemplateValues: structs.Map(installCmdOptions),

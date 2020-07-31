@@ -45,10 +45,11 @@ func GetToken(username string, password string, host string) string {
 
 func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	token := store.GetStore().Argo.Token
+	host := store.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
-	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/applications/"+applicationName+"/resource-tree", nil)
+	req, err := http.NewRequest("GET", host+"/api/v1/applications/"+applicationName+"/resource-tree", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 

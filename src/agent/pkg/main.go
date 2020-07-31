@@ -31,11 +31,11 @@ func main() {
 
 	codefreshHost, codefreshHostExistance := os.LookupEnv("CODEFRESH_HOST")
 	if !codefreshHostExistance {
-		codefreshHost = "https://g.codefresh.io/"
+		codefreshHost = "https://g.codefresh.io"
 	}
 
 	token := argo.GetToken(argoUsername, argoPassword, argoHost)
-	store.SetArgoToken(token)
+	store.SetArgo(token, argoHost)
 
 	store.SetCodefresh(codefreshHost, codefreshToken)
 

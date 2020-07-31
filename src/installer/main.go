@@ -1,4 +1,4 @@
-package installer
+package main
 
 import (
 	"github.com/codefresh-io/argocd-listener/src/installer/cmd"
