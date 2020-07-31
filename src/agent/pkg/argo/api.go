@@ -72,10 +72,11 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 
 func GetManagedResources(applicationName string) ManagedResource {
 	token := store.GetStore().Argo.Token
+	host := store.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
-	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/applications/"+applicationName+"/managed-resources", nil)
+	req, err := http.NewRequest("GET", host+"/api/v1/applications/"+applicationName+"/managed-resources", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 
@@ -98,10 +99,11 @@ func GetManagedResources(applicationName string) ManagedResource {
 
 func GetProjects() []ProjectItem {
 	token := store.GetStore().Argo.Token
+	host := store.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
-	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/projects", nil)
+	req, err := http.NewRequest("GET", host+"/api/v1/projects", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 
@@ -124,10 +126,11 @@ func GetProjects() []ProjectItem {
 
 func GetApplications() []ApplicationItem {
 	token := store.GetStore().Argo.Token
+	host := store.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
-	req, err := http.NewRequest("GET", "https://34.71.103.174/api/v1/applications", nil)
+	req, err := http.NewRequest("GET", host+"/api/v1/applications", nil)
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 
