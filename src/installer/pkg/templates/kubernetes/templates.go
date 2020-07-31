@@ -40,6 +40,8 @@ spec:
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
           value: {{ .Codefresh.Token }}
+        - name: IN_CLUSTER
+          value: "true"
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: argocd-agent
