@@ -2,7 +2,7 @@ package argo
 
 import (
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/src/agent/pkg/codefresh"
+	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -61,11 +61,11 @@ func watchApplicationChanges() {
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			env := PrepareEnvironment(obj)
-			codefresh.SendEnvironment(env)
+			codefresh2.SendEnvironment(env)
 			log.Println(env)
 
 			applications := GetApplications()
-			err := codefresh.SendResources("applications", AdaptArgoApplications(applications))
+			err := codefresh2.SendResources("applications", AdaptArgoApplications(applications))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -74,7 +74,7 @@ func watchApplicationChanges() {
 		},
 		DeleteFunc: func(obj interface{}) {
 			applications := GetApplications()
-			err := codefresh.SendResources("applications", AdaptArgoApplications(applications))
+			err := codefresh2.SendResources("applications", AdaptArgoApplications(applications))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -83,7 +83,7 @@ func watchApplicationChanges() {
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			env := PrepareEnvironment(newObj)
-			codefresh.SendEnvironment(env)
+			codefresh2.SendEnvironment(env)
 			log.Println(env)
 		},
 	})
@@ -94,7 +94,7 @@ func watchApplicationChanges() {
 		AddFunc: func(obj interface{}) {
 			fmt.Printf("project added: %s \n", obj)
 			projects := GetProjects()
-			err := codefresh.SendResources("projects", AdaptArgoProjects(projects))
+			err := codefresh2.SendResources("projects", AdaptArgoProjects(projects))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -103,7 +103,7 @@ func watchApplicationChanges() {
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("project deleted: %s \n", obj)
 			projects := GetProjects()
-			err := codefresh.SendResources("projects", AdaptArgoProjects(projects))
+			err := codefresh2.SendResources("projects", AdaptArgoProjects(projects))
 			if err != nil {
 				fmt.Print(err)
 			}

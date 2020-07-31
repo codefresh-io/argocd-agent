@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Masterminds/sprig"
-	kubernetes2 "github.com/codefresh-io/argocd-listener/src/installer/pkg/templates/kubernetes"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"html/template"
 	"k8s.io/apimachinery/pkg/runtime"
 	"regexp"
@@ -75,6 +75,6 @@ func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) 
 }
 
 func GetKubeObjectsFromTemplate(values map[string]interface{}) (map[string]runtime.Object, error) {
-	templatesMap := kubernetes2.TemplatesMap()
+	templatesMap := kubernetes.TemplatesMap()
 	return KubeObjectsFromTemplates(templatesMap, values)
 }

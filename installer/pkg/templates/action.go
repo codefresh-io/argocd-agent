@@ -2,7 +2,7 @@ package templates
 
 import (
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/src/installer/pkg/obj/kubeobj"
+	kubeobj2 "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -28,7 +28,7 @@ func Install(opt *InstallOptions) error {
 	for _, obj := range kubeObjects {
 		var createErr error
 		var kind, name string
-		name, kind, createErr = kubeobj.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
+		name, kind, createErr = kubeobj2.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
 
 		if createErr == nil {
 			fmt.Println("%s \"%s\" created", kind, name)

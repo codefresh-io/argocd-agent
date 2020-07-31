@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
-	"github.com/codefresh-io/argocd-listener/src/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/src/agent/pkg/store"
+	argo2 "github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
 )
 
@@ -34,10 +34,10 @@ func main() {
 		codefreshHost = "https://g.codefresh.io"
 	}
 
-	token := argo.GetToken(argoUsername, argoPassword, argoHost)
-	store.SetArgo(token, argoHost)
+	token := argo2.GetToken(argoUsername, argoPassword, argoHost)
+	store2.SetArgo(token, argoHost)
 
-	store.SetCodefresh(codefreshHost, codefreshToken)
+	store2.SetCodefresh(codefreshHost, codefreshToken)
 
-	argo.Watch()
+	argo2.Watch()
 }

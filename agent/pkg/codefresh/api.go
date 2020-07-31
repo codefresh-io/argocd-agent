@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/src/agent/pkg/store"
+	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"net/http"
 )
 
@@ -18,7 +18,7 @@ func buildHttpClient() *http.Client {
 
 func requestAPI(opt *requestOptions, target interface{}) error {
 
-	codefresh := store.GetStore().Codefresh
+	codefresh := store2.GetStore().Codefresh
 
 	var body []byte
 	finalURL := fmt.Sprintf("%s%s", codefresh.Host+"/api", opt.path)

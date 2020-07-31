@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"github.com/codefresh-io/argocd-listener/src/agent/pkg/store"
+	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"log"
 	"net/http"
 )
@@ -44,8 +44,8 @@ func GetToken(username string, password string, host string) string {
 }
 
 func GetResourceTree(applicationName string) (*ResourceTree, error) {
-	token := store.GetStore().Argo.Token
-	host := store.GetStore().Argo.Host
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
@@ -71,8 +71,8 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 }
 
 func GetManagedResources(applicationName string) ManagedResource {
-	token := store.GetStore().Argo.Token
-	host := store.GetStore().Argo.Host
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
@@ -98,8 +98,8 @@ func GetManagedResources(applicationName string) ManagedResource {
 }
 
 func GetProjects() []ProjectItem {
-	token := store.GetStore().Argo.Token
-	host := store.GetStore().Argo.Host
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
@@ -125,8 +125,8 @@ func GetProjects() []ProjectItem {
 }
 
 func GetApplications() []ApplicationItem {
-	token := store.GetStore().Argo.Token
-	host := store.GetStore().Argo.Host
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
 
 	client := buildHttpClient()
 
