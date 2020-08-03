@@ -25,8 +25,9 @@ var installCmdOptions struct {
 		Password string
 	}
 	Codefresh struct {
-		Host  string
-		Token string
+		Host        string
+		Token       string
+		Integration string
 	}
 	Namespace string
 }
@@ -71,6 +72,7 @@ func init() {
 
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "https://g.codefresh.io", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "test", "")
+	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "test-integration", "")
 
 	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which venona should be installed [$KUBE_NAMESPACE]")
 	installCmd.Flags().StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which venona should be installed (default is current-context) [$KUBE_CONTEXT]")

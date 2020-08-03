@@ -35,6 +35,8 @@ spec:
           value: {{ .Codefresh.Token }}
         - name: IN_CLUSTER
           value: "true"
+        - name: CODEFRESH_INTEGRATION
+          value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: argocd-agent
