@@ -11,8 +11,9 @@ type (
 			Host  string
 		}
 		Codefresh struct {
-			Host  string
-			Token string
+			Host        string
+			Token       string
+			Integration string
 		}
 	}
 )
@@ -32,9 +33,10 @@ func SetArgo(token string, host string) *Values {
 	return values
 }
 
-func SetCodefresh(host string, token string) *Values {
+func SetCodefresh(host string, token string, integration string) *Values {
 	values := GetStore()
 	values.Codefresh.Token = token
 	values.Codefresh.Host = host
+	values.Codefresh.Integration = integration
 	return values
 }
