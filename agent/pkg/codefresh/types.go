@@ -40,6 +40,18 @@ type AgentState struct {
 	Items interface{} `json:"items"`
 }
 
+type IntegrationPayloadData struct {
+	Name     string `json:"name"`
+	Url      string `json:"url"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type IntegrationPayload struct {
+	Type string                 `json:"type"`
+	Data IntegrationPayloadData `json:"data"`
+}
+
 type requestOptions struct {
 	path   string
 	method string

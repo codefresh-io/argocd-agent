@@ -73,10 +73,33 @@ func SendEnvironment(environment Environment) (map[string]interface{}, error) {
 }
 
 func SendResources(kind string, items interface{}) error {
+	codefresh := store2.GetStore().Codefresh
+
 	err := requestAPI(&requestOptions{
 		method: "POST",
-		path:   "/argo-agent/argo-demo", //TODO: change to integration name from store
+		path:   fmt.Sprintf("/argo-agent/%s", codefresh.Integration),
 		body:   &AgentState{Kind: kind, Items: items},
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func EnsureIntegration(name string, host string, username string, password string) error {
+	err := requestAPI(&requestOptions{
+		method: "POST",
+		path:   "/argo?ensure=true",
+		body: &IntegrationPayload{
+			Type: "argo-cd",
+			Data: IntegrationPayloadData{
+				Name:     name,
+				Url:      host,
+				Username: username,
+				Password: password,
+			},
+		},
 	}, nil)
 	if err != nil {
 		return err
