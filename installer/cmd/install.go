@@ -33,8 +33,8 @@ var installCmdOptions struct {
 
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Print the version number of Hugo",
-	Long:  `All software has versions. This is Hugo's`,
+	Short: "Install agent",
+	Long:  `Install agent`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		var kubeConfigPath string
