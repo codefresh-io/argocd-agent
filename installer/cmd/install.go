@@ -29,7 +29,6 @@ var installCmdOptions struct {
 		Token       string
 		Integration string
 	}
-	Namespace string
 }
 
 var installCmd = &cobra.Command{
