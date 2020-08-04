@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	kube2 "github.com/codefresh-io/argocd-listener/installer/pkg/kube"
-	templates2 "github.com/codefresh-io/argocd-listener/installer/pkg/templates"
-	kubernetes2 "github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
+	kube "github.com/codefresh-io/argocd-listener/installer/pkg/kube"
+	templates "github.com/codefresh-io/argocd-listener/installer/pkg/templates"
+	kubernetes "github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -46,20 +46,20 @@ var installCmd = &cobra.Command{
 
 		kubeOptions := installCmdOptions.kube
 
-		cs, err := kube2.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
+		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
 
 		if err != nil {
 			panic(err)
 		}
 
-		installOptions := templates2.InstallOptions{
-			Templates:      kubernetes2.TemplatesMap(),
+		installOptions := templates.InstallOptions{
+			Templates:      kubernetes.TemplatesMap(),
 			TemplateValues: structs.Map(installCmdOptions),
 			Namespace:      kubeOptions.namespace,
 			KubeClientSet:  cs,
 		}
 
-		templates2.Install(&installOptions)
+		templates.Install(&installOptions)
 	},
 }
 

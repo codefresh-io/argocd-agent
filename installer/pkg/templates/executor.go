@@ -33,10 +33,10 @@ func ParseTemplates(templatesMap map[string]string, data interface{}) (map[strin
 	parsedTemplates := make(map[string]string)
 	nonEmptyParsedTemplateFunc := regexp.MustCompile(`[a-zA-Z0-9]`).MatchString
 	for n, tpl := range templatesMap {
-		fmt.Println("parsing template", "Name", n)
+		fmt.Println(fmt.Sprintf("parsing template %s", n))
 		tplEx, err := ExecuteTemplate(tpl, data)
 		if err != nil {
-			fmt.Println("Failed to parse and execute template", "Name", n)
+			fmt.Println(fmt.Sprintf("Failed to parse and execute template %s", n))
 			return nil, err
 		}
 
@@ -62,13 +62,13 @@ func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) 
 	kubeDecode := scheme.Codecs.UniversalDeserializer().Decode
 	kubeObjects := make(map[string]runtime.Object)
 	for n, objStr := range parsedTemplates {
-		fmt.Println("Deserializing template", "Name", n)
+		fmt.Println(fmt.Sprintf("Deserializing template %s", n))
 		obj, groupVersionKind, err := kubeDecode([]byte(objStr), nil, nil)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Cannot deserialize kuberentes object %s: %v", n, err))
 			return nil, err
 		}
-		fmt.Println("deserializing template success", "Name", n, "Group", groupVersionKind.Group)
+		fmt.Println(fmt.Sprintf("deserializing template success , Name %s, Group %s", n, groupVersionKind.Group))
 		kubeObjects[n] = obj
 	}
 	return kubeObjects, nil

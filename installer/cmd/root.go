@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -10,7 +9,6 @@ var rootCmd = &cobra.Command{
 	Short: "Codefresh argocd agent",
 	Long:  `Codefresh argocd agent`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("exec hugo")
 	},
 }
 
