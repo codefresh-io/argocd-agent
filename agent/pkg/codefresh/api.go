@@ -90,7 +90,7 @@ func SendResources(kind string, items interface{}) error {
 func EnsureIntegration(name string, host string, username string, password string) error {
 	err := requestAPI(&requestOptions{
 		method: "POST",
-		path:   "/argo?ensure=true",
+		path:   "/argo",
 		body: &IntegrationPayload{
 			Type: "argo-cd",
 			Data: IntegrationPayloadData{

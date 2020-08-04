@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	argo2 "github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
@@ -50,7 +49,7 @@ func main() {
 	err := codefresh.EnsureIntegration(codefreshIntegrationName, argoHost, argoUsername, argoPassword)
 
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 
 	argo2.Watch()
