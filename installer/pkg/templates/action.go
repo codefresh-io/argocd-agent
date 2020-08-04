@@ -2,7 +2,7 @@ package templates
 
 import (
 	"fmt"
-	kubeobj2 "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
+	kubeobj "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -28,19 +28,19 @@ func Install(opt *InstallOptions) error {
 	for _, obj := range kubeObjects {
 		var createErr error
 		var kind, name string
-		name, kind, createErr = kubeobj2.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
+		name, kind, createErr = kubeobj.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
 
 		if createErr == nil {
-			fmt.Println("%s \"%s\" created", kind, name)
+			fmt.Println(fmt.Sprintf("%s \"%s\" created", kind, name))
 		} else if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
 			if statusError.ErrStatus.Reason == metav1.StatusReasonAlreadyExists {
-				fmt.Println("%s \"%s\" already exists", kind, name)
+				fmt.Println(fmt.Sprintf("%s \"%s\" already exists"), kind, name)
 			} else {
 				fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
 				return statusError
 			}
 		} else {
-			fmt.Println("%s \"%s\" failed: %v ", kind, name, createErr)
+			fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v "), kind, name, createErr)
 			return createErr
 		}
 	}
