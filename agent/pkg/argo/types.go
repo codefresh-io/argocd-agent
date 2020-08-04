@@ -73,10 +73,18 @@ type ApplicationItem struct {
 }
 
 type ApplicationMetadata struct {
-	Name string `json:"name"`
-	UID  string `json:"uid"`
+	Name        string `json:"name"`
+	UID         string `json:"uid"`
+	Namespace   string `json:"namespace"`
+	ClusterName string `json:"clusterName"`
+}
+
+type ApplicationSpecDestination struct {
+	Server    string `json:"server"`
+	Namespace string `json:"namespace"`
 }
 
 type ApplicationSpec struct {
-	Project string `json:"project"`
+	Project     string                     `json:"project"`
+	Destination ApplicationSpecDestination `json:"destination"`
 }
