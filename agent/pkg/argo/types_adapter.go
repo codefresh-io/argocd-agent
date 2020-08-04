@@ -9,9 +9,11 @@ func AdaptArgoApplications(applications []ApplicationItem) []codefresh2.AgentApp
 
 	for _, item := range applications {
 		newItem := codefresh2.AgentApplication{
-			Name:    item.Metadata.Name,
-			UID:     item.Metadata.UID,
-			Project: item.Spec.Project,
+			Name:      item.Metadata.Name,
+			UID:       item.Metadata.UID,
+			Project:   item.Spec.Project,
+			Server:    item.Spec.Destination.Server,
+			Namespace: item.Spec.Destination.Namespace,
 		}
 		result = append(result, newItem)
 	}

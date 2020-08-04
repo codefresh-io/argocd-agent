@@ -25,9 +25,11 @@ type CodefreshError struct {
 }
 
 type AgentApplication struct {
-	Name    string `json:"name"`
-	UID     string `json:"uid"`
-	Project string `json:"project"`
+	Name      string `json:"name"`
+	UID       string `json:"uid"`
+	Project   string `json:"project"`
+	Namespace string `json:"namespace"`
+	Server    string `json:"server"`
 }
 
 type AgentProject struct {
