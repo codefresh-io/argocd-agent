@@ -1,5 +1,7 @@
 package codefresh
 
+import "fmt"
+
 type Environment struct {
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
@@ -22,6 +24,10 @@ type CodefreshError struct {
 	Name    string      `json:"name"`
 	Message string      `json:"message"`
 	Context interface{} `json:"context"`
+}
+
+func (e *CodefreshError) Error() string {
+	return fmt.Sprintf("Request failed, %s - %s", e.Code, e.Message)
 }
 
 type AgentApplication struct {

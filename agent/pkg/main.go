@@ -2,9 +2,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	argo2 "github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
 )
@@ -46,12 +44,6 @@ func main() {
 	store2.SetArgo(token, argoHost)
 
 	store2.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
-
-	err := codefresh.EnsureIntegration(codefreshIntegrationName, argoHost, argoUsername, argoPassword)
-
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	argo2.Watch()
 }

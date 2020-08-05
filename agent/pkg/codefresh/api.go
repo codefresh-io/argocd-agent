@@ -5,66 +5,18 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"net/http"
 )
 
-func buildHttpClient() *http.Client {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	return &http.Client{Transport: tr}
+type Api struct {
+	Token       string
+	Host        string
+	Integration string
 }
 
-func requestAPI(opt *requestOptions, target interface{}) error {
-
-	codefresh := store2.GetStore().Codefresh
-
-	var body []byte
-	finalURL := fmt.Sprintf("%s%s", codefresh.Host+"/api", opt.path)
-
-	if opt.body != nil {
-		body, _ = json.Marshal(opt.body)
-	}
-
-	request, err := http.NewRequest(opt.method, finalURL, bytes.NewBuffer(body))
-
-	if err != nil {
-		return err
-	}
-
-	request.Header.Set("Authorization", "Bearer "+codefresh.Token)
-	request.Header.Set("Content-Type", "application/json")
-
-	response, err := buildHttpClient().Do(request)
-
-	if err != nil {
-		return err
-	}
-
-	if response.StatusCode < 200 || response.StatusCode > 299 {
-		cfError := &CodefreshError{}
-		err = json.NewDecoder(response.Body).Decode(cfError)
-
-		if err != nil {
-			return err
-		}
-
-		return fmt.Errorf("%d: %s", response.StatusCode, cfError.Message)
-	}
-
-	err = json.NewDecoder(response.Body).Decode(target)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func SendEnvironment(environment Environment) (map[string]interface{}, error) {
+func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
 	var result map[string]interface{}
-	err := requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, result)
+	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, result)
 	if err != nil {
 		return nil, err
 	}
@@ -72,12 +24,10 @@ func SendEnvironment(environment Environment) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func SendResources(kind string, items interface{}) error {
-	codefresh := store2.GetStore().Codefresh
-
-	err := requestAPI(&requestOptions{
+func (a *Api) SendResources(kind string, items interface{}) error {
+	err := a.requestAPI(&requestOptions{
 		method: "POST",
-		path:   fmt.Sprintf("/argo-agent/%s", codefresh.Integration),
+		path:   fmt.Sprintf("/argo-agent/%s", a.Integration),
 		body:   &AgentState{Kind: kind, Items: items},
 	}, nil)
 	if err != nil {
@@ -87,8 +37,8 @@ func SendResources(kind string, items interface{}) error {
 	return nil
 }
 
-func EnsureIntegration(name string, host string, username string, password string) error {
-	err := requestAPI(&requestOptions{
+func (a *Api) CreateIntegration(name string, host string, username string, password string, ensure bool) error {
+	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   "/argo?ensure=true",
 		body: &IntegrationPayload{
@@ -106,4 +56,97 @@ func EnsureIntegration(name string, host string, username string, password strin
 	}
 
 	return nil
+}
+
+func (a *Api) GetIntegrations() ([]*IntegrationPayload, error) {
+	var result []*IntegrationPayload
+
+	err := a.requestAPI(&requestOptions{
+		method: "GET",
+		path:   "/argo",
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (a *Api) GetIntegrationByName(name string) (*IntegrationPayload, error) {
+	var result IntegrationPayload
+
+	err := a.requestAPI(&requestOptions{
+		method: "GET",
+		path:   fmt.Sprintf("/argo/%s", name),
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+func (a *Api) DeleteIntegrationByName(name string) error {
+	err := a.requestAPI(&requestOptions{
+		method: "DELETE",
+		path:   fmt.Sprintf("/argo/%s", name),
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
+
+	var body []byte
+	finalURL := fmt.Sprintf("%s%s", a.Host+"/api", opt.path)
+
+	if opt.body != nil {
+		body, _ = json.Marshal(opt.body)
+	}
+
+	request, err := http.NewRequest(opt.method, finalURL, bytes.NewBuffer(body))
+
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Authorization", "Bearer "+a.Token)
+	request.Header.Set("Content-Type", "application/json")
+
+	response, err := a.buildHttpClient().Do(request)
+
+	if err != nil {
+		return err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode < 200 || response.StatusCode > 299 {
+		cfError := &CodefreshError{}
+		err = json.NewDecoder(response.Body).Decode(cfError)
+
+		if err != nil {
+			return err
+		}
+
+		return cfError
+	}
+
+	err = json.NewDecoder(response.Body).Decode(target)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Api) buildHttpClient() *http.Client {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	return &http.Client{Transport: tr}
 }
