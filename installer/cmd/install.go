@@ -1,10 +1,14 @@
 package cmd
 
 import (
+	"fmt"
+	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	kube "github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	templates "github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	kubernetes "github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -31,11 +35,66 @@ var installCmdOptions struct {
 	}
 }
 
+func sendPrompt(msg string) bool {
+	prompt := promptui.Prompt{
+		Label:     msg,
+		IsConfirm: true,
+	}
+
+	result, err := prompt.Run()
+
+	if err != nil {
+		fmt.Printf("Prompt failed %v\n", err)
+		return false
+	}
+
+	return result == "Y" || result == "y"
+}
+
+func ensureIntegration() error {
+	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, false)
+	if err == nil {
+		return nil
+	}
+
+	codefreshErr, ok := err.(*codefresh2.CodefreshError)
+	if !ok {
+		return err
+	}
+
+	if codefreshErr.Status != 409 {
+		return codefreshErr
+	}
+
+	needDelete := sendPrompt("You already have integration with this name or host, do you want to update it")
+	if !needDelete {
+		return fmt.Errorf("you should delete integration")
+	}
+
+	errEnsure := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, true)
+
+	if errEnsure != nil {
+		return errEnsure
+	}
+
+	return nil
+}
+
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install agent",
 	Long:  `Install agent`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		holder.ApiHolder = codefresh2.Api{
+			Token:       installCmdOptions.Codefresh.Token,
+			Host:        installCmdOptions.Codefresh.Host,
+			Integration: installCmdOptions.Codefresh.Integration,
+		}
+
+		err := ensureIntegration()
+		if err != nil {
+			return err
+		}
 
 		var kubeConfigPath string
 		currentUser, _ := user.Current()
@@ -59,6 +118,8 @@ var installCmd = &cobra.Command{
 		}
 
 		templates.Install(&installOptions)
+
+		return nil
 	},
 }
 

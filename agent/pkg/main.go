@@ -2,10 +2,8 @@ package main
 
 import (
 	"errors"
-	"fmt"
-	argo2 "github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
 )
 
@@ -41,17 +39,11 @@ func main() {
 		panic(errors.New("CODEFRESH_INTEGRATION variable doesnt exist"))
 	}
 
-	token := argo2.GetToken(argoUsername, argoPassword, argoHost)
+	token := argo.GetToken(argoUsername, argoPassword, argoHost)
 
-	store2.SetArgo(token, argoHost)
+	store.SetArgo(token, argoHost)
 
-	store2.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
+	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
 
-	err := codefresh.EnsureIntegration(codefreshIntegrationName, argoHost, argoUsername, argoPassword)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	argo2.Watch()
+	argo.Watch()
 }
