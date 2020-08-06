@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 type Api struct {
@@ -38,9 +39,16 @@ func (a *Api) SendResources(kind string, items interface{}) error {
 }
 
 func (a *Api) CreateIntegration(name string, host string, username string, password string, ensure bool) error {
+	qs := make(map[string]string)
+
+	if ensure {
+		qs["ensure"] = "true"
+	}
+
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
-		path:   "/argo?ensure=true",
+		path:   "/argo",
+		qs:     qs,
 		body: &IntegrationPayload{
 			Type: "argo-cd",
 			Data: IntegrationPayloadData{
@@ -102,6 +110,9 @@ func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
 
 	var body []byte
 	finalURL := fmt.Sprintf("%s%s", a.Host+"/api", opt.path)
+	if opt.qs != nil {
+		finalURL += a.getQs(opt.qs)
+	}
 
 	if opt.body != nil {
 		body, _ = json.Marshal(opt.body)
@@ -135,6 +146,10 @@ func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
 		return cfError
 	}
 
+	if target == nil {
+		return nil
+	}
+
 	err = json.NewDecoder(response.Body).Decode(target)
 
 	if err != nil {
@@ -142,6 +157,14 @@ func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
 	}
 
 	return nil
+}
+
+func (a *Api) getQs(qs map[string]string) string {
+	var arr []string
+	for k, v := range qs {
+		arr = append(arr, fmt.Sprintf("%s=%s", k, v))
+	}
+	return "?" + strings.Join(arr, "&")
 }
 
 func (a *Api) buildHttpClient() *http.Client {

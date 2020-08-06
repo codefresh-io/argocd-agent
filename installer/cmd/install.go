@@ -54,7 +54,7 @@ func sendPrompt(msg string) bool {
 func ensureIntegration() error {
 	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, false)
 	if err == nil {
-		return err
+		return nil
 	}
 
 	codefreshErr, ok := err.(*codefresh2.CodefreshError)
@@ -118,6 +118,8 @@ var installCmd = &cobra.Command{
 		}
 
 		templates.Install(&installOptions)
+
+		return nil
 	},
 }
 
