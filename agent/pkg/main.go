@@ -46,4 +46,8 @@ func main() {
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
 
 	argo.Watch()
+
+	//go argo.Schedule()
+
+	//time.Sleep(100 * time.Minute)
 }
