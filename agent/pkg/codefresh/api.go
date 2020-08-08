@@ -21,7 +21,7 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println(fmt.Sprintf("Send end to codefresh %v", environment))
 	return result, nil
 }
 

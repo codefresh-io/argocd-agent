@@ -66,11 +66,14 @@ func watchApplicationChanges() {
 		Integration: codefreshConfig.Integration,
 	}
 
+	//queue := Get()
+
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			env := PrepareEnvironment(obj)
 			api.SendEnvironment(env)
-			log.Println(env)
+
+			//queue.Push(env)
 
 			applications := GetApplications()
 			err := api.SendResources("applications", AdaptArgoApplications(applications))
@@ -92,7 +95,8 @@ func watchApplicationChanges() {
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			env := PrepareEnvironment(newObj)
 			api.SendEnvironment(env)
-			log.Println(env)
+
+			//queue.Push(env)
 		},
 	})
 
