@@ -66,7 +66,7 @@ func watchApplicationChanges() {
 		Integration: codefreshConfig.Integration,
 	}
 
-	queue := Get()
+	//queue := Get()
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
