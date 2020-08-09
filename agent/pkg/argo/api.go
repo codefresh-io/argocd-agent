@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
 	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"log"
 	"net/http"
@@ -68,6 +69,37 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	}
 
 	return result, nil
+}
+
+//  TODO: refactor
+func GetResourceTreeAll(applicationName string) (interface{}, error) {
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
+
+	client := buildHttpClient()
+
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/applications/%s/resource-tree", host, applicationName), nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var result interface{}
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result.(map[string]interface{})["nodes"], nil
 }
 
 func GetManagedResources(applicationName string) ManagedResource {

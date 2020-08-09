@@ -10,6 +10,7 @@ type Environment struct {
 	SyncRevision string                `json:"revision"`
 	Name         string                `json:"name"`
 	Activities   []EnvironmentActivity `json:"activities"`
+	Resources    interface{}           `json:"resources"`
 	RepoUrl      string                `json:"repoUrl"`
 }
 

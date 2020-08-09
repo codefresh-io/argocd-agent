@@ -89,6 +89,12 @@ func PrepareEnvironment(item interface{}) codefresh2.Environment {
 
 	historyItem := historyList[len(historyList)-1].(map[string]interface{})
 
+	resources, err := GetResourceTreeAll(name)
+	// TODO: improve error handling
+	if err != nil {
+		println(err)
+	}
+
 	env := codefresh2.Environment{
 		HealthStatus: healthStatus["status"].(string),
 		SyncStatus:   syncStatus,
@@ -96,6 +102,7 @@ func PrepareEnvironment(item interface{}) codefresh2.Environment {
 		HistoryId:    historyItem["id"].(int64),
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
+		Resources:    resources,
 		RepoUrl:      source["repoURL"].(string),
 	}
 
