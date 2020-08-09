@@ -11,7 +11,7 @@ type Node struct {
 }
 
 type Health struct {
-	Status string
+	Status string `json:"status"`
 }
 
 type ManagedResource struct {
@@ -87,4 +87,12 @@ type ApplicationSpecDestination struct {
 type ApplicationSpec struct {
 	Project     string                     `json:"project"`
 	Destination ApplicationSpecDestination `json:"destination"`
+}
+
+type ApplicationResource struct {
+	Name      string `json:"name"`
+	Kind      string `json:"kind"`
+	Namespace string `json:"namespace"`
+	Status    string `json:"status"`
+	Health    Health `json:"health"`
 }
