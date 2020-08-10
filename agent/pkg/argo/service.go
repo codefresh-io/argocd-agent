@@ -73,6 +73,8 @@ func PrepareEnvironment(item interface{}) codefresh2.Environment {
 	converted := item.(*unstructured.Unstructured)
 
 	status := converted.Object["status"].(map[string]interface{})
+	spec := converted.Object["spec"].(map[string]interface{})
+	source := spec["source"].(map[string]interface{})
 
 	healthStatus := status["health"].(map[string]interface{})
 	syncStatusObj := status["sync"].(map[string]interface{})
@@ -81,14 +83,27 @@ func PrepareEnvironment(item interface{}) codefresh2.Environment {
 	syncRevision := syncStatusObj["revision"].(string)
 
 	metadata := converted.Object["metadata"].(map[string]interface{})
+
 	name := metadata["name"].(string)
+	historyList := status["history"].([]interface{})
+
+	historyItem := historyList[len(historyList)-1].(map[string]interface{})
+
+	resources, err := GetResourceTreeAll(name)
+	// TODO: improve error handling
+	if err != nil {
+		println(err)
+	}
 
 	env := codefresh2.Environment{
 		HealthStatus: healthStatus["status"].(string),
 		SyncStatus:   syncStatus,
 		SyncRevision: syncRevision,
+		HistoryId:    historyItem["id"].(int64),
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
+		Resources:    resources,
+		RepoUrl:      source["repoURL"].(string),
 	}
 
 	opStateInterface := status["operationState"]

@@ -6,9 +6,12 @@ type Environment struct {
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
 	SyncStatus   string                `json:"status"`
+	HistoryId    int64                 `json:"historyId"`
 	SyncRevision string                `json:"revision"`
 	Name         string                `json:"name"`
 	Activities   []EnvironmentActivity `json:"activities"`
+	Resources    interface{}           `json:"resources"`
+	RepoUrl      string                `json:"repoUrl"`
 }
 
 type EnvironmentActivity struct {

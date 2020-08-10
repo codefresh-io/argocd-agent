@@ -60,11 +60,16 @@ func watchApplicationChanges() {
 
 	api := codefresh2.GetInstance()
 
+	//queue := Get()
+
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			env := PrepareEnvironment(obj)
-			api.SendEnvironment(env)
-			log.Println(env)
+			_, err = api.SendEnvironment(env)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
+			}
+			//queue.Push(env)
 
 			applications := GetApplications()
 			err := api.SendResources("applications", AdaptArgoApplications(applications))
@@ -85,8 +90,12 @@ func watchApplicationChanges() {
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			env := PrepareEnvironment(newObj)
-			api.SendEnvironment(env)
-			log.Println(env)
+			_, err = api.SendEnvironment(env)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
+			}
+
+			//queue.Push(env)
 		},
 	})
 
