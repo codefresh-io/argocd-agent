@@ -1,4 +1,4 @@
-package argo
+package scheduler
 
 import (
 	"fmt"

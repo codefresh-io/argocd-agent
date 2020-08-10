@@ -1,4 +1,4 @@
-package argo
+package util
 
 import (
 	"errors"

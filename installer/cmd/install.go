@@ -130,8 +130,8 @@ func init() {
 	installCmd.Flags().StringVar(&installCmdOptions.Argo.Username, "argo-username", "admin", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Argo.Password, "argo-password", "newpassword", "")
 
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "https://g.codefresh.io", "")
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "test", "")
+	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "http://local.codefresh.io", "")
+	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "5f2bf6d0673798d730b89297.6bc07bd930217aacefd2ff98fe0e388f", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "test-integration", "")
 
 	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which venona should be installed [$KUBE_NAMESPACE]")

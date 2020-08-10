@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
 )
@@ -47,7 +48,7 @@ func main() {
 
 	//argo.StartHeartBeat()
 
-	argo.Watch()
+	extract.Watch()
 
 	//go argo.Schedule()
 

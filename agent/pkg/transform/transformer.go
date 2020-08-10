@@ -1,7 +1,8 @@
-package argo
+package transform
 
 import (
 	"encoding/json"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
@@ -9,7 +10,7 @@ import (
 
 func initDeploymentsStatuses(applicationName string) map[string]string {
 	statuses := make(map[string]string)
-	resourceTree, _ := GetResourceTree(applicationName)
+	resourceTree, _ := argo.GetResourceTree(applicationName)
 	for _, node := range resourceTree.Nodes {
 		if node.Kind == "Deployment" {
 			if node.Health.Status == "" {
@@ -25,7 +26,7 @@ func initDeploymentsStatuses(applicationName string) map[string]string {
 
 func prepareEnvironmentActivity(applicationName string) []codefresh2.EnvironmentActivity {
 
-	resource := GetManagedResources(applicationName)
+	resource := argo.GetManagedResources(applicationName)
 
 	statuses := initDeploymentsStatuses(applicationName)
 
@@ -34,7 +35,7 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 	for _, item := range resource.Items {
 		if item.Kind == "Deployment" {
 
-			var targetState ManagedResourceState
+			var targetState argo.ManagedResourceState
 			err := json.Unmarshal([]byte(item.TargetState), &targetState)
 			if err != nil {
 				log.Println(err.Error())
@@ -45,7 +46,7 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 				targetImages = append(targetImages, container.Image)
 			}
 
-			var liveState ManagedResourceState
+			var liveState argo.ManagedResourceState
 			err = json.Unmarshal([]byte(item.LiveState), &liveState)
 			if err != nil {
 				log.Println(err.Error())
@@ -89,7 +90,7 @@ func PrepareEnvironment(item interface{}) codefresh2.Environment {
 
 	historyItem := historyList[len(historyList)-1].(map[string]interface{})
 
-	resources, err := GetResourceTreeAll(name)
+	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
 	if err != nil {
 		println(err)

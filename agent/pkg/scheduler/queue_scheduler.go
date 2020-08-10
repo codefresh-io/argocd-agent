@@ -1,11 +1,12 @@
-package argo
+package scheduler
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/jasonlvhit/gocron"
 )
 
 func task() {
-	queue := Get()
+	queue := util.Get()
 	queue.Notify()
 }
 

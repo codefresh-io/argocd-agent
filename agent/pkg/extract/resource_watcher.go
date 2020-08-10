@@ -1,8 +1,10 @@
-package argo
+package extract
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -64,15 +66,15 @@ func watchApplicationChanges() {
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			env := PrepareEnvironment(obj)
+			env := transform.PrepareEnvironment(obj)
 			_, err = api.SendEnvironment(env)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
 			//queue.Push(env)
 
-			applications := GetApplications()
-			err := api.SendResources("applications", AdaptArgoApplications(applications))
+			applications := argo.GetApplications()
+			err := api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -80,8 +82,8 @@ func watchApplicationChanges() {
 			log.Println(applications)
 		},
 		DeleteFunc: func(obj interface{}) {
-			applications := GetApplications()
-			err := api.SendResources("applications", AdaptArgoApplications(applications))
+			applications := argo.GetApplications()
+			err := api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -89,7 +91,7 @@ func watchApplicationChanges() {
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			env := PrepareEnvironment(newObj)
+			env := transform.PrepareEnvironment(newObj)
 			_, err = api.SendEnvironment(env)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
@@ -104,8 +106,8 @@ func watchApplicationChanges() {
 	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			fmt.Printf("project added: %s \n", obj)
-			projects := GetProjects()
-			err := api.SendResources("projects", AdaptArgoProjects(projects))
+			projects := argo.GetProjects()
+			err := api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -113,8 +115,8 @@ func watchApplicationChanges() {
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("project deleted: %s \n", obj)
-			projects := GetProjects()
-			err := api.SendResources("projects", AdaptArgoProjects(projects))
+			projects := argo.GetProjects()
+			err := api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			if err != nil {
 				fmt.Print(err)
 			}
