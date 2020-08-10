@@ -3,27 +3,28 @@ package argo
 import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"time"
+	"github.com/jasonlvhit/gocron"
 )
 
-var HeartBeatInterval = 5 * time.Second
+var HeartBeatInterval uint64 = 5
+
+func heartBeatTask() {
+	err := codefresh.GetInstance().HeartBeat()
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 
 func StartHeartBeat() {
-	ticker := time.NewTicker(HeartBeatInterval)
-	quit := make(chan struct{})
+	job := gocron.Every(HeartBeatInterval).Second().Do(heartBeatTask)
 
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				err := codefresh.GetInstance().HeartBeat()
-				if err != nil {
-					fmt.Println(err)
-				}
-			case <-quit:
-				ticker.Stop()
-				return
-			}
+	if job != nil {
+		err := job.Error()
+
+		if err != "" {
+			panic("Cant heartbeat job because " + err)
 		}
-	}()
+	}
+
+	<-gocron.Start()
 }
