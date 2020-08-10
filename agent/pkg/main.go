@@ -45,6 +45,8 @@ func main() {
 
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
 
+	argo.StartHeartBeat()
+
 	argo.Watch()
 
 	//go argo.Schedule()

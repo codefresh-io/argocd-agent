@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"net/http"
 	"strings"
 )
@@ -13,6 +14,22 @@ type Api struct {
 	Token       string
 	Host        string
 	Integration string
+}
+
+var api *Api
+
+func GetInstance() *Api {
+	if api != nil {
+		return api
+	}
+
+	codefreshConfig := store.GetStore().Codefresh
+	api = &Api{
+		Token:       codefreshConfig.Token,
+		Host:        codefreshConfig.Host,
+		Integration: codefreshConfig.Integration,
+	}
+	return api
 }
 
 func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
@@ -30,6 +47,18 @@ func (a *Api) SendResources(kind string, items interface{}) error {
 		method: "POST",
 		path:   fmt.Sprintf("/argo-agent/%s", a.Integration),
 		body:   &AgentState{Kind: kind, Items: items},
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Api) HeartBeat() error {
+	err := a.requestAPI(&requestOptions{
+		method: "POST",
+		path:   fmt.Sprintf("/argo-agent/%s/heartbeat", a.Integration),
 	}, nil)
 	if err != nil {
 		return err
