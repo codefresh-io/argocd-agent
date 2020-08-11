@@ -4,9 +4,36 @@ import (
 	"encoding/json"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
 )
+
+type ArgoApplication struct {
+	Status struct {
+		Health struct {
+			Status string
+		}
+		Sync struct {
+			Status   string
+			Revision string
+		}
+		History []struct {
+			Id int64
+		}
+		OperationState struct {
+			FinishedAt string
+		}
+	}
+	Spec struct {
+		Source struct {
+			RepoURL string
+		}
+	}
+	Metadata struct {
+		Name string
+	}
+}
 
 func initDeploymentsStatuses(applicationName string) map[string]string {
 	statuses := make(map[string]string)
@@ -71,24 +98,13 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 
 func PrepareEnvironment(item interface{}) codefresh2.Environment {
 
-	converted := item.(*unstructured.Unstructured)
+	envItem := item.(*unstructured.Unstructured)
 
-	status := converted.Object["status"].(map[string]interface{})
-	spec := converted.Object["spec"].(map[string]interface{})
-	source := spec["source"].(map[string]interface{})
+	var app ArgoApplication
+	err := mapstructure.Decode(envItem.Object, &app)
 
-	healthStatus := status["health"].(map[string]interface{})
-	syncStatusObj := status["sync"].(map[string]interface{})
-
-	syncStatus := syncStatusObj["status"].(string)
-	syncRevision := syncStatusObj["revision"].(string)
-
-	metadata := converted.Object["metadata"].(map[string]interface{})
-
-	name := metadata["name"].(string)
-	historyList := status["history"].([]interface{})
-
-	historyItem := historyList[len(historyList)-1].(map[string]interface{})
+	name := app.Metadata.Name
+	historyList := app.Status.History
 
 	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
@@ -97,33 +113,17 @@ func PrepareEnvironment(item interface{}) codefresh2.Environment {
 	}
 
 	env := codefresh2.Environment{
-		HealthStatus: healthStatus["status"].(string),
-		SyncStatus:   syncStatus,
-		SyncRevision: syncRevision,
-		HistoryId:    historyItem["id"].(int64),
+		HealthStatus: app.Status.Health.Status,
+		SyncStatus:   app.Status.Sync.Status,
+		SyncRevision: app.Status.Sync.Revision,
+		HistoryId:    historyList[len(historyList)-1].Id,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
 		Resources:    resources,
-		RepoUrl:      source["repoURL"].(string),
-	}
-
-	opStateInterface := status["operationState"]
-
-	if opStateInterface != nil {
-		operationState := opStateInterface.(map[string]interface{})
-		finishedAtInterface := operationState["finishedAt"]
-		if finishedAtInterface != nil {
-			env.FinishedAt = finishedAtInterface.(string)
-		}
-
+		RepoUrl:      app.Spec.Source.RepoURL,
+		FinishedAt:   app.Status.OperationState.FinishedAt,
 	}
 
 	return env
 
-}
-
-func RetrieveName(item interface{}) string {
-	converted := item.(*unstructured.Unstructured)
-	metadata := converted.Object["metadata"].(map[string]interface{})
-	return metadata["name"].(string)
 }

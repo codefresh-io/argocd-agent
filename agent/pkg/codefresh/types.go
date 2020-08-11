@@ -63,6 +63,10 @@ type IntegrationPayload struct {
 	Data IntegrationPayloadData `json:"data"`
 }
 
+type Heartbeat struct {
+	Error string `json:"error"`
+}
+
 type requestOptions struct {
 	path   string
 	method string

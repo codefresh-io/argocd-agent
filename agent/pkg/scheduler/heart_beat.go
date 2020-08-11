@@ -1,22 +1,14 @@
 package scheduler
 
 import (
-	"fmt"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/jasonlvhit/gocron"
 )
 
 var HeartBeatInterval uint64 = 5
 
-func heartBeatTask() {
-	err := codefresh.GetInstance().HeartBeat()
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
 func StartHeartBeat() {
-	job := gocron.Every(HeartBeatInterval).Second().Do(heartBeatTask)
+	job := gocron.Every(HeartBeatInterval).Second().Do(heartbeat.HeartBeatTask)
 
 	if job != nil {
 		err := job.Error()
@@ -26,5 +18,5 @@ func StartHeartBeat() {
 		}
 	}
 
-	<-gocron.Start()
+	go gocron.Start()
 }
