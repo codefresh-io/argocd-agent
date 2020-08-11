@@ -43,7 +43,11 @@ func GetToken(username string, password string, host string) (string, error) {
 
 	var result map[string]interface{}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		return "", err
+	}
 
 	defer resp.Body.Close()
 
@@ -57,6 +61,11 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	client := buildHttpClient()
 
 	req, err := http.NewRequest("GET", host+"/api/v1/applications/"+applicationName+"/resource-tree", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 
