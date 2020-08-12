@@ -34,7 +34,7 @@ func GetInstance() *Api {
 
 func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
 	var result map[string]interface{}
-	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, result)
+	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)
 	if err != nil {
 		return nil, err
 	}
@@ -55,10 +55,19 @@ func (a *Api) SendResources(kind string, items interface{}) error {
 	return nil
 }
 
-func (a *Api) HeartBeat() error {
+func (a *Api) HeartBeat(error string) error {
+	var body interface{}
+
+	if error != "" {
+		body = Heartbeat{
+			Error: error,
+		}
+	}
+
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   fmt.Sprintf("/argo-agent/%s/heartbeat", a.Integration),
+		body:   body,
 	}, nil)
 	if err != nil {
 		return err

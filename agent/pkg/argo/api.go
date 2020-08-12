@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"log"
@@ -17,7 +18,7 @@ func buildHttpClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
-func GetToken(username string, password string, host string) string {
+func GetToken(username string, password string, host string) (string, error) {
 
 	client := buildHttpClient()
 
@@ -28,20 +29,29 @@ func GetToken(username string, password string, host string) string {
 
 	bytesRepresentation, err := json.Marshal(message)
 	if err != nil {
-		log.Fatalln(err)
+		return "", errors.New("Application error, cant retrieve argo token")
 	}
 
 	resp, err := client.Post(host+"/api/v1/session", "application/json", bytes.NewBuffer(bytesRepresentation))
 	if err != nil {
-		log.Fatalln(err)
+		return "", err
 	}
+
+	if resp.StatusCode == 401 {
+		return "", errors.New("Cant retrieve argocd token, permission denied")
+	}
+
 	var result map[string]interface{}
 
-	json.NewDecoder(resp.Body).Decode(&result)
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		return "", err
+	}
 
 	defer resp.Body.Close()
 
-	return result["token"].(string)
+	return result["token"].(string), nil
 }
 
 func GetResourceTree(applicationName string) (*ResourceTree, error) {
@@ -51,6 +61,11 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	client := buildHttpClient()
 
 	req, err := http.NewRequest("GET", host+"/api/v1/applications/"+applicationName+"/resource-tree", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
 	req.Header.Add("Authorization", "Bearer "+token)
 	resp, err := client.Do(req)
 

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
 )
@@ -40,13 +42,19 @@ func main() {
 		panic(errors.New("CODEFRESH_INTEGRATION variable doesnt exist"))
 	}
 
-	token := argo.GetToken(argoUsername, argoPassword, argoHost)
+	token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
+	if err != nil {
+		store.SetHeartbeatError(err.Error())
+		heartbeat.HeartBeatTask()
+		// send heartbeat to codefresh before die
+		panic(err)
+	}
 
 	store.SetArgo(token, argoHost)
 
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
 
-	//argo.StartHeartBeat()
+	scheduler.StartHeartBeat()
 
 	extract.Watch()
 

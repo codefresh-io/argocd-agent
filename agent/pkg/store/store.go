@@ -15,6 +15,9 @@ type (
 			Token       string
 			Integration string
 		}
+		Heartbeat struct {
+			Error string
+		}
 	}
 )
 
@@ -38,5 +41,11 @@ func SetCodefresh(host string, token string, integration string) *Values {
 	values.Codefresh.Token = token
 	values.Codefresh.Host = host
 	values.Codefresh.Integration = integration
+	return values
+}
+
+func SetHeartbeatError(error string) *Values {
+	values := GetStore()
+	values.Heartbeat.Error = error
 	return values
 }
