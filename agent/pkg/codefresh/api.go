@@ -76,6 +76,19 @@ func (a *Api) HeartBeat(error string) error {
 	return nil
 }
 
+func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
+	var result MongoCFEnvWrapper
+	err := a.requestAPI(&requestOptions{
+		method: "GET",
+		path:   "/environments-v2?plain=true",
+	}, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Docs, nil
+}
+
 func (a *Api) CreateIntegration(name string, host string, username string, password string, ensure bool) error {
 	qs := make(map[string]string)
 

@@ -171,6 +171,38 @@ func GetProjects() []ProjectItem {
 	return result.Items
 }
 
+func GetApplication(application string) (map[string]interface{}, error) {
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
+
+	client := buildHttpClient()
+
+	var result map[string]interface{}
+
+	req, err := http.NewRequest("GET", host+"/api/v1/applications/"+application, nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+
+	if resp.StatusCode != 200 {
+		// TODO: add error handling and move it to common place
+		return nil, errors.New("Something wrong")
+	}
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		//return nil, err
+	}
+
+	return result, nil
+}
+
 func GetApplications() []ApplicationItem {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host

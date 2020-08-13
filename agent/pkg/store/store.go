@@ -4,6 +4,10 @@ var (
 	store *Values
 )
 
+type Environment struct {
+	Name string
+}
+
 type (
 	Values struct {
 		Argo struct {
@@ -18,6 +22,7 @@ type (
 		Heartbeat struct {
 			Error string
 		}
+		Environments []Environment
 	}
 )
 
@@ -47,5 +52,11 @@ func SetCodefresh(host string, token string, integration string) *Values {
 func SetHeartbeatError(error string) *Values {
 	values := GetStore()
 	values.Heartbeat.Error = error
+	return values
+}
+
+func SetEnvironments(environments []Environment) *Values {
+	values := GetStore()
+	values.Environments = environments
 	return values
 }

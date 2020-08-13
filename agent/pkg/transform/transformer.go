@@ -5,7 +5,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/mitchellh/mapstructure"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"log"
 )
 
@@ -96,12 +95,10 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 	return activities
 }
 
-func PrepareEnvironment(item interface{}) codefresh2.Environment {
-
-	envItem := item.(*unstructured.Unstructured)
+func PrepareEnvironment(envItem map[string]interface{}) codefresh2.Environment {
 
 	var app ArgoApplication
-	err := mapstructure.Decode(envItem.Object, &app)
+	err := mapstructure.Decode(envItem, &app)
 
 	name := app.Metadata.Name
 	historyList := app.Status.History

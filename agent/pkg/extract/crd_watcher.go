@@ -6,6 +6,7 @@ import (
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/golang/glog"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
@@ -66,7 +67,7 @@ func watchApplicationChanges() {
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			env := transform.PrepareEnvironment(obj)
+			env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
 			_, err = api.SendEnvironment(env)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
@@ -91,7 +92,7 @@ func watchApplicationChanges() {
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			env := transform.PrepareEnvironment(newObj)
+			env := transform.PrepareEnvironment(newObj.(*unstructured.Unstructured).Object)
 			_, err = api.SendEnvironment(env)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
