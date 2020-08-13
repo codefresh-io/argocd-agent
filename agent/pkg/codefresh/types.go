@@ -2,6 +2,20 @@ package codefresh
 
 import "fmt"
 
+type MongoCFEnvWrapper struct {
+	Docs []CFEnvironment `json:"docs"`
+}
+
+type CFEnvironment struct {
+	Metadata struct {
+		Name string `json:"name"`
+	} `json:"metadata"`
+	Spec struct {
+		Type        string `json:"type"`
+		Application string `json:"application"`
+	} `json:"spec"`
+}
+
 type Environment struct {
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`

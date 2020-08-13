@@ -55,6 +55,7 @@ func main() {
 	store.SetArgo(token, argoHost)
 
 	scheduler.StartHeartBeat()
+	scheduler.StartEnvInitializer()
 
 	extract.Watch()
 
