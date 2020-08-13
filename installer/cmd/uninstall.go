@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	kube "github.com/codefresh-io/argocd-listener/installer/pkg/kube"
-	templates "github.com/codefresh-io/argocd-listener/installer/pkg/templates"
-	kubernetes "github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

@@ -29,7 +29,7 @@ func GetToken(username string, password string, host string) (string, error) {
 
 	bytesRepresentation, err := json.Marshal(message)
 	if err != nil {
-		return "", errors.New("Application error, cant retrieve argo token")
+		return "", errors.New("application error, cant retrieve argo token")
 	}
 
 	resp, err := client.Post(host+"/api/v1/session", "application/json", bytes.NewBuffer(bytesRepresentation))
@@ -38,7 +38,7 @@ func GetToken(username string, password string, host string) (string, error) {
 	}
 
 	if resp.StatusCode == 401 {
-		return "", errors.New("Cant retrieve argocd token, permission denied")
+		return "", errors.New("cant retrieve argocd token, permission denied")
 	}
 
 	var result map[string]interface{}
