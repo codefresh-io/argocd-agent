@@ -65,7 +65,7 @@ func StartEnvInitializer() {
 		err := job.Error()
 
 		if err != "" {
-			panic("Cant heartbeat job because " + err)
+			panic("Cant run env changes job because " + err)
 		}
 	}
 
