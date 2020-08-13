@@ -42,6 +42,8 @@ func main() {
 		panic(errors.New("CODEFRESH_INTEGRATION variable doesnt exist"))
 	}
 
+	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
+
 	token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
 	if err != nil {
 		store.SetHeartbeatError(err.Error())
@@ -51,8 +53,6 @@ func main() {
 	}
 
 	store.SetArgo(token, argoHost)
-
-	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
 
 	scheduler.StartHeartBeat()
 

@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
-	kube "github.com/codefresh-io/argocd-listener/installer/pkg/kube"
-	templates "github.com/codefresh-io/argocd-listener/installer/pkg/templates"
-	kubernetes "github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -57,7 +57,7 @@ func ensureIntegration() error {
 		return nil
 	}
 
-	codefreshErr, ok := err.(*codefresh2.CodefreshError)
+	codefreshErr, ok := err.(*codefresh.CodefreshError)
 	if !ok {
 		return err
 	}
@@ -85,7 +85,7 @@ var installCmd = &cobra.Command{
 	Short: "Install agent",
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		holder.ApiHolder = codefresh2.Api{
+		holder.ApiHolder = codefresh.Api{
 			Token:       installCmdOptions.Codefresh.Token,
 			Host:        installCmdOptions.Codefresh.Host,
 			Integration: installCmdOptions.Codefresh.Integration,
@@ -107,7 +107,7 @@ var installCmd = &cobra.Command{
 		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		installOptions := templates.InstallOptions{
@@ -117,7 +117,11 @@ var installCmd = &cobra.Command{
 			KubeClientSet:  cs,
 		}
 
-		templates.Install(&installOptions)
+		err = templates.Install(&installOptions)
+
+		if err != nil {
+			return err
+		}
 
 		return nil
 	},
@@ -134,8 +138,8 @@ func init() {
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "5f2bf6d0673798d730b89297.6bc07bd930217aacefd2ff98fe0e388f", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "test-integration", "")
 
-	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which venona should be installed [$KUBE_NAMESPACE]")
-	installCmd.Flags().StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which venona should be installed (default is current-context) [$KUBE_CONTEXT]")
-	installCmd.Flags().BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if venona is been installed from inside a cluster")
+	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
+	installCmd.Flags().StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
+	installCmd.Flags().BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
 }
