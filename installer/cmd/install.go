@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/cliconfig"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
@@ -85,6 +86,16 @@ var installCmd = &cobra.Command{
 	Short: "Install agent",
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if installCmdOptions.Codefresh.Token == "" || installCmdOptions.Codefresh.Host == "" {
+			config, err := cliconfig.GetCurrentConfig()
+			if err != nil {
+				return err
+			}
+			installCmdOptions.Codefresh.Token = config.Token
+			installCmdOptions.Codefresh.Host = config.Url
+
+		}
+
 		holder.ApiHolder = codefresh.Api{
 			Token:       installCmdOptions.Codefresh.Token,
 			Host:        installCmdOptions.Codefresh.Host,
@@ -96,6 +107,8 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
+		fmt.Println("Integration updated")
+
 		var kubeConfigPath string
 		currentUser, _ := user.Current()
 		if currentUser != nil {
@@ -103,6 +116,32 @@ var installCmd = &cobra.Command{
 		}
 
 		kubeOptions := installCmdOptions.kube
+
+		if kubeOptions.context == "" {
+			contexts, err := kube.GetAllContexts(kubeConfigPath)
+			if err != nil {
+				return err
+			}
+
+			prompt := promptui.Select{
+				Label: "Select Kubernetes context",
+				Items: contexts,
+			}
+			_, selectedContext, err := prompt.Run()
+			kubeOptions.context = selectedContext
+		}
+
+		if kubeOptions.namespace == "" {
+			prompt := promptui.Prompt{
+				Label: "Kubernetes namespace to install",
+			}
+
+			kubeOptions.namespace, err = prompt.Run()
+
+			if err != nil {
+				return err
+			}
+		}
 
 		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
 
@@ -134,8 +173,8 @@ func init() {
 	installCmd.Flags().StringVar(&installCmdOptions.Argo.Username, "argo-username", "admin", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Argo.Password, "argo-password", "newpassword", "")
 
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "http://local.codefresh.io", "")
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "5f2bf6d0673798d730b89297.6bc07bd930217aacefd2ff98fe0e388f", "")
+	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "", "")
+	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
 	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "test-integration", "")
 
 	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")

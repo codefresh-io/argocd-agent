@@ -51,6 +51,7 @@ func (k *kube) BuildClient() (*kubernetes.Clientset, error) {
 				},
 			}).ClientConfig()
 	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -64,4 +65,22 @@ func ClientBuilder(context string, namespace string, path string, inCluster bool
 		PathToKubeConfig: path,
 		InCluster:        inCluster,
 	})
+}
+
+func GetAllContexts(pathToKubeConfig string) ([]string, error) {
+	var result []string
+	k8scmd := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: pathToKubeConfig},
+		&clientcmd.ConfigOverrides{})
+
+	config, err := k8scmd.RawConfig()
+
+	if err != nil {
+		return result, err
+	}
+	for k, _ := range config.Contexts {
+		result = append(result, k)
+	}
+
+	return result, err
 }
