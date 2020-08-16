@@ -29,6 +29,8 @@ spec:
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
+        - name: ARGO_NAMESPACE
+          value: {{ .Namespace }}
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
