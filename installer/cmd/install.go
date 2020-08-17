@@ -86,6 +86,8 @@ var installCmd = &cobra.Command{
 	Short: "Install agent",
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+
 		if installCmdOptions.Codefresh.Token == "" || installCmdOptions.Codefresh.Host == "" {
 			config, err := cliconfig.GetCurrentConfig()
 			if err != nil {
@@ -93,7 +95,54 @@ var installCmd = &cobra.Command{
 			}
 			installCmdOptions.Codefresh.Token = config.Token
 			installCmdOptions.Codefresh.Host = config.Url
+		}
 
+		if installCmdOptions.Codefresh.Integration == "" {
+			prompt := promptui.Prompt{
+				Label: "Codefresh integration name",
+			}
+			installCmdOptions.Codefresh.Integration, err = prompt.Run()
+			if err != nil {
+				return err
+			}
+		}
+
+		if installCmdOptions.Argo.Host == "" {
+			prompt := promptui.Prompt{
+				Label: "Argo host",
+			}
+
+			installCmdOptions.Argo.Host, err = prompt.Run()
+
+			if err != nil {
+				return err
+			}
+		}
+
+		if installCmdOptions.Argo.Username == "" {
+			prompt := promptui.Prompt{
+				Label:   "Argo username",
+				Default: "admin",
+			}
+
+			installCmdOptions.Argo.Username, err = prompt.Run()
+
+			if err != nil {
+				return err
+			}
+		}
+
+		if installCmdOptions.Argo.Password == "" {
+			prompt := promptui.Prompt{
+				Label: "Argo password",
+				Mask:  '*',
+			}
+
+			installCmdOptions.Argo.Password, err = prompt.Run()
+
+			if err != nil {
+				return err
+			}
 		}
 
 		holder.ApiHolder = codefresh.Api{
@@ -102,7 +151,7 @@ var installCmd = &cobra.Command{
 			Integration: installCmdOptions.Codefresh.Integration,
 		}
 
-		err := ensureIntegration()
+		err = ensureIntegration()
 		if err != nil {
 			return err
 		}
@@ -172,7 +221,7 @@ func init() {
 	flags := installCmd.Flags()
 
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
-	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "admin", "")
+	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
 
 	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "", "")
@@ -183,18 +232,18 @@ func init() {
 	flags.StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
-	err := installCmd.MarkFlagRequired("argo-host")
-	if err != nil {
-		panic(err)
-	}
-
-	err = installCmd.MarkFlagRequired("argo-password")
-	if err != nil {
-		panic(err)
-	}
-
-	err = installCmd.MarkFlagRequired("codefresh-integration")
-	if err != nil {
-		panic(err)
-	}
+	//err := installCmd.MarkFlagRequired("argo-host")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//err = installCmd.MarkFlagRequired("argo-password")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//err = installCmd.MarkFlagRequired("codefresh-integration")
+	//if err != nil {
+	//	panic(err)
+	//}
 }

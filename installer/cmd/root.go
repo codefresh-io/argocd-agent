@@ -8,7 +8,8 @@ var rootCmd = &cobra.Command{
 	Use:   "argo-agent",
 	Short: "Codefresh argocd agent",
 	Long:  `Codefresh argocd agent`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return cmd.Help()
 	},
 }
 
