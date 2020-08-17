@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	kubeobj "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,34 +29,33 @@ type DeleteOptions struct {
 	}
 }
 
-func Install(opt *InstallOptions) error {
+func Install(opt *InstallOptions) (error, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
 	kubeObjects, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
-		return err
+		return err, "", ""
 	}
 
 	for _, obj := range kubeObjects {
-		var createErr error
-		var kind, name string
-		name, kind, createErr = kubeobj.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
+		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
 
 		if createErr == nil {
-			fmt.Println(fmt.Sprintf("%s \"%s\" created", kind, name))
+			//			fmt.Println(fmt.Sprintf("%s \"%s\" created", kind, name))
 		} else if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
 			if statusError.ErrStatus.Reason == metav1.StatusReasonAlreadyExists {
-				fmt.Println(fmt.Sprintf("%s \"%s\" already exists", kind, name))
+				logger.Warning(fmt.Sprintf("%s \"%s\" already exists", kind, name))
 			} else {
-				fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
-				return statusError
+				logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
+				return statusError, kind, name
 			}
 		} else {
-			fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
-			return createErr
+			//fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
+			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
+			return createErr, kind, name
 		}
 	}
 
-	return nil
+	return nil, "", ""
 }
 
 func Delete(opt *DeleteOptions) error {
