@@ -62,13 +62,13 @@ func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) 
 	kubeDecode := scheme.Codecs.UniversalDeserializer().Decode
 	kubeObjects := make(map[string]runtime.Object)
 	for n, objStr := range parsedTemplates {
-		fmt.Println(fmt.Sprintf("Deserializing template %s", n))
+		//fmt.Println(fmt.Sprintf("Deserializing template %s", n))
 		obj, _, err := kubeDecode([]byte(objStr), nil, nil)
 		if err != nil {
-			fmt.Println(fmt.Sprintf("Cannot deserialize kuberentes object %s: %v", n, err))
+			//fmt.Println(fmt.Sprintf("Cannot deserialize kuberentes object %s: %v", n, err))
 			return nil, err
 		}
-		fmt.Println("deserializing template success")
+		//fmt.Println("deserializing template success")
 		kubeObjects[n] = obj
 	}
 	return kubeObjects, nil
