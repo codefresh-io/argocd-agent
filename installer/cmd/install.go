@@ -8,6 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
@@ -84,29 +85,6 @@ func ensureIntegration() error {
 	return nil
 }
 
-func promptInputWithDefault(target *string, label string, defaultValue string) error {
-	if *target != "" {
-		return nil
-	}
-
-	prompt := promptui.Prompt{
-		Label: fmt.Sprintf("%s, (default: %s)", label, defaultValue),
-	}
-
-	result, err := prompt.Run()
-	if err != nil {
-		return err
-	}
-
-	if result == "" {
-		result = defaultValue
-	}
-
-	*target = result
-
-	return nil
-}
-
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install agent",
@@ -123,7 +101,7 @@ var installCmd = &cobra.Command{
 			installCmdOptions.Codefresh.Host = config.Url
 		}
 
-		err = promptInputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argo")
+		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argo")
 		if err != nil {
 			return err
 		}
@@ -141,7 +119,7 @@ var installCmd = &cobra.Command{
 			installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
 		}
 
-		err = promptInputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
+		err = prompt.InputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
 		if err != nil {
 			return err
 		}
@@ -194,7 +172,7 @@ var installCmd = &cobra.Command{
 			kubeOptions.context = selectedContext
 		}
 
-		err = promptInputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to install", "default")
+		err = prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to install", "default")
 		if err != nil {
 			return err
 		}
