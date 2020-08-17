@@ -17,6 +17,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os/user"
 	"path"
+	"regexp"
 )
 
 var installCmdOptions struct {
@@ -119,6 +120,7 @@ var installCmd = &cobra.Command{
 			if err != nil {
 				return err
 			}
+			installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
 		}
 
 		if installCmdOptions.Argo.Username == "" {
