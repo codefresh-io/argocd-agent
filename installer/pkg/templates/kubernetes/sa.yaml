@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: argocd-agent
+  name: argocd-agent
+  namespace: {{ .Namespace }}

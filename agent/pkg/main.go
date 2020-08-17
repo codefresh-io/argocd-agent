@@ -27,11 +27,6 @@ func main() {
 		panic(errors.New("ARGO_PASSWORD variable doesnt exist"))
 	}
 
-	argoNamespace, argoNamespaceExistence := os.LookupEnv("ARGO_NAMESPACE")
-	if !argoNamespaceExistence {
-		argoNamespace = "argocd"
-	}
-
 	codefreshToken, codefreshTokenExistence := os.LookupEnv("CODEFRESH_TOKEN")
 	if !codefreshTokenExistence {
 		panic(errors.New("CODEFRESH_TOKEN variable doesnt exist"))
@@ -57,7 +52,7 @@ func main() {
 		panic(err)
 	}
 
-	store.SetArgo(token, argoHost, argoNamespace)
+	store.SetArgo(token, argoHost)
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
