@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -58,7 +59,7 @@ func watchApplicationChanges() {
 		glog.Errorln(err)
 	}
 
-	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
+	kubeInformerFactory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(clientset, time.Minute*30, store.GetStore().Argo.Namespace, nil)
 	applicationInformer := kubeInformerFactory.ForResource(applicationCRD).Informer()
 
 	api := codefresh2.GetInstance()
