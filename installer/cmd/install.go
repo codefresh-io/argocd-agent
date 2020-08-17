@@ -133,7 +133,8 @@ var installCmd = &cobra.Command{
 
 		if kubeOptions.namespace == "" {
 			prompt := promptui.Prompt{
-				Label: "Kubernetes namespace to install",
+				Label:   "Kubernetes namespace to install",
+				Default: "default",
 			}
 
 			kubeOptions.namespace, err = prompt.Run()
@@ -168,17 +169,32 @@ var installCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(installCmd)
+	flags := installCmd.Flags()
 
-	installCmd.Flags().StringVar(&installCmdOptions.Argo.Host, "argo-host", "https://34.71.103.174", "")
-	installCmd.Flags().StringVar(&installCmdOptions.Argo.Username, "argo-username", "admin", "")
-	installCmd.Flags().StringVar(&installCmdOptions.Argo.Password, "argo-password", "newpassword", "")
+	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
+	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "admin", "")
+	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
 
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "", "")
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
-	installCmd.Flags().StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "test-integration", "")
+	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "", "")
+	flags.StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
+	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "")
 
-	installCmd.Flags().StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
-	installCmd.Flags().StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
-	installCmd.Flags().BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
+	flags.StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
+	flags.StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
+	flags.BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
+	err := installCmd.MarkFlagRequired("argo-host")
+	if err != nil {
+		panic(err)
+	}
+
+	err = installCmd.MarkFlagRequired("argo-password")
+	if err != nil {
+		panic(err)
+	}
+
+	err = installCmd.MarkFlagRequired("codefresh-integration")
+	if err != nil {
+		panic(err)
+	}
 }
