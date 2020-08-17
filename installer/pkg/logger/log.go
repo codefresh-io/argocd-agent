@@ -1,21 +1,20 @@
 package logger
 
-import "fmt"
-
-var (
-	colorYellow = "\033[33m"
-	colorRed    = "\033[31m"
-	colorGreen  = "\033[32m"
+import (
+	"github.com/gookit/color"
 )
 
 func Warning(message string) {
-	fmt.Println(colorYellow, message)
+	color.Yellow.Println(message)
+	_, _ = color.Reset()
 }
 
 func Error(message string) {
-	fmt.Println(colorRed, message)
+	color.Red.Println(message)
+	_, _ = color.Reset()
 }
 
 func Success(message string) {
-	fmt.Println(message)
+	color.Green.Println(message)
+	_, _ = color.Reset()
 }

@@ -33,7 +33,7 @@ func ParseTemplates(templatesMap map[string]string, data interface{}) (map[strin
 	parsedTemplates := make(map[string]string)
 	nonEmptyParsedTemplateFunc := regexp.MustCompile(`[a-zA-Z0-9]`).MatchString
 	for n, tpl := range templatesMap {
-		fmt.Println(fmt.Sprintf("parsing template %s", n))
+		//fmt.Println(fmt.Sprintf("parsing template %s", n))
 		tplEx, err := ExecuteTemplate(tpl, data)
 		if err != nil {
 			fmt.Println(fmt.Sprintf("Failed to parse and execute template %s", n))
