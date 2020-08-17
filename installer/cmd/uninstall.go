@@ -5,6 +5,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -24,7 +25,7 @@ var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall agent",
 	Long:  `Uninstall agent`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		var kubeConfigPath string
 		currentUser, _ := user.Current()
@@ -33,6 +34,33 @@ var uninstallCmd = &cobra.Command{
 		}
 
 		kubeOptions := uninstallCmdOptions.kube
+
+		if uninstallCmdOptions.kube.context == "" {
+			contexts, err := kube.GetAllContexts(kubeConfigPath)
+			if err != nil {
+				return err
+			}
+
+			prompt := promptui.Select{
+				Label: "Select Kubernetes context",
+				Items: contexts,
+			}
+			_, selectedContext, err := prompt.Run()
+			kubeOptions.context = selectedContext
+		}
+
+		if kubeOptions.namespace == "" {
+			prompt := promptui.Prompt{
+				Label: "Kubernetes namespace to install",
+			}
+
+			var err error
+			kubeOptions.namespace, err = prompt.Run()
+
+			if err != nil {
+				return err
+			}
+		}
 
 		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
 
@@ -47,7 +75,7 @@ var uninstallCmd = &cobra.Command{
 			KubeClientSet:  cs,
 		}
 
-		templates.Delete(&uninstallOptions)
+		return templates.Delete(&uninstallOptions)
 	},
 }
 
