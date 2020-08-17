@@ -84,6 +84,29 @@ func ensureIntegration() error {
 	return nil
 }
 
+func promptInputWithDefault(target *string, label string, defaultValue string) error {
+	if *target != "" {
+		return nil
+	}
+
+	prompt := promptui.Prompt{
+		Label: fmt.Sprintf("%s, (default: %s)", label, defaultValue),
+	}
+
+	result, err := prompt.Run()
+	if err != nil {
+		return err
+	}
+
+	if result == "" {
+		result = defaultValue
+	}
+
+	*target = result
+
+	return nil
+}
+
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install agent",
@@ -100,14 +123,9 @@ var installCmd = &cobra.Command{
 			installCmdOptions.Codefresh.Host = config.Url
 		}
 
-		if installCmdOptions.Codefresh.Integration == "" {
-			prompt := promptui.Prompt{
-				Label: "Codefresh integration name",
-			}
-			installCmdOptions.Codefresh.Integration, err = prompt.Run()
-			if err != nil {
-				return err
-			}
+		err = promptInputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argo")
+		if err != nil {
+			return err
 		}
 
 		if installCmdOptions.Argo.Host == "" {
@@ -123,17 +141,9 @@ var installCmd = &cobra.Command{
 			installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
 		}
 
-		if installCmdOptions.Argo.Username == "" {
-			prompt := promptui.Prompt{
-				Label:   "Argo username",
-				Default: "admin",
-			}
-
-			installCmdOptions.Argo.Username, err = prompt.Run()
-
-			if err != nil {
-				return err
-			}
+		err = promptInputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
+		if err != nil {
+			return err
 		}
 
 		if installCmdOptions.Argo.Password == "" {
@@ -184,17 +194,9 @@ var installCmd = &cobra.Command{
 			kubeOptions.context = selectedContext
 		}
 
-		if kubeOptions.namespace == "" {
-			prompt := promptui.Prompt{
-				Label:   "Kubernetes namespace to install",
-				Default: "default",
-			}
-
-			kubeOptions.namespace, err = prompt.Run()
-
-			if err != nil {
-				return err
-			}
+		err = promptInputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to install", "default")
+		if err != nil {
+			return err
 		}
 
 		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
