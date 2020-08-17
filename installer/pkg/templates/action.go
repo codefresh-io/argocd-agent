@@ -58,11 +58,11 @@ func Install(opt *InstallOptions) (error, string, string) {
 	return nil, "", ""
 }
 
-func Delete(opt *DeleteOptions) error {
+func Delete(opt *DeleteOptions) (error, string, string) {
 
 	kubeObjects, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
-		return err
+		return err, "", ""
 	}
 	var kind, name string
 	var deleteError error
@@ -71,18 +71,14 @@ func Delete(opt *DeleteOptions) error {
 		if deleteError == nil {
 			fmt.Println(fmt.Sprintf("%s \"%s\" deleted", kind, name))
 		} else if statusError, errIsStatusError := deleteError.(*errors.StatusError); errIsStatusError {
-			if statusError.ErrStatus.Reason == metav1.StatusReasonAlreadyExists {
-				fmt.Println(fmt.Sprintf("%s \"%s\" already exist", kind, name))
-			} else if statusError.ErrStatus.Reason == metav1.StatusReasonNotFound {
-				fmt.Println(fmt.Sprintf("%s \"%s\" not found", kind, name))
+			if statusError.ErrStatus.Reason == metav1.StatusReasonNotFound {
+				logger.Warning(fmt.Sprintf("Resource %s \"%s\" not found", kind, name))
 			} else {
-				fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
-				return statusError
+				return statusError, kind, name
 			}
 		} else {
-			fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, deleteError))
-			return deleteError
+			return deleteError, kind, name
 		}
 	}
-	return nil
+	return nil, "", ""
 }
