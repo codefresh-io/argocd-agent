@@ -5,6 +5,39 @@ package kubernetes
 func TemplatesMap() map[string]string {
 	templatesMap := make(map[string]string)
 
+	templatesMap["cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app: argocd-agent
+  name: argocd-agent
+rules:
+  - apiGroups:
+      - argoproj.io
+    resources:
+      - applications
+      - appprojects
+    verbs:
+      - get
+      - list
+      - watch
+`
+
+	templatesMap["cluster_role_binding.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app: argocd-agent
+  name: argocd-agent
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: argocd-agent
+subjects:
+  - kind: ServiceAccount
+    name: argocd-agent
+    namespace: {{ .Namespace }}`
+
 	templatesMap["deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -28,6 +61,7 @@ spec:
       labels:
         app: argocd-agent
     spec:
+      serviceAccountName: argocd-agent
       containers:
       - env:
         - name: ARGO_HOST
@@ -36,6 +70,8 @@ spec:
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
+        - name: ARGO_NAMESPACE
+          value: {{ .Namespace }}
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
@@ -47,8 +83,15 @@ spec:
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: argocd-agent
-      restartPolicy: Always
-`
+      restartPolicy: Always`
+
+	templatesMap["sa.yaml"] = `apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: argocd-agent
+  name: argocd-agent
+  namespace: {{ .Namespace }}`
 
 	return templatesMap
 }

@@ -11,9 +11,8 @@ type Environment struct {
 type (
 	Values struct {
 		Argo struct {
-			Token     string
-			Host      string
-			Namespace string
+			Token string
+			Host  string
 		}
 		Codefresh struct {
 			Host        string
@@ -35,11 +34,10 @@ func GetStore() *Values {
 	return store
 }
 
-func SetArgo(token string, host string, namespace string) *Values {
+func SetArgo(token string, host string) *Values {
 	values := GetStore()
 	values.Argo.Token = token
 	values.Argo.Host = host
-	values.Argo.Namespace = namespace
 	return values
 }
 
