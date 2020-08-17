@@ -51,7 +51,7 @@ var uninstallCmd = &cobra.Command{
 
 		if kubeOptions.namespace == "" {
 			prompt := promptui.Prompt{
-				Label: "Kubernetes namespace to install",
+				Label: "Kubernetes namespace to uninstall",
 			}
 
 			var err error
