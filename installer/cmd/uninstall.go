@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
@@ -75,7 +78,16 @@ var uninstallCmd = &cobra.Command{
 			KubeClientSet:  cs,
 		}
 
-		return templates.Delete(&uninstallOptions)
+		var kind, name string
+		err, kind, name = templates.Delete(&uninstallOptions)
+
+		if err != nil {
+			return errors.New(fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err))
+		}
+
+		logger.Success(fmt.Sprintf("Argo agent uninstallation finished successfully to namespace \"%s\"", kubeOptions.namespace))
+
+		return nil
 	},
 }
 
