@@ -17,5 +17,5 @@ func Error(message string) {
 }
 
 func Success(message string) {
-	fmt.Println(colorGreen, message)
+	fmt.Println(message)
 }
