@@ -78,7 +78,16 @@ func GetAllContexts(pathToKubeConfig string) ([]string, error) {
 	if err != nil {
 		return result, err
 	}
+
+	if config.CurrentContext != "" {
+		result = append(result, config.CurrentContext)
+	}
+
 	for k, _ := range config.Contexts {
+		if k == config.CurrentContext {
+			continue
+		}
+
 		result = append(result, k)
 	}
 
