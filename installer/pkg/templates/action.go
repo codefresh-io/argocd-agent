@@ -29,6 +29,7 @@ type DeleteOptions struct {
 }
 
 func Install(opt *InstallOptions) error {
+	opt.TemplateValues["Namespace"] = opt.Namespace
 	kubeObjects, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
 		return err
