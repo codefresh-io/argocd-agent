@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
@@ -52,17 +53,9 @@ var uninstallCmd = &cobra.Command{
 			kubeOptions.context = selectedContext
 		}
 
-		if kubeOptions.namespace == "" {
-			prompt := promptui.Prompt{
-				Label: "Kubernetes namespace to uninstall",
-			}
-
-			var err error
-			kubeOptions.namespace, err = prompt.Run()
-
-			if err != nil {
-				return err
-			}
+		err := prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to uninstall", "default")
+		if err != nil {
+			return err
 		}
 
 		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
