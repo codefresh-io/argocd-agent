@@ -113,7 +113,7 @@ func PrepareEnvironment(envItem map[string]interface{}) codefresh2.Environment {
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
 		SyncRevision: app.Status.Sync.Revision,
-		HistoryId:    resolveHistoryId(historyList),
+		HistoryId:    historyList[len(historyList)-1].Id,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
 		Resources:    resources,
@@ -123,13 +123,4 @@ func PrepareEnvironment(envItem map[string]interface{}) codefresh2.Environment {
 
 	return env
 
-}
-
-func resolveHistoryId(historyList []struct {
-	Id int64
-}) int64 {
-	if len(historyList) == 0 {
-		return -1
-	}
-	return historyList[len(historyList)-1].Id
 }
