@@ -172,22 +172,39 @@ var installCmd = &cobra.Command{
 			kubeOptions.context = selectedContext
 		}
 
-		err = prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to install", "default")
+		kubeClient, err := kube.New(&kube.Options{
+			ContextName:      kubeOptions.context,
+			Namespace:        kubeOptions.namespace,
+			PathToKubeConfig: kubeConfigPath,
+			InCluster:        kubeOptions.inCluster,
+		})
 		if err != nil {
 			return err
 		}
 
-		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
-
+		namespaces, err := kubeClient.GetNamespaces()
 		if err != nil {
-			return err
+			err = prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to install", "default")
+			if err != nil {
+				return err
+			}
+		} else {
+			prompt := promptui.Select{
+				Label: "Select Kubernetes namespace",
+				Items: namespaces,
+			}
+			_, selectedNamespace, err := prompt.Run()
+			if err != nil {
+				return err
+			}
+			kubeOptions.namespace = selectedNamespace
 		}
 
 		installOptions := templates.InstallOptions{
 			Templates:      kubernetes.TemplatesMap(),
 			TemplateValues: structs.Map(installCmdOptions),
 			Namespace:      kubeOptions.namespace,
-			KubeClientSet:  cs,
+			KubeClientSet:  kubeClient.GetClientSet(),
 		}
 
 		var kind, name string

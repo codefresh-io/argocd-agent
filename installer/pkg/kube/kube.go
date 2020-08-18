@@ -1,6 +1,7 @@
 package kube
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -9,7 +10,9 @@ import (
 
 type (
 	Kube interface {
-		BuildClient() (*kubernetes.Clientset, error)
+		buildClient() (*kubernetes.Clientset, error)
+		GetNamespaces() ([]string, error)
+		GetClientSet() *kubernetes.Clientset
 	}
 
 	kube struct {
@@ -17,6 +20,7 @@ type (
 		namespace        string
 		pathToKubeConfig string
 		inCluster        bool
+		clientSet        *kubernetes.Clientset
 	}
 
 	Options struct {
@@ -27,16 +31,25 @@ type (
 	}
 )
 
-func New(o *Options) Kube {
-	return &kube{
+func New(o *Options) (Kube, error) {
+	client := &kube{
 		contextName:      o.ContextName,
 		namespace:        o.Namespace,
 		pathToKubeConfig: o.PathToKubeConfig,
 		inCluster:        o.InCluster,
 	}
+	clientSet, err := client.buildClient()
+
+	if err != nil {
+		return nil, err
+	}
+
+	client.clientSet = clientSet
+
+	return client, nil
 }
 
-func (k *kube) BuildClient() (*kubernetes.Clientset, error) {
+func (k *kube) buildClient() (*kubernetes.Clientset, error) {
 	var config *rest.Config
 	var err error
 	if k.inCluster {
@@ -58,13 +71,28 @@ func (k *kube) BuildClient() (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(config)
 }
 
-func ClientBuilder(context string, namespace string, path string, inCluster bool) Kube {
-	return New(&Options{
-		ContextName:      context,
-		Namespace:        namespace,
-		PathToKubeConfig: path,
-		InCluster:        inCluster,
-	})
+func (k *kube) GetNamespaces() ([]string, error) {
+	namespaces, err := k.clientSet.CoreV1().Namespaces().List(metav1.ListOptions{})
+
+	if err != nil {
+		return nil, err
+	}
+
+	var result []string
+
+	for _, value := range namespaces.Items {
+		if value.Name == "default" {
+			result = append([]string{"default"}, result...)
+			continue
+		}
+		result = append(result, value.Name)
+	}
+
+	return result, nil
+}
+
+func (k *kube) GetClientSet() *kubernetes.Clientset {
+	return k.clientSet
 }
 
 func GetAllContexts(pathToKubeConfig string) ([]string, error) {

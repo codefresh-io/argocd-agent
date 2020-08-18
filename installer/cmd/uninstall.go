@@ -58,7 +58,12 @@ var uninstallCmd = &cobra.Command{
 			return err
 		}
 
-		cs, err := kube.ClientBuilder(kubeOptions.context, kubeOptions.namespace, kubeConfigPath, kubeOptions.inCluster).BuildClient()
+		kubeClient, err := kube.New(&kube.Options{
+			ContextName:      kubeOptions.context,
+			Namespace:        kubeOptions.namespace,
+			PathToKubeConfig: kubeConfigPath,
+			InCluster:        kubeOptions.inCluster,
+		})
 
 		if err != nil {
 			panic(err)
@@ -68,7 +73,7 @@ var uninstallCmd = &cobra.Command{
 			Templates:      kubernetes.TemplatesMap(),
 			TemplateValues: structs.Map(uninstallCmdOptions),
 			Namespace:      kubeOptions.namespace,
-			KubeClientSet:  cs,
+			KubeClientSet:  kubeClient.GetClientSet(),
 		}
 
 		var kind, name string
