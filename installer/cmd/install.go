@@ -101,14 +101,14 @@ var installCmd = &cobra.Command{
 			installCmdOptions.Codefresh.Host = config.Url
 		}
 
-		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argo")
+		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
 		if err != nil {
 			return err
 		}
 
 		if installCmdOptions.Argo.Host == "" {
 			prompt := promptui.Prompt{
-				Label: "Argo host",
+				Label: "Argo host, example: https://example.com",
 			}
 
 			installCmdOptions.Argo.Host, err = prompt.Run()
