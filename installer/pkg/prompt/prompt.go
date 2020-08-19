@@ -1,8 +1,7 @@
 package prompt
 
 import (
-	"fmt"
-	"github.com/manifoldco/promptui"
+	"github.com/AlecAivazis/survey/v2"
 )
 
 func InputWithDefault(target *string, label string, defaultValue string) error {
@@ -10,20 +9,85 @@ func InputWithDefault(target *string, label string, defaultValue string) error {
 		return nil
 	}
 
-	prompt := promptui.Prompt{
-		Label: fmt.Sprintf("%s, (default: %s)", label, defaultValue),
+	prompt := &survey.Input{
+		Message: label,
+		Default: defaultValue,
 	}
 
-	result, err := prompt.Run()
+	err := survey.AskOne(prompt, target)
+
 	if err != nil {
 		return err
 	}
 
-	if result == "" {
-		result = defaultValue
+	return nil
+}
+
+func InputPassword(target *string, label string) error {
+	if *target != "" {
+		return nil
 	}
 
-	*target = result
+	prompt := &survey.Password{
+		Message: label,
+	}
+
+	err := survey.AskOne(prompt, target)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
+}
+
+func Input(target *string, label string) error {
+	if *target != "" {
+		return nil
+	}
+
+	prompt := &survey.Input{
+		Message: label,
+	}
+
+	err := survey.AskOne(prompt, target)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Confirm(label string) (error, bool) {
+	result := false
+
+	prompt := &survey.Confirm{
+		Message: label,
+	}
+
+	err := survey.AskOne(prompt, &result)
+
+	if err != nil {
+		return err, false
+	}
+
+	return nil, result
+}
+
+func Select(items []string, label string) (error, string) {
+	result := ""
+
+	prompt := &survey.Select{
+		Options: items,
+		Message: label,
+	}
+
+	err := survey.AskOne(prompt, &result)
+
+	if err != nil {
+		return err, ""
+	}
+
+	return nil, result
 }
