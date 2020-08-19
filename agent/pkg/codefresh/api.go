@@ -89,17 +89,31 @@ func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
 	return result.Docs, nil
 }
 
-func (a *Api) CreateIntegration(name string, host string, username string, password string, ensure bool) error {
-	qs := make(map[string]string)
-
-	if ensure {
-		qs["ensure"] = "true"
-	}
-
+func (a *Api) CreateIntegration(name string, host string, username string, password string) error {
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   "/argo",
-		qs:     qs,
+		body: &IntegrationPayload{
+			Type: "argo-cd",
+			Data: IntegrationPayloadData{
+				Name:     name,
+				Url:      host,
+				Username: username,
+				Password: password,
+			},
+		},
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Api) UpdateIntegration(name string, host string, username string, password string) error {
+	err := a.requestAPI(&requestOptions{
+		method: "PUT",
+		path:   fmt.Sprintf("/argo/%s", name),
 		body: &IntegrationPayload{
 			Type: "argo-cd",
 			Data: IntegrationPayloadData{

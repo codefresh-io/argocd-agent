@@ -12,7 +12,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -40,24 +39,8 @@ var installCmdOptions struct {
 	}
 }
 
-func sendPrompt(msg string) bool {
-	prompt := promptui.Prompt{
-		Label:     msg,
-		IsConfirm: true,
-	}
-
-	result, err := prompt.Run()
-
-	if err != nil {
-		fmt.Printf("Prompt failed %v\n", err)
-		return false
-	}
-
-	return result == "Y" || result == "y"
-}
-
 func ensureIntegration() error {
-	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, false)
+	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password)
 	if err == nil {
 		return nil
 	}
@@ -71,12 +54,16 @@ func ensureIntegration() error {
 		return codefreshErr
 	}
 
-	needDelete := sendPrompt("You already have integration with this name or host, do you want to update it")
-	if !needDelete {
-		return fmt.Errorf("you should delete integration")
+	err, needUpdate := prompt.Confirm("You already have integration with this name, do you want to update it")
+	if err != nil {
+		return err
 	}
 
-	errEnsure := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, true)
+	if !needUpdate {
+		return fmt.Errorf("you should update integration")
+	}
+
+	errEnsure := holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password)
 
 	if errEnsure != nil {
 		return errEnsure
@@ -106,35 +93,21 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		if installCmdOptions.Argo.Host == "" {
-			prompt := promptui.Prompt{
-				Label: "Argo host, example: https://example.com",
-			}
-
-			installCmdOptions.Argo.Host, err = prompt.Run()
-
-			if err != nil {
-				return err
-			}
-			installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
+		err = prompt.Input(&installCmdOptions.Argo.Host, "Argo host, example: https://example.com")
+		if err != nil {
+			return err
 		}
+
+		installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
 
 		err = prompt.InputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
 		if err != nil {
 			return err
 		}
 
-		if installCmdOptions.Argo.Password == "" {
-			prompt := promptui.Prompt{
-				Label: "Argo password",
-				Mask:  '*',
-			}
-
-			installCmdOptions.Argo.Password, err = prompt.Run()
-
-			if err != nil {
-				return err
-			}
+		err = prompt.InputPassword(&installCmdOptions.Argo.Password, "Argo password")
+		if err != nil {
+			return err
 		}
 
 		holder.ApiHolder = codefresh.Api{
@@ -164,11 +137,7 @@ var installCmd = &cobra.Command{
 				return err
 			}
 
-			prompt := promptui.Select{
-				Label: "Select Kubernetes context",
-				Items: contexts,
-			}
-			_, selectedContext, err := prompt.Run()
+			err, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
 			kubeOptions.context = selectedContext
 		}
 
@@ -189,11 +158,7 @@ var installCmd = &cobra.Command{
 				return err
 			}
 		} else {
-			prompt := promptui.Select{
-				Label: "Select Kubernetes namespace",
-				Items: namespaces,
-			}
-			_, selectedNamespace, err := prompt.Run()
+			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
 			if err != nil {
 				return err
 			}

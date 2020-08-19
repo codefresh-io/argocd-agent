@@ -9,7 +9,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -45,11 +44,10 @@ var uninstallCmd = &cobra.Command{
 				return err
 			}
 
-			prompt := promptui.Select{
-				Label: "Select Kubernetes context",
-				Items: contexts,
+			err, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
+			if err != nil {
+				return err
 			}
-			_, selectedContext, err := prompt.Run()
 			kubeOptions.context = selectedContext
 		}
 
