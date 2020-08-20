@@ -67,15 +67,19 @@ func watchApplicationChanges() {
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
-			_, err = api.SendEnvironment(env)
+			err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
+				return
+			}
+			_, err = api.SendEnvironment(*env)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
 			//queue.Push(env)
 
 			applications := argo.GetApplications()
-			err := api.SendResources("applications", transform.AdaptArgoApplications(applications))
+			err = api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -92,8 +96,12 @@ func watchApplicationChanges() {
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			env := transform.PrepareEnvironment(newObj.(*unstructured.Unstructured).Object)
-			_, err = api.SendEnvironment(env)
+			err, env := transform.PrepareEnvironment(newObj.(*unstructured.Unstructured).Object)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
+				return
+			}
+			_, err = api.SendEnvironment(*env)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
