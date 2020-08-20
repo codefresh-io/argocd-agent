@@ -2,11 +2,17 @@ package transform
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/mitchellh/mapstructure"
 	"log"
 )
+
+type ArgoApplicationHistoryItem struct {
+	Id       int64
+	Revision string
+}
 
 type ArgoApplication struct {
 	Status struct {
@@ -17,9 +23,7 @@ type ArgoApplication struct {
 			Status   string
 			Revision string
 		}
-		History []struct {
-			Id int64
-		}
+		History        []ArgoApplicationHistoryItem
 		OperationState struct {
 			FinishedAt string
 		}
@@ -95,7 +99,7 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 	return activities
 }
 
-func PrepareEnvironment(envItem map[string]interface{}) codefresh2.Environment {
+func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
 	var app ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
@@ -106,14 +110,20 @@ func PrepareEnvironment(envItem map[string]interface{}) codefresh2.Environment {
 	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
 	if err != nil {
-		println(err)
+		return err, nil
+	}
+
+	err, historyId := resolveHistoryId(historyList, app.Status.Sync.Revision)
+
+	if err != nil {
+		return err, nil
 	}
 
 	env := codefresh2.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
 		SyncRevision: app.Status.Sync.Revision,
-		HistoryId:    resolveHistoryId(historyList),
+		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
 		Resources:    resources,
@@ -121,15 +131,15 @@ func PrepareEnvironment(envItem map[string]interface{}) codefresh2.Environment {
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 	}
 
-	return env
+	return nil, &env
 
 }
 
-func resolveHistoryId(historyList []struct {
-	Id int64
-}) int64 {
-	if len(historyList) == 0 {
-		return -1
+func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string) (error, int64) {
+	for _, item := range historyList {
+		if item.Revision == revision {
+			return nil, item.Id
+		}
 	}
-	return historyList[len(historyList)-1].Id
+	return fmt.Errorf("can`t find history id"), 0
 }

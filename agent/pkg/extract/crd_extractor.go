@@ -12,6 +12,9 @@ func ExtractNewApplication(application string) (*codefresh.Environment, error) {
 	if err != nil {
 		return nil, err
 	}
-	env := transform.PrepareEnvironment(applicationObj)
-	return &env, nil
+	err, env := transform.PrepareEnvironment(applicationObj)
+	if err != nil {
+		return nil, err
+	}
+	return env, nil
 }
