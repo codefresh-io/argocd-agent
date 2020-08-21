@@ -5,6 +5,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/golang/glog"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -72,14 +73,21 @@ func watchApplicationChanges() {
 				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
 				return
 			}
-			_, err = api.SendEnvironment(*env)
+
+			err = util.ProcessDataWithFilter("environment", env, func() error {
+				_, err = api.SendEnvironment(*env)
+				return err
+			})
+
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
 			//queue.Push(env)
 
 			applications := argo.GetApplications()
-			err = api.SendResources("applications", transform.AdaptArgoApplications(applications))
+			err = util.ProcessDataWithFilter("applications", applications, func() error {
+				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
+			})
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -88,7 +96,9 @@ func watchApplicationChanges() {
 		},
 		DeleteFunc: func(obj interface{}) {
 			applications := argo.GetApplications()
-			err := api.SendResources("applications", transform.AdaptArgoApplications(applications))
+			err := util.ProcessDataWithFilter("applications", applications, func() error {
+				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
+			})
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -101,7 +111,10 @@ func watchApplicationChanges() {
 				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
 				return
 			}
-			_, err = api.SendEnvironment(*env)
+			err = util.ProcessDataWithFilter("environment", env, func() error {
+				_, err = api.SendEnvironment(*env)
+				return err
+			})
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
@@ -116,7 +129,11 @@ func watchApplicationChanges() {
 		AddFunc: func(obj interface{}) {
 			fmt.Printf("project added: %s \n", obj)
 			projects := argo.GetProjects()
-			err := api.SendResources("projects", transform.AdaptArgoProjects(projects))
+
+			err := util.ProcessDataWithFilter("projects", projects, func() error {
+				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
+			})
+
 			if err != nil {
 				fmt.Print(err)
 			}
@@ -125,7 +142,9 @@ func watchApplicationChanges() {
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("project deleted: %s \n", obj)
 			projects := argo.GetProjects()
-			err := api.SendResources("projects", transform.AdaptArgoProjects(projects))
+			err := util.ProcessDataWithFilter("projects", projects, func() error {
+				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
+			})
 			if err != nil {
 				fmt.Print(err)
 			}
