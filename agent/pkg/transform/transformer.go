@@ -7,6 +7,7 @@ import (
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/mitchellh/mapstructure"
 	"log"
+	"sort"
 )
 
 type ArgoApplicationHistoryItem struct {
@@ -26,6 +27,9 @@ type ArgoApplication struct {
 		History        []ArgoApplicationHistoryItem
 		OperationState struct {
 			FinishedAt string
+			SyncResult struct {
+				Revision string
+			}
 		}
 	}
 	Spec struct {
@@ -113,7 +117,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return err, nil
 	}
 
-	err, historyId := resolveHistoryId(historyList, app.Status.Sync.Revision)
+	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision)
 
 	if err != nil {
 		return err, nil
@@ -122,7 +126,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	env := codefresh2.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
-		SyncRevision: app.Status.Sync.Revision,
+		SyncRevision: app.Status.OperationState.SyncResult.Revision,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
@@ -136,6 +140,10 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 }
 
 func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string) (error, int64) {
+	sort.Slice(historyList, func(i, j int) bool {
+		return historyList[i].Id > historyList[j].Id
+	})
+
 	for _, item := range historyList {
 		if item.Revision == revision {
 			return nil, item.Id

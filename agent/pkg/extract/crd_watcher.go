@@ -52,6 +52,20 @@ func buildConfig() *rest.Config {
 		return config
 	}
 }
+func updateEnv(obj interface{}) error {
+	err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
+		return err
+	}
+
+	err = util.ProcessDataWithFilter("environment", env, func() error {
+		_, err = codefresh2.GetInstance().SendEnvironment(*env)
+		return err
+	})
+
+	return nil
+}
 
 func watchApplicationChanges() {
 	clientset, err := dynamic.NewForConfig(buildConfig())
@@ -68,16 +82,7 @@ func watchApplicationChanges() {
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
-			if err != nil {
-				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
-				return
-			}
-
-			err = util.ProcessDataWithFilter("environment", env, func() error {
-				_, err = api.SendEnvironment(*env)
-				return err
-			})
+			err := updateEnv(obj)
 
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
@@ -106,15 +111,7 @@ func watchApplicationChanges() {
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			err, env := transform.PrepareEnvironment(newObj.(*unstructured.Unstructured).Object)
-			if err != nil {
-				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
-				return
-			}
-			err = util.ProcessDataWithFilter("environment", env, func() error {
-				_, err = api.SendEnvironment(*env)
-				return err
-			})
+			err := updateEnv(newObj)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
