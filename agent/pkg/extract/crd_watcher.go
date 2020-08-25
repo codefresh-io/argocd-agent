@@ -111,15 +111,7 @@ func watchApplicationChanges() {
 			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			err, env := transform.PrepareEnvironment(newObj.(*unstructured.Unstructured).Object)
-			if err != nil {
-				fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
-				return
-			}
-			err = util.ProcessDataWithFilter("environment", env, func() error {
-				_, err = api.SendEnvironment(*env)
-				return err
-			})
+			err := updateEnv(newObj)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
