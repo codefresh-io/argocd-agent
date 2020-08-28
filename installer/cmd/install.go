@@ -201,18 +201,4 @@ func init() {
 	flags.StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
-	//err := installCmd.MarkFlagRequired("argo-host")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//err = installCmd.MarkFlagRequired("argo-password")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//err = installCmd.MarkFlagRequired("codefresh-integration")
-	//if err != nil {
-	//	panic(err)
-	//}
 }
