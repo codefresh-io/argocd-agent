@@ -555,3 +555,10 @@ func ReplaceObject(clientset *kubernetes.Clientset, obj runtime.Object, namespac
 	}
 	return name, kind, err
 }
+
+func DeletePod(clientset *kubernetes.Clientset, namespace string, labelSelector string) error {
+	var propagationPolicy metav1.DeletionPropagation = "Background"
+
+	listOptions := metav1.ListOptions{LabelSelector: labelSelector}
+	return clientset.CoreV1().Pods(namespace).DeleteCollection(&metav1.DeleteOptions{PropagationPolicy: &propagationPolicy}, listOptions)
+}
