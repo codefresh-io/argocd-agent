@@ -71,7 +71,7 @@ var updateCMD = &cobra.Command{
 			kubeOptions.namespace = selectedNamespace
 		}
 
-		err = kubeobj.DeletePod(kubeClient.GetClientSet(), kubeOptions.namespace, "app=argocd-agent")
+		err = kubeobj.DeletePod(kubeClient.GetClientSet(), kubeOptions.namespace, "app=cf-argocd-agent")
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
