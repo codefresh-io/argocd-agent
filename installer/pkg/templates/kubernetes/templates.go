@@ -61,7 +61,7 @@ spec:
       labels:
         app: cf-argocd-agent
     spec:
-      serviceAccountName: argocd-agent
+      serviceAccountName: cf-argocd-agent
       containers:
       - env:
         - name: ARGO_HOST
