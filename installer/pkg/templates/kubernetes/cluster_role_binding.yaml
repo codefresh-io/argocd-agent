@@ -2,13 +2,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: argocd-agent
+  name: cf-argocd-agent
 subjects:
   - kind: ServiceAccount
-    name: argocd-agent
+    name: cf-argocd-agent
     namespace: {{ .Namespace }}

@@ -2,8 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
 rules:
   - apiGroups:
       - argoproj.io

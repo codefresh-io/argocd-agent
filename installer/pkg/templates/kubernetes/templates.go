@@ -9,8 +9,8 @@ func TemplatesMap() map[string]string {
 kind: ClusterRole
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
 rules:
   - apiGroups:
       - argoproj.io
@@ -27,28 +27,28 @@ rules:
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: argocd-agent
+  name: cf-argocd-agent
 subjects:
   - kind: ServiceAccount
-    name: argocd-agent
+    name: cf-argocd-agent
     namespace: {{ .Namespace }}`
 
 	templatesMap["deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
   namespace: {{ .Namespace }}
 spec:
   selector:
     matchLabels:
-      app: argocd-agent
+      app: cf-argocd-agent
   replicas: 1
   revisionHistoryLimit: 5
   strategy:
@@ -59,7 +59,7 @@ spec:
   template:
     metadata:
       labels:
-        app: argocd-agent
+        app: cf-argocd-agent
     spec:
       serviceAccountName: argocd-agent
       containers:
@@ -70,8 +70,6 @@ spec:
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
-        - name: ARGO_NAMESPACE
-          value: {{ .Namespace }}
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
@@ -82,15 +80,15 @@ spec:
           value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
-        name: argocd-agent
+        name: cf-argocd-agent
       restartPolicy: Always`
 
 	templatesMap["sa.yaml"] = `apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
   namespace: {{ .Namespace }}`
 
 	return templatesMap

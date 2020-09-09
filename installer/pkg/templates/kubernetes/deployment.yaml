@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: argocd-agent
-  name: argocd-agent
+    app: cf-argocd-agent
+  name: cf-argocd-agent
   namespace: {{ .Namespace }}
 spec:
   selector:
     matchLabels:
-      app: argocd-agent
+      app: cf-argocd-agent
   replicas: 1
   revisionHistoryLimit: 5
   strategy:
@@ -19,7 +19,7 @@ spec:
   template:
     metadata:
       labels:
-        app: argocd-agent
+        app: cf-argocd-agent
     spec:
       serviceAccountName: argocd-agent
       containers:
@@ -40,5 +40,5 @@ spec:
           value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
-        name: argocd-agent
+        name: cf-argocd-agent
       restartPolicy: Always
