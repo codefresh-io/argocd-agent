@@ -117,7 +117,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return err, nil
 	}
 
-	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision)
+	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
 
 	if err != nil {
 		return err, nil
@@ -139,7 +139,12 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 }
 
-func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string) (error, int64) {
+func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string, name string) (error, int64) {
+	if historyList == nil {
+		fmt.Println(fmt.Sprintf("can`t find history id for application %s, because history list is empty", name))
+		return nil, -1
+	}
+
 	sort.Slice(historyList, func(i, j int) bool {
 		return historyList[i].Id > historyList[j].Id
 	})
@@ -149,5 +154,5 @@ func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string)
 			return nil, item.Id
 		}
 	}
-	return fmt.Errorf("can`t find history id"), 0
+	return fmt.Errorf("can`t find history id for application %s", name), 0
 }

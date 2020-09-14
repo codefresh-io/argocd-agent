@@ -78,8 +78,6 @@ func watchApplicationChanges() {
 
 	api := codefresh2.GetInstance()
 
-	//queue := Get()
-
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			err := updateEnv(obj)
@@ -115,8 +113,6 @@ func watchApplicationChanges() {
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
-
-			//queue.Push(env)
 		},
 	})
 
