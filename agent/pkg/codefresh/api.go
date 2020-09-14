@@ -80,7 +80,7 @@ func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
 	var result MongoCFEnvWrapper
 	err := a.requestAPI(&requestOptions{
 		method: "GET",
-		path:   "/environments-v2?plain=true",
+		path:   "/environments-v2?plain=true&isEnvironment=false",
 	}, &result)
 	if err != nil {
 		return nil, err
