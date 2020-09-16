@@ -18,6 +18,7 @@ import (
 	"os/user"
 	"path"
 	"regexp"
+	"strconv"
 )
 
 var installCmdOptions struct {
@@ -36,6 +37,7 @@ var installCmdOptions struct {
 		Host        string
 		Token       string
 		Integration string
+		AutoSync    string
 	}
 }
 
@@ -164,6 +166,13 @@ var installCmd = &cobra.Command{
 			}
 			kubeOptions.namespace = selectedNamespace
 		}
+
+		err, autoSync := prompt.Confirm("Do you want auto sync argo apps to codefresh?")
+		if err != nil {
+			return err
+		}
+
+		installCmdOptions.Codefresh.AutoSync = strconv.FormatBool(autoSync)
 
 		installOptions := templates.InstallOptions{
 			Templates:      kubernetes.TemplatesMap(),

@@ -76,6 +76,8 @@ spec:
           value: {{ .Codefresh.Token }}
         - name: IN_CLUSTER
           value: "true"
+        - name: AUTO_SYNC
+          value: "{{ .Codefresh.AutoSync }}"
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable

@@ -232,6 +232,42 @@ func (a *Api) getQs(qs map[string]string) string {
 	return "?" + strings.Join(arr, "&")
 }
 
+func (a *Api) CreateEnvironment(name string, project string, application string) error {
+	err := a.requestAPI(&requestOptions{
+		method: "POST",
+		path:   "/environments-v2",
+		body: &EnvironmentPayload{
+			Version: "1.0",
+			Metadata: EnvironmentMetadata{
+				Name: name,
+			},
+			Spec: EnvironmentSpec{
+				Type:        "argo",
+				Context:     a.Integration,
+				Project:     project,
+				Application: application,
+			},
+		},
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Api) DeleteEnvironment(name string) error {
+	err := a.requestAPI(&requestOptions{
+		method: "DELETE",
+		path:   fmt.Sprintf("/environments-v2/%s", name),
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (a *Api) buildHttpClient() *http.Client {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},

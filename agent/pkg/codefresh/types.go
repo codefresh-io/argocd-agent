@@ -77,6 +77,23 @@ type IntegrationPayload struct {
 	Data IntegrationPayloadData `json:"data"`
 }
 
+type EnvironmentMetadata struct {
+	Name string `json:"name"`
+}
+
+type EnvironmentSpec struct {
+	Type        string `json:"type"`
+	Context     string `json:"context"`
+	Project     string `json:"project"`
+	Application string `json:"application"`
+}
+
+type EnvironmentPayload struct {
+	Version  string              `json:"version"`
+	Metadata EnvironmentMetadata `json:"metadata"`
+	Spec     EnvironmentSpec     `json:"spec"`
+}
+
 type Heartbeat struct {
 	Error string `json:"error"`
 }

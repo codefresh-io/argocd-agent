@@ -8,6 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -42,7 +43,17 @@ func main() {
 		panic(errors.New("CODEFRESH_INTEGRATION variable doesnt exist"))
 	}
 
-	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
+	autoSync, autoSyncExistence := os.LookupEnv("AUTO_SYNC")
+	if !autoSyncExistence {
+		autoSync = "false"
+	}
+
+	autoSyncBool, parseError := strconv.ParseBool(autoSync)
+	if parseError != nil {
+		autoSyncBool = false
+	}
+
+	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName, autoSyncBool)
 
 	token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
 	if err != nil {
@@ -58,8 +69,4 @@ func main() {
 	scheduler.StartEnvInitializer()
 
 	extract.Watch()
-
-	//go argo.Schedule()
-
-	//time.Sleep(100 * time.Minute)
 }

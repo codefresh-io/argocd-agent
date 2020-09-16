@@ -18,6 +18,7 @@ type (
 			Host        string
 			Token       string
 			Integration string
+			AutoSync    bool
 		}
 		Heartbeat struct {
 			Error string
@@ -41,11 +42,12 @@ func SetArgo(token string, host string) *Values {
 	return values
 }
 
-func SetCodefresh(host string, token string, integration string) *Values {
+func SetCodefresh(host string, token string, integration string, autoSync bool) *Values {
 	values := GetStore()
 	values.Codefresh.Token = token
 	values.Codefresh.Host = host
 	values.Codefresh.Integration = integration
+	values.Codefresh.AutoSync = autoSync
 	return values
 }
 
