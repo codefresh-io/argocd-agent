@@ -18,14 +18,32 @@ func main() {
 		panic(errors.New("ARGO_HOST variable doesnt exist"))
 	}
 
-	argoUsername, argoUsernameExistence := os.LookupEnv("ARGO_USERNAME")
-	if !argoUsernameExistence {
-		panic(errors.New("ARGO_USERNAME variable doesnt exist"))
-	}
+	argoToken, argoTokenExistence := os.LookupEnv("ARGO_TOKEN")
+	if !argoTokenExistence {
 
-	argoPassword, argoPasswordExistence := os.LookupEnv("ARGO_PASSWORD")
-	if !argoPasswordExistence {
-		panic(errors.New("ARGO_PASSWORD variable doesnt exist"))
+		argoUsername, argoUsernameExistence := os.LookupEnv("ARGO_USERNAME")
+		if !argoUsernameExistence {
+			panic(errors.New("ARGO_USERNAME variable doesnt exist"))
+		}
+
+		argoPassword, argoPasswordExistence := os.LookupEnv("ARGO_PASSWORD")
+		if !argoPasswordExistence {
+			panic(errors.New("ARGO_PASSWORD variable doesnt exist"))
+		}
+
+		token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
+
+		if err != nil {
+			store.SetHeartbeatError(err.Error())
+			heartbeat.HeartBeatTask()
+			// send heartbeat to codefresh before die
+			panic(err)
+		}
+
+		store.SetArgo(token, argoHost)
+
+	} else {
+		store.SetArgo(argoToken, argoHost)
 	}
 
 	codefreshToken, codefreshTokenExistence := os.LookupEnv("CODEFRESH_TOKEN")
@@ -54,16 +72,6 @@ func main() {
 	}
 
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName, autoSyncBool)
-
-	token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
-	if err != nil {
-		store.SetHeartbeatError(err.Error())
-		heartbeat.HeartBeatTask()
-		// send heartbeat to codefresh before die
-		panic(err)
-	}
-
-	store.SetArgo(token, argoHost)
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()

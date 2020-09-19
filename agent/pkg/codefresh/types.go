@@ -1,6 +1,9 @@
 package codefresh
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/guregu/null"
+)
 
 type MongoCFEnvWrapper struct {
 	Docs []CFEnvironment `json:"docs"`
@@ -66,10 +69,11 @@ type AgentState struct {
 }
 
 type IntegrationPayloadData struct {
-	Name     string `json:"name"`
-	Url      string `json:"url"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Name     string      `json:"name"`
+	Url      string      `json:"url"`
+	Username null.String `json:"username"`
+	Password null.String `json:"password"`
+	Token    null.String `json:"token"`
 }
 
 type IntegrationPayload struct {

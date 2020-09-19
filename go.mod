@@ -12,6 +12,7 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.3.3 // indirect
 	github.com/gookit/color v1.2.7
+	github.com/guregu/null v4.0.0+incompatible
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/jasonlvhit/gocron v0.0.1
 	github.com/json-iterator/go v1.1.9 // indirect

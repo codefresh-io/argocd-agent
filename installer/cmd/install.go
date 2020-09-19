@@ -32,6 +32,7 @@ var installCmdOptions struct {
 		Host     string
 		Username string
 		Password string
+		Token    string
 	}
 	Codefresh struct {
 		Host        string
@@ -42,7 +43,7 @@ var installCmdOptions struct {
 }
 
 func ensureIntegration() error {
-	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password)
+	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
 	if err == nil {
 		return nil
 	}
@@ -65,7 +66,7 @@ func ensureIntegration() error {
 		return fmt.Errorf("you should update integration")
 	}
 
-	errEnsure := holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password)
+	errEnsure := holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
 
 	if errEnsure != nil {
 		return errEnsure
@@ -102,14 +103,26 @@ var installCmd = &cobra.Command{
 
 		installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
 
-		err = prompt.InputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
+		err, useArgocdToken := prompt.Confirm("Do you want use argocd auth token instead username/password auth?")
 		if err != nil {
 			return err
 		}
 
-		err = prompt.InputPassword(&installCmdOptions.Argo.Password, "Argo password")
-		if err != nil {
-			return err
+		if useArgocdToken {
+			err = prompt.InputWithDefault(&installCmdOptions.Argo.Token, "Argo token", "")
+			if err != nil {
+				return err
+			}
+		} else {
+			err = prompt.InputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
+			if err != nil {
+				return err
+			}
+
+			err = prompt.InputPassword(&installCmdOptions.Argo.Password, "Argo password")
+			if err != nil {
+				return err
+			}
 		}
 
 		holder.ApiHolder = codefresh.Api{
@@ -202,7 +215,7 @@ func init() {
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
 
-	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "", "")
+	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "http://local.codefresh.io", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "")
 
