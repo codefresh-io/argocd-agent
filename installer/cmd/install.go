@@ -27,6 +27,7 @@ var installCmdOptions struct {
 		inCluster    bool
 		context      string
 		nodeSelector string
+		configPath   string
 	}
 	Argo struct {
 		Host     string
@@ -149,12 +150,7 @@ var installCmd = &cobra.Command{
 
 		fmt.Println("Integration updated")
 
-		var kubeConfigPath string
-		currentUser, _ := user.Current()
-		if currentUser != nil {
-			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
-		}
-
+		kubeConfigPath := installCmdOptions.kube.configPath
 		kubeOptions := installCmdOptions.kube
 
 		if kubeOptions.context == "" {
@@ -233,5 +229,13 @@ func init() {
 	flags.StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
 	flags.StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
+
+	var kubeConfigPath string
+	currentUser, _ := user.Current()
+	if currentUser != nil {
+		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+	}
+
+	flags.StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 
 }
