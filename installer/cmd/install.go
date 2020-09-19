@@ -101,6 +101,17 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
+		withProtocol, err := regexp.MatchString("^https?://", installCmdOptions.Argo.Host)
+		if err != nil {
+			return err
+		}
+
+		// customer not put protocol during installation
+		if !withProtocol {
+			installCmdOptions.Argo.Host = "https://" + installCmdOptions.Argo.Host
+		}
+
+		// removing / in the end
 		installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
 
 		err, useArgocdToken := prompt.Confirm("Do you want use argocd auth token instead username/password auth?")
