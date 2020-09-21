@@ -5,6 +5,14 @@ package kubernetes
 func TemplatesMap() map[string]string {
 	templatesMap := make(map[string]string)
 
+	templatesMap["sa.yaml"] = `apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: cf-argocd-agent
+  name: cf-argocd-agent
+  namespace: {{ .Namespace }}`
+
 	templatesMap["cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -86,14 +94,6 @@ spec:
         imagePullPolicy: Always
         name: cf-argocd-agent
       restartPolicy: Always`
-
-	templatesMap["sa.yaml"] = `apiVersion: v1
-kind: ServiceAccount
-metadata:
-  labels:
-    app: cf-argocd-agent
-  name: cf-argocd-agent
-  namespace: {{ .Namespace }}`
 
 	return templatesMap
 }
