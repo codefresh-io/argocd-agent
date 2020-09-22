@@ -148,8 +148,6 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Integration updated")
-
 		kubeConfigPath := installCmdOptions.kube.configPath
 		kubeOptions := installCmdOptions.kube
 

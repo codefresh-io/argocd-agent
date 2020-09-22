@@ -39,9 +39,7 @@ func Install(opt *InstallOptions) (error, string, string) {
 	for _, obj := range kubeObjects {
 		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
 
-		if createErr == nil {
-			//			fmt.Println(fmt.Sprintf("%s \"%s\" created", kind, name))
-		} else if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
+		if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
 			if statusError.ErrStatus.Reason == metav1.StatusReasonAlreadyExists {
 				logger.Warning(fmt.Sprintf("%s \"%s\" already exists", kind, name))
 			} else {
@@ -49,7 +47,6 @@ func Install(opt *InstallOptions) (error, string, string) {
 				return statusError, kind, name
 			}
 		} else {
-			//fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
 			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
 			return createErr, kind, name
 		}

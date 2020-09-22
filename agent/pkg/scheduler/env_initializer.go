@@ -27,7 +27,7 @@ func handleNewApplications(applications []string) {
 			fmt.Println("Cant handle new application " + application)
 			continue
 		}
-		fmt.Println("Detect new application " + application + " , send new env state")
+		fmt.Println("Detect new application " + application + " , do initialization")
 		_, _ = codefresh.GetInstance().SendEnvironment(*newApp)
 	}
 }

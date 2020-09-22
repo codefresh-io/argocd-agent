@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/guregu/null"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -39,7 +40,8 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Send environment to codefresh %v", environment))
+
+	log.Println(fmt.Sprintf("Send environment to codefresh %v with activities amount %v", environment.Name, len(environment.Activities)))
 	return result, nil
 }
 
