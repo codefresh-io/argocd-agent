@@ -46,6 +46,11 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 }
 
 func (a *Api) SendResources(kind string, items interface{}) error {
+	if items == nil {
+		log.Println(fmt.Sprintf("Skip sending resources with kind \"%s\" to codefresh because items not exist", kind))
+		return nil
+	}
+
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   fmt.Sprintf("/argo-agent/%s", a.Integration),
