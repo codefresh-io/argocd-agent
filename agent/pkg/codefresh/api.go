@@ -222,6 +222,8 @@ func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
 			return err
 		}
 
+		cfError.URL = finalURL
+
 		return cfError
 	}
 

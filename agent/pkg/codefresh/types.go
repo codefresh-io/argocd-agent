@@ -44,10 +44,11 @@ type CodefreshError struct {
 	Name    string      `json:"name"`
 	Message string      `json:"message"`
 	Context interface{} `json:"context"`
+	URL     string
 }
 
 func (e *CodefreshError) Error() string {
-	return fmt.Sprintf("Request failed, %s - %s", e.Code, e.Message)
+	return fmt.Sprintf("Request failed to %s, %s - %s", e.URL, e.Code, e.Message)
 }
 
 type AgentApplication struct {
