@@ -19,7 +19,7 @@ func main() {
 	}
 
 	argoToken, argoTokenExistence := os.LookupEnv("ARGO_TOKEN")
-	if !argoTokenExistence {
+	if !argoTokenExistence || argoToken == "" {
 
 		argoUsername, argoUsernameExistence := os.LookupEnv("ARGO_USERNAME")
 		if !argoUsernameExistence {
