@@ -5,7 +5,7 @@ package kubernetes
 func TemplatesMap() map[string]string {
 	templatesMap := make(map[string]string)
 
-	templatesMap["sa.yaml"] = `apiVersion: v1
+	templatesMap["1_sa.yaml"] = `apiVersion: v1
 kind: ServiceAccount
 metadata:
   labels:
@@ -13,7 +13,7 @@ metadata:
   name: cf-argocd-agent
   namespace: {{ .Namespace }}`
 
-	templatesMap["cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
+	templatesMap["2_cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -31,7 +31,7 @@ rules:
       - watch
 `
 
-	templatesMap["cluster_role_binding.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
+	templatesMap["3_cluster_role_binding.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
@@ -46,7 +46,7 @@ subjects:
     name: cf-argocd-agent
     namespace: {{ .Namespace }}`
 
-	templatesMap["deployment.yaml"] = `apiVersion: apps/v1
+	templatesMap["4_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:

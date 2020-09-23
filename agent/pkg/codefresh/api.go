@@ -38,6 +38,7 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 	var result map[string]interface{}
 	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)
 	if err != nil {
+		log.Println(fmt.Sprintf("Cant Send environment to codefresh %v with activities amount %v", environment.Name, len(environment.Activities)))
 		return nil, err
 	}
 
