@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
@@ -191,6 +192,9 @@ var installCmd = &cobra.Command{
 		}
 
 		installCmdOptions.Codefresh.AutoSync = strconv.FormatBool(autoSync)
+
+		installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
+		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
 
 		installOptions := templates.InstallOptions{
 			Templates:      kubernetes.TemplatesMap(),
