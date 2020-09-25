@@ -147,12 +147,12 @@ func getGitObject(revision string) (error, *codefresh2.GitInfo) {
 		return err, nil
 	}
 
-	err, committers := gitClient.GetCommittersByCommits(&commits)
+	err, committers := gitClient.GetCommittersByCommits(commits)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
 
-	err, prs := gitClient.GetCommittersByCommits(&commits)
+	err, prs := gitClient.GetPullRequestsByCommits(commits)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
