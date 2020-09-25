@@ -46,17 +46,7 @@ subjects:
     name: cf-argocd-agent
     namespace: {{ .Namespace }}`
 
-	templatesMap["4_secret.yaml"] = `apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: {{ .AppName }}
-  namespace: {{ .Namespace }}
-data:
-  codefresh.token: {{ .Codefresh.Host }}
-  argo.token: {{ .Argo.Token }}`
-
-	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
+	templatesMap["4_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -91,14 +81,14 @@ spec:
         - name: ARGO_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .AppName }}
+              name: cf-argocd-agent
               key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .AppName }}
+              name: cf-argocd-agent
               key: codefresh.token
         - name: IN_CLUSTER
           value: "true"
@@ -110,6 +100,16 @@ spec:
         imagePullPolicy: Always
         name: cf-argocd-agent
       restartPolicy: Always`
+
+	templatesMap["4_secret.yaml"] = `apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: cf-argocd-agent
+  namespace: {{ .Namespace }}
+data:
+  codefresh.token: {{ .Codefresh.Token }}
+  argo.token: {{ .Argo.Token }}`
 
 	return templatesMap
 }
