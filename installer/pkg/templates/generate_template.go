@@ -70,7 +70,7 @@ func main() {
 		}
 		return nil
 	})
-
+	//5f61f9d682508a0cda5a2c02.b313d2932ed23068be3ea06008cd01e3
 	if len(templateFilesMap) == 0 {
 		fmt.Printf("No files in %s\n", folderName)
 	}

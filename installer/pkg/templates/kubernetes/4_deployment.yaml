@@ -30,12 +30,22 @@ spec:
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
+        - name: ARGO_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
-          value: {{ .Codefresh.Token }}
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: codefresh.token
         - name: IN_CLUSTER
           value: "true"
+        - name: AUTO_SYNC
+          value: "{{ .Codefresh.AutoSync }}"
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable

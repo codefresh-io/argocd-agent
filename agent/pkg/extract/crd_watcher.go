@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/golang/glog"
+	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
@@ -78,16 +80,37 @@ func watchApplicationChanges() {
 
 	api := codefresh2.GetInstance()
 
-	//queue := Get()
-
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			err := updateEnv(obj)
+			var app argo.ArgoApplication
+			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
+
+			err = updateEnv(obj)
 
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
-			//queue.Push(env)
+
+			applications := argo.GetApplications()
+			err = util.ProcessDataWithFilter("applications", applications, func() error {
+				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
+			})
+
+			applicationCreatedHandler := handler.GetApplicationCreatedHandlerInstance()
+			err = applicationCreatedHandler.Handle(app)
+
+			if err != nil {
+				fmt.Print(err)
+			}
+
+			log.Println(applications)
+		},
+		DeleteFunc: func(obj interface{}) {
+			var app argo.ArgoApplication
+			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
+			if err != nil {
+				fmt.Print(err)
+			}
 
 			applications := argo.GetApplications()
 			err = util.ProcessDataWithFilter("applications", applications, func() error {
@@ -97,26 +120,19 @@ func watchApplicationChanges() {
 				fmt.Print(err)
 			}
 
-			log.Println(applications)
-		},
-		DeleteFunc: func(obj interface{}) {
-			applications := argo.GetApplications()
-			err := util.ProcessDataWithFilter("applications", applications, func() error {
-				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
-			})
+			applicationRemovedHandler := handler.GetApplicationRemovedHandlerInstance()
+			err = applicationRemovedHandler.Handle(app)
+
 			if err != nil {
 				fmt.Print(err)
 			}
 
-			log.Println(applications)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			err := updateEnv(newObj)
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
 			}
-
-			//queue.Push(env)
 		},
 	})
 

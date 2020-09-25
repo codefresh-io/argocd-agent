@@ -11,38 +11,6 @@ import (
 	"sort"
 )
 
-type ArgoApplicationHistoryItem struct {
-	Id       int64
-	Revision string
-}
-
-type ArgoApplication struct {
-	Status struct {
-		Health struct {
-			Status string
-		}
-		Sync struct {
-			Status   string
-			Revision string
-		}
-		History        []ArgoApplicationHistoryItem
-		OperationState struct {
-			FinishedAt string
-			SyncResult struct {
-				Revision string
-			}
-		}
-	}
-	Spec struct {
-		Source struct {
-			RepoURL string
-		}
-	}
-	Metadata struct {
-		Name string
-	}
-}
-
 func initDeploymentsStatuses(applicationName string) map[string]string {
 	statuses := make(map[string]string)
 	resourceTree, _ := argo.GetResourceTree(applicationName)
@@ -106,7 +74,7 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 
 func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
-	var app ArgoApplication
+	var app argo.ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
 
 	name := app.Metadata.Name
@@ -125,7 +93,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return err, nil
 	}
 
-	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision)
+	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
 
 	if err != nil {
 		return err, nil
@@ -147,7 +115,12 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 }
 
-func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string) (error, int64) {
+func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision string, name string) (error, int64) {
+	if historyList == nil {
+		fmt.Println(fmt.Sprintf("can`t find history id for application %s, because history list is empty", name))
+		return nil, -1
+	}
+
 	sort.Slice(historyList, func(i, j int) bool {
 		return historyList[i].Id > historyList[j].Id
 	})
@@ -157,7 +130,7 @@ func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string)
 			return nil, item.Id
 		}
 	}
-	return fmt.Errorf("can`t find history id"), 0
+	return fmt.Errorf("can`t find history id for application %s", name), 0
 }
 
 func getGitObject(revision string) (error, *codefresh2.GitInfo) {

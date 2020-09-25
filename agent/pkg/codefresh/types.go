@@ -1,6 +1,9 @@
 package codefresh
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/guregu/null"
+)
 
 type MongoCFEnvWrapper struct {
 	Docs []CFEnvironment `json:"docs"`
@@ -44,10 +47,11 @@ type CodefreshError struct {
 	Name    string      `json:"name"`
 	Message string      `json:"message"`
 	Context interface{} `json:"context"`
+	URL     string
 }
 
 func (e *CodefreshError) Error() string {
-	return fmt.Sprintf("Request failed, %s - %s", e.Code, e.Message)
+	return fmt.Sprintf("Request failed to %s, %s - %s", e.URL, e.Code, e.Message)
 }
 
 type AgentApplication struct {
@@ -69,10 +73,11 @@ type AgentState struct {
 }
 
 type IntegrationPayloadData struct {
-	Name     string `json:"name"`
-	Url      string `json:"url"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Name     string      `json:"name"`
+	Url      string      `json:"url"`
+	Username null.String `json:"username"`
+	Password null.String `json:"password"`
+	Token    null.String `json:"token"`
 }
 
 type IntegrationPayload struct {
@@ -91,6 +96,23 @@ type ContextPayload struct {
 			} `json:"auth"`
 		} `json:"data"`
 	} `json:"spec"`
+}
+
+type EnvironmentMetadata struct {
+	Name string `json:"name"`
+}
+
+type EnvironmentSpec struct {
+	Type        string `json:"type"`
+	Context     string `json:"context"`
+	Project     string `json:"project"`
+	Application string `json:"application"`
+}
+
+type EnvironmentPayload struct {
+	Version  string              `json:"version"`
+	Metadata EnvironmentMetadata `json:"metadata"`
+	Spec     EnvironmentSpec     `json:"spec"`
 }
 
 type Heartbeat struct {

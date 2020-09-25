@@ -9,12 +9,18 @@ func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh2.Age
 	var result []codefresh2.AgentApplication
 
 	for _, item := range applications {
+		namespace := item.Spec.Destination.Namespace
+
+		if namespace == "" {
+			namespace = "-"
+		}
+
 		newItem := codefresh2.AgentApplication{
 			Name:      item.Metadata.Name,
 			UID:       item.Metadata.UID,
 			Project:   item.Spec.Project,
 			Server:    item.Spec.Destination.Server,
-			Namespace: item.Spec.Destination.Namespace,
+			Namespace: namespace,
 		}
 		result = append(result, newItem)
 	}

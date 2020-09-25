@@ -18,9 +18,10 @@ import (
 
 var uninstallCmdOptions struct {
 	kube struct {
-		namespace string
-		inCluster bool
-		context   string
+		namespace  string
+		inCluster  bool
+		context    string
+		configPath string
 	}
 }
 
@@ -30,12 +31,7 @@ var uninstallCmd = &cobra.Command{
 	Long:  `Uninstall agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		var kubeConfigPath string
-		currentUser, _ := user.Current()
-		if currentUser != nil {
-			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
-		}
-
+		kubeConfigPath := installCmdOptions.kube.configPath
 		kubeOptions := uninstallCmdOptions.kube
 
 		if uninstallCmdOptions.kube.context == "" {
@@ -94,4 +90,11 @@ func init() {
 	uninstallCmd.Flags().StringVar(&uninstallCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which venona should be installed (default is current-context) [$KUBE_CONTEXT]")
 	uninstallCmd.Flags().BoolVar(&uninstallCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if venona is been installed from inside a cluster")
 
+	var kubeConfigPath string
+	currentUser, _ := user.Current()
+	if currentUser != nil {
+		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+	}
+
+	uninstallCmd.Flags().StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 }

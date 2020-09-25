@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/guregu/null"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -36,13 +38,20 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 	var result map[string]interface{}
 	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)
 	if err != nil {
+		log.Println(fmt.Sprintf("Cant Send environment to codefresh %v with activities amount %v", environment.Name, len(environment.Activities)))
 		return nil, err
 	}
-	fmt.Println(fmt.Sprintf("Send environment to codefresh %v", environment))
+
+	log.Println(fmt.Sprintf("Send environment to codefresh %v with activities amount %v", environment.Name, len(environment.Activities)))
 	return result, nil
 }
 
 func (a *Api) SendResources(kind string, items interface{}) error {
+	if items == nil {
+		log.Println(fmt.Sprintf("Skip sending resources with kind \"%s\" to codefresh because items not exist", kind))
+		return nil
+	}
+
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   fmt.Sprintf("/argo-agent/%s", a.Integration),
@@ -89,18 +98,34 @@ func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
 	return result.Docs, nil
 }
 
-func (a *Api) CreateIntegration(name string, host string, username string, password string) error {
+func prepareIntegration(name string, host string, username string, password string, token string) IntegrationPayloadData {
+	payloadData := IntegrationPayloadData{
+		Name: name,
+		Url:  host,
+	}
+
+	if username != "" {
+		payloadData.Username = null.NewString(username, true)
+	}
+
+	if password != "" {
+		payloadData.Password = null.NewString(password, true)
+	}
+
+	if token != "" {
+		payloadData.Token = null.NewString(token, true)
+	}
+	return payloadData
+}
+
+func (a *Api) CreateIntegration(name string, host string, username string, password string, token string) error {
+
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   "/argo",
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: IntegrationPayloadData{
-				Name:     name,
-				Url:      host,
-				Username: username,
-				Password: password,
-			},
+			Data: prepareIntegration(name, host, username, password, token),
 		},
 	}, nil)
 	if err != nil {
@@ -130,12 +155,7 @@ func (a *Api) UpdateIntegration(name string, host string, username string, passw
 		path:   fmt.Sprintf("/argo/%s", name),
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: IntegrationPayloadData{
-				Name:     name,
-				Url:      host,
-				Username: username,
-				Password: password,
-			},
+			Data: prepareIntegration(name, host, username, password, token),
 		},
 	}, nil)
 	if err != nil {
@@ -222,6 +242,8 @@ func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
 			return err
 		}
 
+		cfError.URL = finalURL
+
 		return cfError
 	}
 
@@ -244,6 +266,42 @@ func (a *Api) getQs(qs map[string]string) string {
 		arr = append(arr, fmt.Sprintf("%s=%s", k, v))
 	}
 	return "?" + strings.Join(arr, "&")
+}
+
+func (a *Api) CreateEnvironment(name string, project string, application string) error {
+	err := a.requestAPI(&requestOptions{
+		method: "POST",
+		path:   "/environments-v2",
+		body: &EnvironmentPayload{
+			Version: "1.0",
+			Metadata: EnvironmentMetadata{
+				Name: name,
+			},
+			Spec: EnvironmentSpec{
+				Type:        "argo",
+				Context:     a.Integration,
+				Project:     project,
+				Application: application,
+			},
+		},
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Api) DeleteEnvironment(name string) error {
+	err := a.requestAPI(&requestOptions{
+		method: "DELETE",
+		path:   fmt.Sprintf("/environments-v2/%s", name),
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (a *Api) buildHttpClient() *http.Client {

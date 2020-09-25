@@ -7,6 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"reflect"
 )
 
 type InstallOptions struct {
@@ -36,11 +37,13 @@ func Install(opt *InstallOptions) (error, string, string) {
 		return err, "", ""
 	}
 
-	for _, obj := range kubeObjects {
-		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, obj, opt.Namespace)
+	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
+
+	for _, key := range kubeObjectKeys {
+		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, kubeObjects[key.String()], opt.Namespace)
 
 		if createErr == nil {
-			//			fmt.Println(fmt.Sprintf("%s \"%s\" created", kind, name))
+			// skip, everything ok
 		} else if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
 			if statusError.ErrStatus.Reason == metav1.StatusReasonAlreadyExists {
 				logger.Warning(fmt.Sprintf("%s \"%s\" already exists", kind, name))
@@ -49,7 +52,6 @@ func Install(opt *InstallOptions) (error, string, string) {
 				return statusError, kind, name
 			}
 		} else {
-			//fmt.Println(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
 			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
 			return createErr, kind, name
 		}

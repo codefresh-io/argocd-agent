@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
@@ -18,6 +19,7 @@ import (
 	"os/user"
 	"path"
 	"regexp"
+	"strconv"
 )
 
 var installCmdOptions struct {
@@ -26,21 +28,24 @@ var installCmdOptions struct {
 		inCluster    bool
 		context      string
 		nodeSelector string
+		configPath   string
 	}
 	Argo struct {
 		Host     string
 		Username string
 		Password string
+		Token    string
 	}
 	Codefresh struct {
 		Host        string
 		Token       string
 		Integration string
+		AutoSync    string
 	}
 }
 
 func ensureIntegration() error {
-	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password)
+	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
 	if err == nil {
 		return nil
 	}
@@ -63,7 +68,7 @@ func ensureIntegration() error {
 		return fmt.Errorf("you should update integration")
 	}
 
-	errEnsure := holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password)
+	errEnsure := holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
 
 	if errEnsure != nil {
 		return errEnsure
@@ -98,16 +103,39 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
-
-		err = prompt.InputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
+		withProtocol, err := regexp.MatchString("^https?://", installCmdOptions.Argo.Host)
 		if err != nil {
 			return err
 		}
 
-		err = prompt.InputPassword(&installCmdOptions.Argo.Password, "Argo password")
+		// customer not put protocol during installation
+		if !withProtocol {
+			installCmdOptions.Argo.Host = "https://" + installCmdOptions.Argo.Host
+		}
+
+		// removing / in the end
+		installCmdOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installCmdOptions.Argo.Host, "")
+
+		err, useArgocdToken := prompt.Confirm("Do you want use argocd auth token instead username/password auth?")
 		if err != nil {
 			return err
+		}
+
+		if useArgocdToken {
+			err = prompt.InputWithDefault(&installCmdOptions.Argo.Token, "Argo token", "")
+			if err != nil {
+				return err
+			}
+		} else {
+			err = prompt.InputWithDefault(&installCmdOptions.Argo.Username, "Argo username", "admin")
+			if err != nil {
+				return err
+			}
+
+			err = prompt.InputPassword(&installCmdOptions.Argo.Password, "Argo password")
+			if err != nil {
+				return err
+			}
 		}
 
 		holder.ApiHolder = codefresh.Api{
@@ -121,14 +149,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("Integration updated")
-
-		var kubeConfigPath string
-		currentUser, _ := user.Current()
-		if currentUser != nil {
-			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
-		}
-
+		kubeConfigPath := installCmdOptions.kube.configPath
 		kubeOptions := installCmdOptions.kube
 
 		if kubeOptions.context == "" {
@@ -165,6 +186,16 @@ var installCmd = &cobra.Command{
 			kubeOptions.namespace = selectedNamespace
 		}
 
+		err, autoSync := prompt.Confirm("Do you want auto sync argo apps to codefresh?")
+		if err != nil {
+			return err
+		}
+
+		installCmdOptions.Codefresh.AutoSync = strconv.FormatBool(autoSync)
+
+		installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
+		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
+
 		installOptions := templates.InstallOptions{
 			Templates:      kubernetes.TemplatesMap(),
 			TemplateValues: structs.Map(installCmdOptions),
@@ -193,12 +224,20 @@ func init() {
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
 
-	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "", "")
+	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "http://local.codefresh.io", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "")
 
 	flags.StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
 	flags.StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
+
+	var kubeConfigPath string
+	currentUser, _ := user.Current()
+	if currentUser != nil {
+		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+	}
+
+	flags.StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 
 }

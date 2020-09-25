@@ -16,9 +16,10 @@ import (
 
 var updateCmdOptions struct {
 	kube struct {
-		namespace string
-		inCluster bool
-		context   string
+		namespace  string
+		inCluster  bool
+		context    string
+		configPath string
 	}
 }
 
@@ -29,12 +30,7 @@ var updateCMD = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
-		var kubeConfigPath string
-		currentUser, _ := user.Current()
-		if currentUser != nil {
-			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
-		}
-
+		kubeConfigPath := installCmdOptions.kube.configPath
 		kubeOptions := updateCmdOptions.kube
 
 		if kubeOptions.context == "" {
@@ -91,4 +87,11 @@ func init() {
 	flags.StringVar(&updateCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be updated (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&updateCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been updated from inside a cluster")
 
+	var kubeConfigPath string
+	currentUser, _ := user.Current()
+	if currentUser != nil {
+		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+	}
+
+	flags.StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 }

@@ -5,7 +5,15 @@ package kubernetes
 func TemplatesMap() map[string]string {
 	templatesMap := make(map[string]string)
 
-	templatesMap["cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
+	templatesMap["1_sa.yaml"] = `apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: cf-argocd-agent
+  name: cf-argocd-agent
+  namespace: {{ .Namespace }}`
+
+	templatesMap["2_cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -23,7 +31,7 @@ rules:
       - watch
 `
 
-	templatesMap["cluster_role_binding.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
+	templatesMap["3_cluster_role_binding.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
@@ -38,7 +46,7 @@ subjects:
     name: cf-argocd-agent
     namespace: {{ .Namespace }}`
 
-	templatesMap["deployment.yaml"] = `apiVersion: apps/v1
+	templatesMap["4_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -70,12 +78,22 @@ spec:
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
+        - name: ARGO_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
-          value: {{ .Codefresh.Token }}
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: codefresh.token
         - name: IN_CLUSTER
           value: "true"
+        - name: AUTO_SYNC
+          value: "{{ .Codefresh.AutoSync }}"
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable
@@ -83,13 +101,15 @@ spec:
         name: cf-argocd-agent
       restartPolicy: Always`
 
-	templatesMap["sa.yaml"] = `apiVersion: v1
-kind: ServiceAccount
+	templatesMap["4_secret.yaml"] = `apiVersion: v1
+kind: Secret
+type: Opaque
 metadata:
-  labels:
-    app: cf-argocd-agent
   name: cf-argocd-agent
-  namespace: {{ .Namespace }}`
+  namespace: {{ .Namespace }}
+data:
+  codefresh.token: {{ .Codefresh.Token }}
+  argo.token: {{ .Argo.Token }}`
 
 	return templatesMap
 }

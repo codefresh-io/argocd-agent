@@ -14,6 +14,7 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/gookit/color v1.2.7
+	github.com/guregu/null v4.0.0+incompatible
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/jasonlvhit/gocron v0.0.1
 	github.com/json-iterator/go v1.1.9 // indirect

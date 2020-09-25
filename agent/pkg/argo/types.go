@@ -96,3 +96,36 @@ type ApplicationResource struct {
 	Status    string `json:"status"`
 	Health    Health `json:"health"`
 }
+
+type ArgoApplicationHistoryItem struct {
+	Id       int64
+	Revision string
+}
+
+type ArgoApplication struct {
+	Status struct {
+		Health struct {
+			Status string
+		}
+		Sync struct {
+			Status   string
+			Revision string
+		}
+		History        []ArgoApplicationHistoryItem
+		OperationState struct {
+			FinishedAt string
+			SyncResult struct {
+				Revision string
+			}
+		}
+	}
+	Spec struct {
+		Source struct {
+			RepoURL string
+		}
+		Project string
+	}
+	Metadata struct {
+		Name string
+	}
+}
