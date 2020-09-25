@@ -19,6 +19,9 @@ type CFEnvironment struct {
 	} `json:"spec"`
 }
 
+type GitInfo struct {
+}
+
 type Environment struct {
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
@@ -108,4 +111,17 @@ type requestOptions struct {
 	method string
 	body   interface{}
 	qs     map[string]string
+}
+
+type ContextPayload struct {
+	Spec struct {
+		Type string `json:"type"`
+		Data struct {
+			Auth struct {
+				Password      string `json:"password"`
+				ApiHost       string `json:"apiHost"`
+				ApiPathPrefix string `json:"apiPathPrefix"`
+			} `json:"auth"`
+		} `json:"data"`
+	} `json:"spec"`
 }

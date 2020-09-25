@@ -10,6 +10,9 @@ type Environment struct {
 
 type (
 	Values struct {
+		Git struct {
+			Token string
+		}
 		Argo struct {
 			Token string
 			Host  string
@@ -60,5 +63,10 @@ func SetHeartbeatError(error string) *Values {
 func SetEnvironments(environments []Environment) *Values {
 	values := GetStore()
 	values.Environments = environments
+	return values
+}
+func SetGit(Token string) *Values {
+	values := GetStore()
+	values.Git.Token = Token
 	return values
 }

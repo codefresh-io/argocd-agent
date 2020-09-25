@@ -34,6 +34,20 @@ func GetInstance() *Api {
 	return api
 }
 
+func (a *Api) GetDefaultGitContext() (error, *ContextPayload) {
+	var result ContextPayload
+
+	err := a.requestAPI(&requestOptions{
+		method: "GET",
+		path:   fmt.Sprintf("/contexts/default"),
+	}, &result)
+	if err != nil {
+		return err, nil
+	}
+	// todo - add logs
+	return nil, &result
+}
+
 func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
 	var result map[string]interface{}
 	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)

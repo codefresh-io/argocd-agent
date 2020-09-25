@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
@@ -72,6 +73,15 @@ func main() {
 	}
 
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName, autoSyncBool)
+
+	//  @todo - move codefresh git integration token to env during installation
+	gitAuthErr, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
+	if gitAuthErr != nil {
+		store.SetHeartbeatError(gitAuthErr.Error())
+		heartbeat.HeartBeatTask()
+		panic(gitAuthErr)
+	}
+	store.SetGit(contextPayload.Spec.Data.Auth.Password)
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
