@@ -46,7 +46,17 @@ subjects:
     name: cf-argocd-agent
     namespace: {{ .Namespace }}`
 
-	templatesMap["4_deployment.yaml"] = `apiVersion: apps/v1
+	templatesMap["4_secret.yaml"] = `apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: {{ .AppName }}
+  namespace: {{ .Namespace }}
+data:
+  codefresh.token: {{ .Codefresh.Host }}
+  argo.token: {{ .Argo.Token }}`
+
+	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -79,11 +89,17 @@ spec:
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
         - name: ARGO_TOKEN
-          value: {{ .Argo.Token }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .AppName }}
+              key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
-          value: {{ .Codefresh.Token }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .AppName }}
+              key: codefresh.token
         - name: IN_CLUSTER
           value: "true"
         - name: AUTO_SYNC

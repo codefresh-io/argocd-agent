@@ -31,11 +31,17 @@ spec:
         - name: ARGO_PASSWORD
           value: {{ .Argo.Password }}
         - name: ARGO_TOKEN
-          value: {{ .Argo.Token }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .AppName }}
+              key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
-          value: {{ .Codefresh.Token }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ .AppName }}
+              key: codefresh.token
         - name: IN_CLUSTER
           value: "true"
         - name: AUTO_SYNC
