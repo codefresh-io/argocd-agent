@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
@@ -43,6 +44,9 @@ func main() {
 	}
 
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
+
+	err, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
+	store.SetGit(contextPayload.Spec.Data.Auth.Password)
 
 	token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
 	if err != nil {

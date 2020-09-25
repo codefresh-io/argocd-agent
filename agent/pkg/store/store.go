@@ -10,6 +10,9 @@ type Environment struct {
 
 type (
 	Values struct {
+		Git struct {
+			Token string
+		}
 		Argo struct {
 			Token string
 			Host  string
@@ -38,6 +41,12 @@ func SetArgo(token string, host string) *Values {
 	values := GetStore()
 	values.Argo.Token = token
 	values.Argo.Host = host
+	return values
+}
+
+func SetGit(token string) *Values {
+	values := GetStore()
+	values.Git.Token = token
 	return values
 }
 

@@ -28,6 +28,9 @@ type Environment struct {
 	RepoUrl      string                `json:"repoUrl"`
 }
 
+type GitInfo struct {
+}
+
 type EnvironmentActivity struct {
 	Name         string   `json:"name"`
 	TargetImages []string `json:"targetImages"`
@@ -75,6 +78,19 @@ type IntegrationPayloadData struct {
 type IntegrationPayload struct {
 	Type string                 `json:"type"`
 	Data IntegrationPayloadData `json:"data"`
+}
+
+type ContextPayload struct {
+	Spec struct {
+		Type string `json:"type"`
+		Data struct {
+			Auth struct {
+				Password      string `json:"password"`
+				ApiHost       string `json:"apiHost"`
+				ApiPathPrefix string `json:"apiPathPrefix"`
+			} `json:"auth"`
+		} `json:"data"`
+	} `json:"spec"`
 }
 
 type Heartbeat struct {

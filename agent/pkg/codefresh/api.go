@@ -110,6 +110,20 @@ func (a *Api) CreateIntegration(name string, host string, username string, passw
 	return nil
 }
 
+func (a *Api) GetDefaultGitContext() (error, *ContextPayload) {
+	var result ContextPayload
+
+	err := a.requestAPI(&requestOptions{
+		method: "GET",
+		path:   fmt.Sprintf("/contexts/default"),
+	}, &result)
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, &result
+}
+
 func (a *Api) UpdateIntegration(name string, host string, username string, password string) error {
 	err := a.requestAPI(&requestOptions{
 		method: "PUT",

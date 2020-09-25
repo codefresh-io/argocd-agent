@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	git "github.com/codefresh-io/argocd-listener/agent/pkg/git"
 	"github.com/mitchellh/mapstructure"
 	"log"
 	"sort"
@@ -109,8 +110,15 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	err := mapstructure.Decode(envItem, &app)
 
 	name := app.Metadata.Name
-	historyList := app.Status.History
+	revision := app.Status.OperationState.SyncResult.Revision
+	if name != "app-olegz" {
+		_env := codefresh2.Environment{}
+		return nil, &_env
+	}
 
+	historyList := app.Status.History
+	err, gitInfo := getGitObject(revision)
+	fmt.Println(gitInfo)
 	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
 	if err != nil {
@@ -126,7 +134,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	env := codefresh2.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
-		SyncRevision: app.Status.OperationState.SyncResult.Revision,
+		SyncRevision: revision,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
@@ -150,4 +158,30 @@ func resolveHistoryId(historyList []ArgoApplicationHistoryItem, revision string)
 		}
 	}
 	return fmt.Errorf("can`t find history id"), 0
+}
+
+func getGitObject(revision string) (error, *codefresh2.GitInfo) {
+
+	gitClient := git.GetInstance()
+
+	err, commits := gitClient.GetCommitsBySha(revision)
+	if err != nil { // @todo - maybe we have better idea
+		return err, nil
+	}
+
+	err, committers := gitClient.GetCommittersByCommits(&commits)
+	if err != nil { // @todo - maybe we have better idea
+		return err, nil
+	}
+
+	err, prs := gitClient.GetCommittersByCommits(&commits)
+	if err != nil { // @todo - maybe we have better idea
+		return err, nil
+	}
+
+	fmt.Println(commits)
+	fmt.Println(committers)
+	fmt.Println(prs)
+	gitObject := codefresh2.GitInfo{}
+	return nil, &gitObject
 }
