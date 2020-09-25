@@ -33,14 +33,14 @@ spec:
         - name: ARGO_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .AppName }}
+              name: cf-argocd-agent
               key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ .AppName }}
+              name: cf-argocd-agent
               key: codefresh.token
         - name: IN_CLUSTER
           value: "true"
