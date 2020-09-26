@@ -2,7 +2,6 @@ package git
 
 import (
 	"context"
-	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -71,31 +70,25 @@ func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error,
 	return nil, committers
 }
 
-func (a *Api) GetPullRequestsByCommits(commits []*github.RepositoryCommit) (error, *github.PullRequest) {
+func (a *Api) GetPullRequestsByCommits(commits []*github.RepositoryCommit) (error, []*github.PullRequest) {
 	// @todo - wtf with pointers
 	allPullRequests, _, err := api.Client.PullRequests.List(api.Ctx, api.Owner, api.Repo, &github.PullRequestListOptions{State: "all"})
 
-	pullRequests := []*github.RepositoryCommit{}
+	pullRequests := []*github.PullRequest{}
 	if err != nil {
 		return err, nil
 	}
-	fmt.Println(pullRequests)
 
-	//allSha := []string
-	//for i := 0; i < len(commits); i++ {
-	//	allSha := append(allSha, *commits[i].SHA)
-	//}
-	//
-	//for i := 0; i < len(allPullRequests); i++ {
-	//	mergeCommitSHA := allPullRequests[i].MergeCommitSHA
-	//	fmt.Println(MergeCommitSHA)
-	//}
-	//for i := 0; i < len(*commits); i++ {
-	//	author := (*commits)[i].Author
-	//	committers = append(committers, author)
-	//}
+	for i := 0; i < len(allPullRequests); i++ {
+		mergeCommitSHA := allPullRequests[i].MergeCommitSHA
+		for _, commit := range commits {
+			if *commit.SHA == *mergeCommitSHA {
+				pullRequests = append(pullRequests, allPullRequests[i])
+			}
+		}
+	}
 
-	return nil, allPullRequests[0]
+	return nil, pullRequests
 }
 
 func (a *Api) GetIssuesByPRs(pullRequest *github.PullRequest) (error, interface{}) {
@@ -105,4 +98,14 @@ func (a *Api) GetIssuesByPRs(pullRequest *github.PullRequest) (error, interface{
 	Client := github.NewClient(tc)
 
 	return nil, Client
+}
+
+// todo - move this to the separate module
+func contains(arr[]string, str string) bool {
+	for _, a := range arr {
+		if a == str {
+			return true
+		}
+	}
+	return false
 }
