@@ -166,10 +166,11 @@ func getGitObject(revision string) (error, *codefresh2.GitInfo) {
 	}
 	fmt.Println(issues)
 
-	gitObject := codefresh2.GitInfo{
+	gitInfo := codefresh2.GitInfo{
 		Committers: committers,
 		Prs:        prs,
 		Issues:     issues,
 	}
-	return nil, &gitObject
+
+	return nil, &gitInfo
 }
