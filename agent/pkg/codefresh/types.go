@@ -22,12 +22,13 @@ type CFEnvironment struct {
 
 //  @todo - it ok?
 type GitInfo struct {
-	Committers []*github.User
-	Prs        []*github.PullRequest
-	Issues     []*github.Issue
+	Committers []*github.User        `json:"committers"`
+	Prs        []*github.PullRequest `json:"prs"`
+	Issues     []*github.Issue       `json:"issues"`
 }
 
 type Environment struct {
+	GitInfo      GitInfo               `json:"gitInfo"`
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
 	SyncStatus   string                `json:"status"`

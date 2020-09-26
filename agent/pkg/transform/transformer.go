@@ -108,6 +108,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
 		SyncRevision: revision,
+		GitInfo:      *gitInfo,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
@@ -171,6 +172,6 @@ func getGitObject(revision string) (error, *codefresh2.GitInfo) {
 		Prs:        prs,
 		Issues:     issues,
 	}
-
+	//gitInfo := codefresh2.GitInfo{}
 	return nil, &gitInfo
 }
