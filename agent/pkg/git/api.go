@@ -12,7 +12,7 @@ type Api struct {
 	Client *github.Client //github.Client
 	Owner  string
 	Repo   string
-	Ctx context.Context
+	Ctx    context.Context
 }
 
 var api *Api
@@ -30,10 +30,10 @@ func GetInstance() *Api {
 	client := github.NewClient(tc)
 	api = &Api{
 		Token:  gitConfig.Token,
-		Ctx: ctx,
+		Ctx:    ctx,
 		Client: client,
-		Owner:  "olegz-codefresh",
-		Repo:   "argo",
+		Owner:  "olegz-codefresh", //todo - get this from config
+		Repo:   "argo",            //todo - get this from config
 	}
 	return api
 }
@@ -62,9 +62,15 @@ func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error, []*github.User) {
 	// @todo - wtf with pointers
 	committers := []*github.User{}
+	//committersSet :=make(map[string]bool)
 	for i := 0; i < len(commits); i++ {
+		// @todo - committers must be only uniq
 		author := commits[i].Author
+		//_, exists := committersSet[author.Login]
+		//if exists != true {
+		//committersSet[author.Login] = true
 		committers = append(committers, author)
+		//}
 	}
 
 	return nil, committers
@@ -73,35 +79,43 @@ func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error,
 func (a *Api) GetPullRequestsByCommits(commits []*github.RepositoryCommit) (error, []*github.PullRequest) {
 	// @todo - wtf with pointers
 	allPullRequests, _, err := api.Client.PullRequests.List(api.Ctx, api.Owner, api.Repo, &github.PullRequestListOptions{State: "all"})
-
-	pullRequests := []*github.PullRequest{}
 	if err != nil {
 		return err, nil
 	}
 
-	for i := 0; i < len(allPullRequests); i++ {
-		mergeCommitSHA := allPullRequests[i].MergeCommitSHA
-		for _, commit := range commits {
-			if *commit.SHA == *mergeCommitSHA {
-				pullRequests = append(pullRequests, allPullRequests[i])
-			}
-		}
-	}
+	// todo - it's dont work
+	//pullRequests := []*github.PullRequest{}
+	//for i := 0; i < len(allPullRequests); i++ {
+	//	mergeCommitSHA := allPullRequests[i].MergeCommitSHA
+	//for _, commit := range commits {
+	//	if *commit.SHA == *mergeCommitSHA {
+	//		pullRequests = append(pullRequests, allPullRequests[i])
+	//	}
+	//}
+	//}
+	//return nil, pullRequests
 
-	return nil, pullRequests
+	return nil, allPullRequests
 }
 
-func (a *Api) GetIssuesByPRs(pullRequest *github.PullRequest) (error, interface{}) {
-	// @todo - remove this sh*t
-	ctx := context.Background()
-	tc := oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: api.Token}))
-	Client := github.NewClient(tc)
+func (a *Api) GetIssuesByPRs(pullRequests []*github.PullRequest) (error, []*github.Issue) {
+	// @todo - wtf with pointers
 
-	return nil, Client
+	allIssues := []*github.Issue{}
+
+	for _, prs := range pullRequests {
+		issues, _, err := api.Client.Issues.Get(api.Ctx, api.Owner, api.Repo, *prs.Number)
+		if err != nil {
+			return err, nil
+		}
+		allIssues = append(allIssues, issues)
+	}
+
+	return nil, allIssues
 }
 
 // todo - move this to the separate module
-func contains(arr[]string, str string) bool {
+func contains(arr []string, str string) bool {
 	for _, a := range arr {
 		if a == str {
 			return true

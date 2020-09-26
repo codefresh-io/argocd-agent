@@ -2,6 +2,7 @@ package codefresh
 
 import (
 	"fmt"
+	"github.com/google/go-github/github"
 	"github.com/guregu/null"
 )
 
@@ -19,7 +20,11 @@ type CFEnvironment struct {
 	} `json:"spec"`
 }
 
+//  @todo - it ok?
 type GitInfo struct {
+	Committers []*github.User
+	Prs        []*github.PullRequest
+	Issues     []*github.Issue
 }
 
 type Environment struct {

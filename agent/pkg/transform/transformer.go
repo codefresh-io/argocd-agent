@@ -146,20 +146,30 @@ func getGitObject(revision string) (error, *codefresh2.GitInfo) {
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
+	fmt.Println(commits)
 
 	err, committers := gitClient.GetCommittersByCommits(commits)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
+	fmt.Println(committers)
 
 	err, prs := gitClient.GetPullRequestsByCommits(commits)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
-
-	fmt.Println(commits)
-	fmt.Println(committers)
 	fmt.Println(prs)
-	gitObject := codefresh2.GitInfo{}
+
+	err, issues := gitClient.GetIssuesByPRs(prs)
+	if err != nil { // @todo - maybe we have better idea
+		return err, nil
+	}
+	fmt.Println(issues)
+
+	gitObject := codefresh2.GitInfo{
+		Committers: committers,
+		Prs:        prs,
+		Issues:     issues,
+	}
 	return nil, &gitObject
 }
