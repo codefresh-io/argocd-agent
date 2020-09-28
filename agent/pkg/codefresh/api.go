@@ -39,7 +39,7 @@ func (a *Api) GetDefaultGitContext() (error, *ContextPayload) {
 
 	err := a.requestAPI(&requestOptions{
 		method: "GET",
-		path:   fmt.Sprintf("/contexts/default"),
+		path:   fmt.Sprintf("/contexts/git/default"),
 	}, &result)
 	if err != nil {
 		return err, nil
