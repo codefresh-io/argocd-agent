@@ -11,7 +11,7 @@ type Annotation struct {
 }
 
 type Gitops struct {
-	Committers []User       `json:"committers"`
-	Prs        []Annotation `json:"prs"`
-	Issues     []Annotation `json:"issues"`
+	Comitters []User       `json:"comitters"`
+	Prs       []Annotation `json:"prs"`
+	Issues    []Annotation `json:"issues"`
 }

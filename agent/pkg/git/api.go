@@ -74,25 +74,25 @@ func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	return nil, commits
 }
 
-func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error, []User) {
-	committers := []User{}
-	committersSet := make(map[string]bool)
+func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []User) {
+	comitters := []User{}
+	comittersSet := make(map[string]bool)
 	for _, commit := range commits {
 		author := commit.Author
 		if author == nil {
 			continue
 		}
-		_, exists := committersSet[*author.Login]
+		_, exists := comittersSet[*author.Login]
 		if exists != true {
-			committersSet[*author.Login] = true
-			committers = append(committers, User{
+			comittersSet[*author.Login] = true
+			comitters = append(comitters, User{
 				Name:   *author.Login,
 				Avatar: *author.AvatarURL,
 			})
 		}
 	}
 
-	return nil, committers
+	return nil, comitters
 }
 
 func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []Annotation, []Annotation) {

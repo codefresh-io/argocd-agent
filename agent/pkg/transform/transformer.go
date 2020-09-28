@@ -80,7 +80,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	name := app.Metadata.Name
 	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
-	repoUrl :=  app.Spec.Source.RepoURL
+	repoUrl := app.Spec.Source.RepoURL
 
 	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
@@ -108,7 +108,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
 		SyncRevision: revision,
-		Gitops:      *gitops,
+		Gitops:       *gitops,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
@@ -151,7 +151,7 @@ func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
 		return err, nil
 	}
 
-	err, committers := gitClient.GetCommittersByCommits(commits)
+	err, comitters := gitClient.GetComittersByCommits(commits)
 	if err != nil {
 		return err, nil
 	}
@@ -162,9 +162,9 @@ func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
 	}
 
 	gitInfo := git.Gitops{
-		Committers: committers,
-		Prs:        prs,
-		Issues:     issues,
+		Comitters: comitters,
+		Prs:       prs,
+		Issues:    issues,
 	}
 
 	return nil, &gitInfo
