@@ -78,6 +78,21 @@ func (a *Api) SendResources(kind string, items interface{}) error {
 	return nil
 }
 
+func (a *Api) SendEvent(name string, props map[string]string) error {
+	event := CodefreshEvent{Event: name, Props: props}
+
+	err := a.requestAPI(&requestOptions{
+		method: "POST",
+		path:   "/gitops/system/events",
+		body:   event,
+	}, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (a *Api) HeartBeat(error string) error {
 	var body interface{}
 

@@ -139,7 +139,7 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 	return fmt.Errorf("can`t find history id for application %s", name), 0
 }
 
-func getGitObject(revision string) (error, *codefresh2.GitInfo) {
+func getGitObject(revision string) (error, *git.GitInfo) {
 
 	gitClient := git.GetInstance()
 
@@ -163,7 +163,7 @@ func getGitObject(revision string) (error, *codefresh2.GitInfo) {
 		return err, nil
 	}
 
-	gitInfo := codefresh2.GitInfo{
+	gitInfo := git.GitInfo{
 		Committers: committers,
 		Prs:        prs,
 		Issues:     issues,

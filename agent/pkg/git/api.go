@@ -57,20 +57,21 @@ func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	return nil, commits
 }
 
-func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error, []*github.User) {
-	committers := []*github.User{}
+func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error, []User) {
+	committers := []User{}
 	committersSet := make(map[string]bool)
 	for _, commit := range commits {
 		author := commit.Author
-		if author == nil {
-			continue
+		if author != nil {
+			_, exists := committersSet[*author.Login]
+			if exists != true {
+				committersSet[*author.Login] = true
+				committers = append(committers, User{
+					Name:   author.String(),
+					Avatar: "",
+				})
+			}
 		}
-		_, exists := committersSet[*author.Login]
-		if exists != true {
-			committersSet[*author.Login] = true
-			committers = append(committers, author)
-		}
-
 	}
 
 	return nil, committers
