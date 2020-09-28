@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -23,6 +24,13 @@ var uninstallCmdOptions struct {
 		context    string
 		configPath string
 	}
+}
+
+func sendArgoAgentUninstalledEvent(status string, reason string) {
+	props := make(map[string]string)
+	props["status"] = status
+	props["reason"] = reason
+	_ = holder.ApiHolder.SendEvent("agent.uninstalled", props)
 }
 
 var uninstallCmd = &cobra.Command{
@@ -74,8 +82,12 @@ var uninstallCmd = &cobra.Command{
 		err, kind, name = templates.Delete(&uninstallOptions)
 
 		if err != nil {
-			return errors.New(fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err))
+			msg := fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
+			sendArgoAgentUninstalledEvent(FAILED, msg)
+			return errors.New(msg)
 		}
+
+		sendArgoAgentUninstalledEvent(SUCCESS, "")
 
 		logger.Success(fmt.Sprintf("Argo agent uninstallation finished successfully to namespace \"%s\"", kubeOptions.namespace))
 
