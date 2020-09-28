@@ -21,7 +21,7 @@ type CFEnvironment struct {
 }
 
 type Environment struct {
-	GitInfo      git.GitInfo           `json:"gitInfo"`
+	Gitops       git.Gitops            `json:"gitops"`
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
 	SyncStatus   string                `json:"status"`
