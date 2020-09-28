@@ -60,17 +60,17 @@ func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 }
 
 func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error, []*github.User) {
-	// @todo - wtf with pointers
 	committers := []*github.User{}
-	//committersSet :=make(map[string]bool)
-	for i := 0; i < len(commits); i++ {
-		// @todo - committers must be only uniq
-		author := commits[i].Author
-		//_, exists := committersSet[author.Login]
-		//if exists != true {
-		//committersSet[author.Login] = true
-		committers = append(committers, author)
-		//}
+	committersSet := make(map[string]bool)
+	for _, commit := range commits {
+		author := commit.Author
+		if author != nil {
+			_, exists := committersSet[*author.Login]
+			if exists != true {
+				committersSet[*author.Login] = true
+				committers = append(committers, author)
+			}
+		}
 	}
 
 	return nil, committers
