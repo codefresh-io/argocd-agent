@@ -123,11 +123,11 @@ func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 
 				pullRequests = append(pullRequests, Annotation{
 					Key:   *pr.Title,
-					Value: *pr.URL,
+					Value: *pr.HTMLURL,
 				})
 				issues = append(issues, Annotation{
 					Key:   *issue.Title,
-					Value: *issue.URL,
+					Value: *issue.HTMLURL,
 				})
 			}
 		}
