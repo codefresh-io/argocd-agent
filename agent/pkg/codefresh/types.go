@@ -20,7 +20,6 @@ type CFEnvironment struct {
 	} `json:"spec"`
 }
 
-//  @todo - it ok?
 type GitInfo struct {
 	Committers []*github.User        `json:"committers"`
 	Prs        []*github.PullRequest `json:"prs"`
