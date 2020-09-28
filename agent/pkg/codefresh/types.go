@@ -2,7 +2,7 @@ package codefresh
 
 import (
 	"fmt"
-	"github.com/google/go-github/github"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
 	"github.com/guregu/null"
 )
 
@@ -20,15 +20,8 @@ type CFEnvironment struct {
 	} `json:"spec"`
 }
 
-//  @todo - it ok?
-type GitInfo struct {
-	Committers []*github.User        `json:"committers"`
-	Prs        []*github.PullRequest `json:"prs"`
-	Issues     []*github.Issue       `json:"issues"`
-}
-
 type Environment struct {
-	GitInfo      GitInfo               `json:"gitInfo"`
+	GitInfo      git.GitInfo           `json:"gitInfo"`
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
 	SyncStatus   string                `json:"status"`
