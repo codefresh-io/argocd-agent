@@ -77,6 +77,13 @@ func ensureIntegration() error {
 	return nil
 }
 
+func sendArgoAgentInstalledEvent(status string, reason string) {
+	props := make(map[string]string)
+	props["status"] = status
+	props["reason"] = reason
+	_ = holder.ApiHolder.SendEvent("agent.installed", props)
+}
+
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install agent",
@@ -146,6 +153,7 @@ var installCmd = &cobra.Command{
 
 		err = ensureIntegration()
 		if err != nil {
+			sendArgoAgentInstalledEvent(FAILED, err.Error())
 			return err
 		}
 
@@ -207,8 +215,12 @@ var installCmd = &cobra.Command{
 		err, kind, name = templates.Install(&installOptions)
 
 		if err != nil {
-			return errors.New(fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err))
+			msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
+			sendArgoAgentInstalledEvent(FAILED, msg)
+			return errors.New(msg)
 		}
+
+		sendArgoAgentInstalledEvent(SUCCESS, "")
 
 		logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.namespace))
 

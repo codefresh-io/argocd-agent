@@ -47,6 +47,11 @@ type CodefreshError struct {
 	URL     string
 }
 
+type CodefreshEvent struct {
+	Event string            `json:"event"`
+	Props map[string]string `json:"props"`
+}
+
 func (e *CodefreshError) Error() string {
 	return fmt.Sprintf("Request failed to %s, %s - %s", e.URL, e.Code, e.Message)
 }
