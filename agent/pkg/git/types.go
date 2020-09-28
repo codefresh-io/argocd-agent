@@ -10,7 +10,7 @@ type Annotation struct {
 	Value string
 }
 
-type GitInfo struct {
+type Gitops struct {
 	Committers []User       `json:"committers"`
 	Prs        []Annotation `json:"prs"`
 	Issues     []Annotation `json:"issues"`
