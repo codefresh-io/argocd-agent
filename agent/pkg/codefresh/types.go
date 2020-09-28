@@ -2,6 +2,7 @@ package codefresh
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
 	"github.com/guregu/null"
 )
 
@@ -20,6 +21,7 @@ type CFEnvironment struct {
 }
 
 type Environment struct {
+	Gitops       git.Gitops            `json:"gitops"`
 	FinishedAt   string                `json:"finishedAt"`
 	HealthStatus string                `json:"healthStatus"`
 	SyncStatus   string                `json:"status"`
@@ -113,4 +115,17 @@ type requestOptions struct {
 	method string
 	body   interface{}
 	qs     map[string]string
+}
+
+type ContextPayload struct {
+	Spec struct {
+		Type string `json:"type"`
+		Data struct {
+			Auth struct {
+				Password      string `json:"password"`
+				ApiHost       string `json:"apiHost"`
+				ApiPathPrefix string `json:"apiPathPrefix"`
+			} `json:"auth"`
+		} `json:"data"`
+	} `json:"spec"`
 }

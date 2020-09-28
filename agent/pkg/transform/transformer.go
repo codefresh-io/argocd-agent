@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
 	"github.com/mitchellh/mapstructure"
 	"log"
 	"sort"
@@ -78,11 +79,18 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 	name := app.Metadata.Name
 	historyList := app.Status.History
+	revision := app.Status.OperationState.SyncResult.Revision
+	repoUrl := app.Spec.Source.RepoURL
 
 	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
 	if err != nil {
 		return err, nil
+	}
+
+	err, gitops := getGitoptsInfo(repoUrl, revision)
+	if err != nil {
+		log.Println(err.Error())
 	}
 
 	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
@@ -94,12 +102,13 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	env := codefresh2.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
-		SyncRevision: app.Status.OperationState.SyncResult.Revision,
+		SyncRevision: revision,
+		Gitops:       *gitops,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
 		Resources:    resources,
-		RepoUrl:      app.Spec.Source.RepoURL,
+		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 	}
 
@@ -123,4 +132,39 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 		}
 	}
 	return fmt.Errorf("can`t find history id for application %s", name), 0
+}
+
+func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
+	defaultGitInfo := git.Gitops{
+		Comitters: []git.User{},
+		Prs:       []git.Annotation{},
+		Issues:    []git.Annotation{},
+	}
+	err, gitClient := git.GetInstance(repoUrl)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	err, commits := gitClient.GetCommitsBySha(revision)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	err, comitters := gitClient.GetComittersByCommits(commits)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	err, issues, prs := gitClient.GetIssuesAndPrsByCommits(commits)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	gitInfo := git.Gitops{
+		Comitters: comitters,
+		Prs:       prs,
+		Issues:    issues,
+	}
+
+	return nil, &gitInfo
 }
