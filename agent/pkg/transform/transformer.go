@@ -87,11 +87,6 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	if err != nil {
 		return err, nil
 	}
-	// todo -ONLY FOR LOCAL TEST!
-	if name != "app-olegz" {
-		_env := codefresh2.Environment{}
-		return nil, &_env
-	}
 
 	err, gitops := getGitoptsInfo(repoUrl, revision)
 	if err != nil {
