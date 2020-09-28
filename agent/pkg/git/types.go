@@ -1,13 +1,13 @@
 package git
 
 type User struct {
-	Name   string
-	Avatar string
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
 }
 
 type Annotation struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type Gitops struct {
