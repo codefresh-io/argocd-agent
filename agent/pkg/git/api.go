@@ -20,7 +20,13 @@ type Api struct {
 var api *Api
 
 func GetInstance(repoUrl string) (error, *Api) {
+	err, owner, repo  := _extractRepoAndOwnerFromUrl(repoUrl)
+	if err != nil {
+		return err, nil
+	}
 	if api != nil {
+		api.Owner = owner
+		api.Repo = repo
 		return nil, api
 	}
 	gitConfig := store.GetStore().Git
@@ -30,10 +36,6 @@ func GetInstance(repoUrl string) (error, *Api) {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
-	err, owner, repo  := _extractRepoAndOwnerFromUrl(repoUrl)
-	if err != nil {
-		return err, nil
-	}
 
 	api = &Api{
 		Token:  gitConfig.Token,

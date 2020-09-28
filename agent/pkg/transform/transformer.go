@@ -90,7 +90,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 	err, gitops := getGitoptsInfo(repoUrl, revision)
 	if err != nil {
-		return err, nil
+		log.Println(err.Error())
 	}
 
 	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
@@ -135,25 +135,29 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 }
 
 func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
-
+	defaultGitInfo := git.Gitops{
+		Comitters: []git.User{},
+		Prs:       []git.Annotation{},
+		Issues:    []git.Annotation{},
+	}
 	err, gitClient := git.GetInstance(repoUrl)
 	if err != nil {
-		return err, nil
+		return err, &defaultGitInfo
 	}
 
 	err, commits := gitClient.GetCommitsBySha(revision)
 	if err != nil {
-		return err, nil
+		return err, &defaultGitInfo
 	}
 
 	err, comitters := gitClient.GetComittersByCommits(commits)
 	if err != nil {
-		return err, nil
+		return err, &defaultGitInfo
 	}
 
 	err, issues, prs := gitClient.GetIssuesAndPrsByCommits(commits)
 	if err != nil {
-		return err, nil
+		return err, &defaultGitInfo
 	}
 
 	gitInfo := git.Gitops{
