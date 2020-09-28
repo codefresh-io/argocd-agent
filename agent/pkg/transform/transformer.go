@@ -93,8 +93,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return nil, &_env
 	}
 
-	err, gitInfo := getGitObject(repoUrl, revision)
-	fmt.Println(gitInfo)
+	err, gitops := getGitoptsInfo(repoUrl, revision)
 	if err != nil {
 		return err, nil
 	}
@@ -109,7 +108,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
 		SyncRevision: revision,
-		GitInfo:      *gitInfo,
+		Gitops:      *gitops,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
@@ -140,7 +139,7 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 	return fmt.Errorf("can`t find history id for application %s", name), 0
 }
 
-func getGitObject(repoUrl string, revision string) (error, *git.GitInfo) {
+func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
 
 	err, gitClient := git.GetInstance(repoUrl)
 	if err != nil {
@@ -157,17 +156,12 @@ func getGitObject(repoUrl string, revision string) (error, *git.GitInfo) {
 		return err, nil
 	}
 
-	err, prs := gitClient.GetPullRequestsByCommits(commits)
+	err, issues, prs := gitClient.GetIssuesAndPrsByCommits(commits)
 	if err != nil {
 		return err, nil
 	}
 
-	err, issues := gitClient.GetIssuesByPRs(prs)
-	if err != nil {
-		return err, nil
-	}
-
-	gitInfo := git.GitInfo{
+	gitInfo := git.Gitops{
 		Committers: committers,
 		Prs:        prs,
 		Issues:     issues,

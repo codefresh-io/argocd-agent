@@ -79,28 +79,31 @@ func (a *Api) GetCommittersByCommits(commits []*github.RepositoryCommit) (error,
 	committersSet := make(map[string]bool)
 	for _, commit := range commits {
 		author := commit.Author
-		if author != nil {
-			_, exists := committersSet[*author.Login]
-			if exists != true {
-				committersSet[*author.Login] = true
-				committers = append(committers, User{
-					Name:   author.String(),
-					Avatar: "",
-				})
-			}
+		if author == nil {
+			continue
+		}
+		_, exists := committersSet[*author.Login]
+		if exists != true {
+			committersSet[*author.Login] = true
+			committers = append(committers, User{
+				Name:   *author.Login,
+				Avatar: *author.AvatarURL,
+			})
 		}
 	}
 
 	return nil, committers
 }
 
-func (a *Api) GetPullRequestsByCommits(commits []*github.RepositoryCommit) (error, []*github.PullRequest) {
+func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []Annotation, []Annotation) {
 	allPullRequests, _, err := api.Client.PullRequests.List(api.Ctx, api.Owner, api.Repo, &github.PullRequestListOptions{State: "all"})
 	if err != nil {
-		return err, nil
+		return err, nil, nil
 	}
 
-	pullRequests := []*github.PullRequest{}
+	issues := []Annotation{}
+	pullRequests := []Annotation{}
+
 	for _, pr := range allPullRequests {
 		mergeCommitSHA := pr.MergeCommitSHA
 		if mergeCommitSHA == nil {
@@ -111,23 +114,22 @@ func (a *Api) GetPullRequestsByCommits(commits []*github.RepositoryCommit) (erro
 				continue
 			}
 			if *commit.SHA == *mergeCommitSHA {
-				pullRequests = append(pullRequests, pr)
+				issue, _, err := api.Client.Issues.Get(api.Ctx, api.Owner, api.Repo, *pr.Number)
+				if err != nil {
+					return err, nil, nil
+				}
+
+				pullRequests = append(pullRequests, Annotation{
+					Key:   *pr.Title,
+					Value: *pr.URL,
+				})
+				issues = append(issues, Annotation{
+					Key:   *issue.Title,
+					Value: *issue.URL,
+				})
 			}
 		}
 	}
-	return nil, pullRequests
+	return nil, issues, pullRequests
 }
 
-func (a *Api) GetIssuesByPRs(pullRequests []*github.PullRequest) (error, []*github.Issue) {
-	allIssues := []*github.Issue{}
-
-	for _, prs := range pullRequests {
-		issues, _, err := api.Client.Issues.Get(api.Ctx, api.Owner, api.Repo, *prs.Number)
-		if err != nil {
-			return err, nil
-		}
-		allIssues = append(allIssues, issues)
-	}
-
-	return nil, allIssues
-}
