@@ -80,6 +80,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	name := app.Metadata.Name
 	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
+	repoUrl :=  app.Spec.Source.RepoURL
 
 	resources, err := argo.GetResourceTreeAll(name)
 	// TODO: improve error handling
@@ -92,7 +93,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return nil, &_env
 	}
 
-	err, gitInfo := getGitObject(revision)
+	err, gitInfo := getGitObject(repoUrl, revision)
 	fmt.Println(gitInfo)
 	if err != nil {
 		return err, nil
@@ -113,7 +114,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		Name:         name,
 		Activities:   prepareEnvironmentActivity(name),
 		Resources:    resources,
-		RepoUrl:      app.Spec.Source.RepoURL,
+		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 	}
 
@@ -139,27 +140,30 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 	return fmt.Errorf("can`t find history id for application %s", name), 0
 }
 
-func getGitObject(revision string) (error, *git.GitInfo) {
+func getGitObject(repoUrl string, revision string) (error, *git.GitInfo) {
 
-	gitClient := git.GetInstance()
+	err, gitClient := git.GetInstance(repoUrl)
+	if err != nil {
+		return err, nil
+	}
 
 	err, commits := gitClient.GetCommitsBySha(revision)
-	if err != nil { // @todo - maybe we have better idea
+	if err != nil {
 		return err, nil
 	}
 
 	err, committers := gitClient.GetCommittersByCommits(commits)
-	if err != nil { // @todo - maybe we have better idea
+	if err != nil {
 		return err, nil
 	}
 
 	err, prs := gitClient.GetPullRequestsByCommits(commits)
-	if err != nil { // @todo - maybe we have better idea
+	if err != nil {
 		return err, nil
 	}
 
 	err, issues := gitClient.GetIssuesByPRs(prs)
-	if err != nil { // @todo - maybe we have better idea
+	if err != nil {
 		return err, nil
 	}
 

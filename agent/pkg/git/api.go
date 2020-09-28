@@ -5,6 +5,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
+	"net/url"
+	"strings"
 )
 
 type Api struct {
@@ -17,9 +19,9 @@ type Api struct {
 
 var api *Api
 
-func GetInstance() *Api {
+func GetInstance(repoUrl string) (error, *Api) {
 	if api != nil {
-		return api
+		return nil, api
 	}
 	gitConfig := store.GetStore().Git
 	ctx := context.Background()
@@ -28,15 +30,30 @@ func GetInstance() *Api {
 	)
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
+	err, owner, repo  := _extractRepoAndOwnerFromUrl(repoUrl)
+	if err != nil {
+		return err, nil
+	}
+
 	api = &Api{
 		Token:  gitConfig.Token,
 		Ctx:    ctx,
 		Client: client,
-		Owner:  "olegz-codefresh", //todo - get this from config
-		Repo:   "argo",            //todo - get this from config
+		Owner:  owner,
+		Repo:   repo,
 	}
-	return api
+	return nil, api
 }
+
+func _extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
+	u, err  := url.Parse(repoUrl)
+	if err != nil {
+		return err, "", ""
+	}
+	urlParts := strings.Split(u.Path, "/")
+	return nil, urlParts[len(urlParts)-2], urlParts[len(urlParts)-1]
+}
+
 
 func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
