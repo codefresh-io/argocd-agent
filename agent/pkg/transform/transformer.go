@@ -147,30 +147,27 @@ func getGitObject(revision string) (error, *git.GitInfo) {
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
-	fmt.Println(commits)
 
 	err, committers := gitClient.GetCommittersByCommits(commits)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
-	fmt.Println(committers)
 
 	err, prs := gitClient.GetPullRequestsByCommits(commits)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
-	fmt.Println(prs)
 
 	err, issues := gitClient.GetIssuesByPRs(prs)
 	if err != nil { // @todo - maybe we have better idea
 		return err, nil
 	}
-	fmt.Println(issues)
 
 	gitInfo := git.GitInfo{
 		Committers: committers,
 		Prs:        prs,
 		Issues:     issues,
 	}
+
 	return nil, &gitInfo
 }
