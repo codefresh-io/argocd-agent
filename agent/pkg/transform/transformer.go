@@ -163,6 +163,7 @@ func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
 	gitInfo := git.Gitops{
 		Comitters: comitters,
 		Prs:       prs,
+		Issues:    []git.Annotation{},
 	}
 
 	return nil, &gitInfo
