@@ -52,6 +52,7 @@ func _extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 	if err != nil {
 		return err, "", ""
 	}
+
 	urlParts := strings.Split(u.Path, "/")
 	return nil, urlParts[len(urlParts)-2], urlParts[len(urlParts)-1]
 }
