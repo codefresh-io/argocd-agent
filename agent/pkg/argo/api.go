@@ -117,7 +117,7 @@ func GetResourceTreeAll(applicationName string) (interface{}, error) {
 	return result.(map[string]interface{})["nodes"], nil
 }
 
-func GetManagedResources(applicationName string) ManagedResource {
+func GetManagedResources(applicationName string) (*ManagedResource, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
@@ -138,13 +138,13 @@ func GetManagedResources(applicationName string) ManagedResource {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
-	return result
+	return &result, nil
 }
 
-func GetProjects() []ProjectItem {
+func GetProjects() ([]ProjectItem, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
@@ -165,10 +165,10 @@ func GetProjects() []ProjectItem {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
-	return result.Items
+	return result.Items, nil
 }
 
 func GetApplication(application string) (map[string]interface{}, error) {
@@ -197,13 +197,13 @@ func GetApplication(application string) (map[string]interface{}, error) {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
 	return result, nil
 }
 
-func GetApplications() []ApplicationItem {
+func GetApplications() ([]ApplicationItem, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
@@ -224,8 +224,8 @@ func GetApplications() []ApplicationItem {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
-	return result.Items
+	return result.Items, nil
 }
