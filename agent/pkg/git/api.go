@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/google/go-github/github"
+	"github.com/whilp/git-urls"
 	"golang.org/x/oauth2"
-	"net/url"
 	"strings"
 )
 
@@ -48,7 +48,7 @@ func GetInstance(repoUrl string) (error, *Api) {
 }
 
 func _extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
-	u, err  := url.Parse(repoUrl)
+	u, err  := giturls.Parse(repoUrl)
 	if err != nil {
 		return err, "", ""
 	}
