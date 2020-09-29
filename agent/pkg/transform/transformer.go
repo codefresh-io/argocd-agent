@@ -155,7 +155,7 @@ func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
 		return err, &defaultGitInfo
 	}
 
-	err, issues, prs := gitClient.GetIssuesAndPrsByCommits(commits)
+	err, _, prs := gitClient.GetIssuesAndPrsByCommits(commits)
 	if err != nil {
 		return err, &defaultGitInfo
 	}
@@ -163,7 +163,6 @@ func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
 	gitInfo := git.Gitops{
 		Comitters: comitters,
 		Prs:       prs,
-		Issues:    issues,
 	}
 
 	return nil, &gitInfo
