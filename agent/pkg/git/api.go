@@ -20,7 +20,7 @@ type Api struct {
 var api *Api
 
 func GetInstance(repoUrl string) (error, *Api) {
-	err, owner, repo  := _extractRepoAndOwnerFromUrl(repoUrl)
+	err, owner, repo := extractRepoAndOwnerFromUrl(repoUrl)
 	if err != nil {
 		return err, nil
 	}
@@ -47,16 +47,24 @@ func GetInstance(repoUrl string) (error, *Api) {
 	return nil, api
 }
 
-func _extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
-	u, err  := giturls.Parse(repoUrl)
+func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
+	u, err := giturls.Parse(repoUrl)
 	if err != nil {
 		return err, "", ""
 	}
 
 	urlParts := strings.Split(u.Path, "/")
-	return nil, urlParts[len(urlParts)-2], urlParts[len(urlParts)-1]
+	filteredUrlParts := []string{}
+	for _, part := range urlParts {
+		if part != "" {
+			filteredUrlParts = append(filteredUrlParts, part)
+		}
+	}
+	if len(filteredUrlParts) > 1 {
+		return nil, filteredUrlParts[len(filteredUrlParts)-2], filteredUrlParts[len(filteredUrlParts)-1]
+	}
+	return nil, "", ""
 }
-
 
 func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
@@ -135,4 +143,3 @@ func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 	}
 	return nil, issues, pullRequests
 }
-

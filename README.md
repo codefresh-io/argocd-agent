@@ -14,6 +14,10 @@ codefresh argocd-agent install
 ## Usage
 This tool require for use new codefresh argocd integration and environment view
 
+## Run tests
+`go test -cover ./...`
+
+
 ## Release History
 
 * 0.0.1
