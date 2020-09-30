@@ -11,7 +11,7 @@ import (
 
 type Api struct {
 	Token  string
-	Client *github.Client //github.Client
+	Client *github.Client
 	Owner  string
 	Repo   string
 	Ctx    context.Context
@@ -20,7 +20,7 @@ type Api struct {
 var api *Api
 
 func GetInstance(repoUrl string) (error, *Api) {
-	err, owner, repo  := _extractRepoAndOwnerFromUrl(repoUrl)
+	err, owner, repo := _extractRepoAndOwnerFromUrl(repoUrl)
 	if err != nil {
 		return err, nil
 	}
@@ -48,14 +48,13 @@ func GetInstance(repoUrl string) (error, *Api) {
 }
 
 func _extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
-	u, err  := url.Parse(repoUrl)
+	u, err := url.Parse(repoUrl)
 	if err != nil {
 		return err, "", ""
 	}
 	urlParts := strings.Split(u.Path, "/")
 	return nil, urlParts[len(urlParts)-2], urlParts[len(urlParts)-1]
 }
-
 
 func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
@@ -134,4 +133,3 @@ func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 	}
 	return nil, issues, pullRequests
 }
-

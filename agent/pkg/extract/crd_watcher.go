@@ -7,7 +7,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
-	"github.com/golang/glog"
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -17,7 +16,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -38,22 +36,17 @@ var (
 	}
 )
 
-func buildConfig() *rest.Config {
+func buildConfig() (*rest.Config, error) {
 	inCluster, _ := strconv.ParseBool(os.Getenv("IN_CLUSTER"))
 	if inCluster {
-		config, _ := rest.InClusterConfig()
-		return config
-	} else {
-		kubeconfig := filepath.Join(
-			os.Getenv("HOME"), ".kube", "config",
-		)
-		config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-		if err != nil {
-			log.Fatal(err)
-		}
-		return config
+		return rest.InClusterConfig()
 	}
+	kubeconfig := filepath.Join(
+		os.Getenv("HOME"), ".kube", "config",
+	)
+	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
+
 func updateEnv(obj interface{}) error {
 	err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
 	if err != nil {
@@ -69,10 +62,14 @@ func updateEnv(obj interface{}) error {
 	return nil
 }
 
-func watchApplicationChanges() {
-	clientset, err := dynamic.NewForConfig(buildConfig())
+func watchApplicationChanges() error {
+	config, err := buildConfig()
 	if err != nil {
-		glog.Errorln(err)
+		return err
+	}
+	clientset, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return err
 	}
 
 	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
@@ -89,9 +86,16 @@ func watchApplicationChanges() {
 
 			if err != nil {
 				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
+				return
 			}
 
-			applications := argo.GetApplications()
+			applications, err := argo.GetApplications()
+
+			if err != nil {
+
+				return
+			}
+
 			err = util.ProcessDataWithFilter("applications", applications, func() error {
 				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			})
@@ -101,23 +105,30 @@ func watchApplicationChanges() {
 
 			if err != nil {
 				fmt.Print(err)
+				return
 			}
-
-			log.Println(applications)
 		},
 		DeleteFunc: func(obj interface{}) {
 			var app argo.ArgoApplication
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 			if err != nil {
 				fmt.Print(err)
+				return
 			}
 
-			applications := argo.GetApplications()
+			applications, err := argo.GetApplications()
+			if err != nil {
+
+				return
+			}
+
 			err = util.ProcessDataWithFilter("applications", applications, func() error {
 				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			})
+
 			if err != nil {
 				fmt.Print(err)
+				return
 			}
 
 			applicationRemovedHandler := handler.GetApplicationRemovedHandlerInstance()
@@ -125,6 +136,7 @@ func watchApplicationChanges() {
 
 			if err != nil {
 				fmt.Print(err)
+				return
 			}
 
 		},
@@ -141,30 +153,40 @@ func watchApplicationChanges() {
 	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			fmt.Printf("project added: %s \n", obj)
-			projects := argo.GetProjects()
+			projects, err := argo.GetProjects()
 
-			err := util.ProcessDataWithFilter("projects", projects, func() error {
+			if err != nil {
+				// TODO: add error log
+				return
+			}
+
+			err = util.ProcessDataWithFilter("projects", projects, func() error {
 				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			})
 
 			if err != nil {
 				fmt.Print(err)
+				return
 			}
-			fmt.Println(projects)
 		},
 		DeleteFunc: func(obj interface{}) {
 			fmt.Printf("project deleted: %s \n", obj)
-			projects := argo.GetProjects()
-			err := util.ProcessDataWithFilter("projects", projects, func() error {
+			projects, err := argo.GetProjects()
+
+			if err != nil {
+				//TODO: add error handling
+				return
+			}
+
+			err = util.ProcessDataWithFilter("projects", projects, func() error {
 				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			})
 			if err != nil {
 				fmt.Print(err)
+				return
 			}
-			fmt.Println(projects)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			fmt.Printf("project updated: %s \n", newObj)
 		},
 	})
 
@@ -178,7 +200,6 @@ func watchApplicationChanges() {
 
 }
 
-func Watch() {
-	watchApplicationChanges()
-
+func Watch() error {
+	return watchApplicationChanges()
 }

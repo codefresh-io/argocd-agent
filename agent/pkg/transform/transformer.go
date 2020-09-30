@@ -27,9 +27,12 @@ func initDeploymentsStatuses(applicationName string) map[string]string {
 	return statuses
 }
 
-func prepareEnvironmentActivity(applicationName string) []codefresh2.EnvironmentActivity {
+func prepareEnvironmentActivity(applicationName string) ([]codefresh2.EnvironmentActivity, error) {
 
-	resource := argo.GetManagedResources(applicationName)
+	resource, err := argo.GetManagedResources(applicationName)
+	if err != nil {
+		return nil, err
+	}
 
 	statuses := initDeploymentsStatuses(applicationName)
 
@@ -39,9 +42,10 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 		if item.Kind == "Deployment" || item.Kind == "Rollout" {
 
 			var targetState argo.ManagedResourceState
-			err := json.Unmarshal([]byte(item.TargetState), &targetState)
+			err = json.Unmarshal([]byte(item.TargetState), &targetState)
 			if err != nil {
 				log.Println(err.Error())
+				continue
 			}
 
 			var targetImages []string
@@ -53,6 +57,7 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 			err = json.Unmarshal([]byte(item.LiveState), &liveState)
 			if err != nil {
 				log.Println(err.Error())
+				continue
 			}
 
 			var liveImages []string
@@ -69,13 +74,16 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 		}
 	}
 
-	return activities
+	return activities, nil
 }
 
 func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
 	var app argo.ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
+	if err != nil {
+		return err, nil
+	}
 
 	name := app.Metadata.Name
 	historyList := app.Status.History
@@ -83,7 +91,6 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	repoUrl := app.Spec.Source.RepoURL
 
 	resources, err := argo.GetResourceTreeAll(name)
-	// TODO: improve error handling
 	if err != nil {
 		return err, nil
 	}
@@ -99,6 +106,11 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return err, nil
 	}
 
+	activities, err := prepareEnvironmentActivity(name)
+	if err != nil {
+		return err, nil
+	}
+
 	env := codefresh2.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
@@ -106,7 +118,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		Gitops:       *gitops,
 		HistoryId:    historyId,
 		Name:         name,
-		Activities:   prepareEnvironmentActivity(name),
+		Activities:   activities,
 		Resources:    resources,
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
