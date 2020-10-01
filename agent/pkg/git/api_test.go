@@ -19,13 +19,13 @@ func TestExtractRepoAndOwnerFromUrl(t *testing.T) {
 	for _, url := range urls {
 		err, owner, repo := extractRepoAndOwnerFromUrl(url)
 		if err != nil {
-			t.Errorf("'ExtractRepoAndOwnerFromUrl' failed, error: %v", err.Error())
+			t.Errorf("'ExtractRepoAndOwnerFromUrl' check error failed, error: %v", err.Error())
 		}
-		if owner != "owner" {
-			t.Errorf("'ExtractRepoAndOwnerFromUrl' failed, expected '%v', got '%v'", "owner1", owner)
+		if owner != "owner1" {
+			t.Errorf("'ExtractRepoAndOwnerFromUrl check owner' failed, expected '%v', got '%v'", "owner", owner)
 		}
 		if repo != "repo.git" {
-			t.Errorf("'ExtractRepoAndOwnerFromUrl' failed, expected '%v', got '%v'", "repo.git", repo)
+			t.Errorf("'ExtractRepoAndOwnerFromUrl check repo' failed, expected '%v', got '%v'", "repo.git", repo)
 		}
 	}
 }
