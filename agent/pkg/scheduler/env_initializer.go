@@ -1,9 +1,9 @@
 package scheduler
 
 import (
-	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/jasonlvhit/gocron"
 )
@@ -24,11 +24,14 @@ func handleNewApplications(applications []string) {
 	for _, application := range applications {
 		newApp, err := extract.ExtractNewApplication(application)
 		if err != nil {
-			fmt.Println("Cant handle new application " + application)
+			logger.GetLogger().Errorf("Failed to handle new gitops application %v, reason: %v", application, err)
 			continue
 		}
-		fmt.Println("Detect new application " + application + " , do initialization")
-		_, _ = codefresh.GetInstance().SendEnvironment(*newApp)
+		logger.GetLogger().Infof("Detect new gitops application %s, initiate initialization", application)
+		_, err = codefresh.GetInstance().SendEnvironment(*newApp)
+		if err != nil {
+			logger.GetLogger().Errorf("Failed to send environment, reason %v", err)
+		}
 	}
 }
 

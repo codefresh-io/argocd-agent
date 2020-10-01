@@ -6,9 +6,9 @@ import (
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	"log"
 	"os"
 	"strconv"
 )
@@ -76,16 +76,22 @@ func main() {
 	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName, autoSyncBool)
 
 	//  @todo - move codefresh git integration token to env during installation
-	gitAuthErr, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
-	if gitAuthErr != nil {
-		log.Println(gitAuthErr.Error())
-	}else{
+	err, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to get git context, reason: %v", err)
+	} else {
 		store.SetGit(contextPayload.Spec.Data.Auth.Password)
 	}
-
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
 
-	extract.Watch()
+	err = extract.Watch()
+	if err != nil {
+		logger.GetLogger().Errorf("Cant run agent because %v", err.Error())
+		store.SetHeartbeatError(err.Error())
+		heartbeat.HeartBeatTask()
+		panic(err)
+	}
+
 }

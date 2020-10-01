@@ -6,8 +6,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/mitchellh/mapstructure"
-	"log"
 	"sort"
 )
 
@@ -27,9 +27,12 @@ func initDeploymentsStatuses(applicationName string) map[string]string {
 	return statuses
 }
 
-func prepareEnvironmentActivity(applicationName string) []codefresh2.EnvironmentActivity {
+func prepareEnvironmentActivity(applicationName string) ([]codefresh2.EnvironmentActivity, error) {
 
-	resource := argo.GetManagedResources(applicationName)
+	resource, err := argo.GetManagedResources(applicationName)
+	if err != nil {
+		return nil, err
+	}
 
 	statuses := initDeploymentsStatuses(applicationName)
 
@@ -39,9 +42,10 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 		if item.Kind == "Deployment" || item.Kind == "Rollout" {
 
 			var targetState argo.ManagedResourceState
-			err := json.Unmarshal([]byte(item.TargetState), &targetState)
+			err = json.Unmarshal([]byte(item.TargetState), &targetState)
 			if err != nil {
-				log.Println(err.Error())
+				logger.GetLogger().Errorf("Failed to unmarshal \"TargetState\" to ManagedResourceState, reason %v", err)
+				continue
 			}
 
 			var targetImages []string
@@ -52,7 +56,8 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 			var liveState argo.ManagedResourceState
 			err = json.Unmarshal([]byte(item.LiveState), &liveState)
 			if err != nil {
-				log.Println(err.Error())
+				logger.GetLogger().Errorf("Failed to unmarshal \"LiveState\" to ManagedResourceState, reason %v", err)
+				continue
 			}
 
 			var liveImages []string
@@ -69,13 +74,16 @@ func prepareEnvironmentActivity(applicationName string) []codefresh2.Environment
 		}
 	}
 
-	return activities
+	return activities, nil
 }
 
 func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
 	var app argo.ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
+	if err != nil {
+		return err, nil
+	}
 
 	name := app.Metadata.Name
 	historyList := app.Status.History
@@ -83,18 +91,24 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	repoUrl := app.Spec.Source.RepoURL
 
 	resources, err := argo.GetResourceTreeAll(name)
-	// TODO: improve error handling
 	if err != nil {
 		return err, nil
 	}
 
+	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := getGitoptsInfo(repoUrl, revision)
+
 	if err != nil {
-		log.Println(err.Error())
+		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
 	}
 
 	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
 
+	if err != nil {
+		return err, nil
+	}
+
+	activities, err := prepareEnvironmentActivity(name)
 	if err != nil {
 		return err, nil
 	}
@@ -106,7 +120,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		Gitops:       *gitops,
 		HistoryId:    historyId,
 		Name:         name,
-		Activities:   prepareEnvironmentActivity(name),
+		Activities:   activities,
 		Resources:    resources,
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
@@ -118,7 +132,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision string, name string) (error, int64) {
 	if historyList == nil {
-		fmt.Println(fmt.Sprintf("can`t find history id for application %s, because history list is empty", name))
+		logger.GetLogger().Errorf("can`t find history id for application %s, because history list is empty", name)
 		return nil, -1
 	}
 
