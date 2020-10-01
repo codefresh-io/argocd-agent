@@ -18,7 +18,7 @@ This tool require for use new codefresh argocd integration and environment view
 `go test -cover ./...`
 
 
-## Release History
+## Release History 
 
 * 0.0.1
     * Work in progress
