@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	"log"
 	"net/http"
 )
 
@@ -70,7 +69,7 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result *ResourceTree
@@ -101,7 +100,7 @@ func GetResourceTreeAll(applicationName string) (interface{}, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result interface{}
@@ -117,7 +116,7 @@ func GetResourceTreeAll(applicationName string) (interface{}, error) {
 	return result.(map[string]interface{})["nodes"], nil
 }
 
-func GetManagedResources(applicationName string) ManagedResource {
+func GetManagedResources(applicationName string) (*ManagedResource, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
@@ -128,7 +127,7 @@ func GetManagedResources(applicationName string) ManagedResource {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result ManagedResource
@@ -138,13 +137,13 @@ func GetManagedResources(applicationName string) ManagedResource {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
-	return result
+	return &result, nil
 }
 
-func GetProjects() []ProjectItem {
+func GetProjects() ([]ProjectItem, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
@@ -155,7 +154,7 @@ func GetProjects() []ProjectItem {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result Project
@@ -165,10 +164,10 @@ func GetProjects() []ProjectItem {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
-	return result.Items
+	return result.Items, nil
 }
 
 func GetApplication(application string) (map[string]interface{}, error) {
@@ -185,11 +184,11 @@ func GetApplication(application string) (map[string]interface{}, error) {
 
 	if resp.StatusCode != 200 {
 		// TODO: add error handling and move it to common place
-		return nil, errors.New("Something wrong")
+		return nil, errors.New(fmt.Sprintf("Failed to retrieve application, reason %v", resp.Status))
 	}
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -197,13 +196,13 @@ func GetApplication(application string) (map[string]interface{}, error) {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
 	return result, nil
 }
 
-func GetApplications() []ApplicationItem {
+func GetApplications() ([]ApplicationItem, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
@@ -214,7 +213,7 @@ func GetApplications() []ApplicationItem {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result Application
@@ -224,8 +223,8 @@ func GetApplications() []ApplicationItem {
 	err = json.NewDecoder(resp.Body).Decode(&result)
 
 	if err != nil {
-		//return nil, err
+		return nil, err
 	}
 
-	return result.Items
+	return result.Items, nil
 }

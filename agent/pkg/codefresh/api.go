@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/guregu/null"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -39,7 +38,7 @@ func (a *Api) GetDefaultGitContext() (error, *ContextPayload) {
 
 	err := a.requestAPI(&requestOptions{
 		method: "GET",
-		path:   fmt.Sprintf("/contexts/git/default"),
+		path:   "/contexts/git/default",
 	}, &result)
 	if err != nil {
 		return err, nil
@@ -52,17 +51,14 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 	var result map[string]interface{}
 	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)
 	if err != nil {
-		log.Println(fmt.Sprintf("Cant Send environment to codefresh %v with activities amount %v", environment.Name, len(environment.Activities)))
 		return nil, err
 	}
 
-	log.Println(fmt.Sprintf("Send environment to codefresh %v with activities amount %v", environment.Name, len(environment.Activities)))
 	return result, nil
 }
 
 func (a *Api) SendResources(kind string, items interface{}) error {
 	if items == nil {
-		log.Println(fmt.Sprintf("Skip sending resources with kind \"%s\" to codefresh because items not exist", kind))
 		return nil
 	}
 
