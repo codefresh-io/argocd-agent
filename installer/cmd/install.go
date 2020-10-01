@@ -68,10 +68,10 @@ func ensureIntegration() error {
 		return fmt.Errorf("you should update integration")
 	}
 
-	errEnsure := holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
+	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
 
-	if errEnsure != nil {
-		return errEnsure
+	if err != nil {
+		return err
 	}
 
 	return nil

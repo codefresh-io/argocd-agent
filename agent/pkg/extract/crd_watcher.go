@@ -1,10 +1,11 @@
 package extract
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/mitchellh/mapstructure"
@@ -50,7 +51,6 @@ func buildConfig() (*rest.Config, error) {
 func updateEnv(obj interface{}) error {
 	err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
 	if err != nil {
-		fmt.Println(fmt.Sprintf("Cant preapre env for codefresh because %v", err))
 		return err
 	}
 
@@ -82,17 +82,22 @@ func watchApplicationChanges() error {
 			var app argo.ArgoApplication
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 
+			if err != nil {
+				logger.GetLogger().Error("Failed to decode argo application, reason: %v", err)
+				return
+			}
+
 			err = updateEnv(obj)
 
 			if err != nil {
-				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
+				logger.GetLogger().Error("Failed to update environment, reason: %v", err)
 				return
 			}
 
 			applications, err := argo.GetApplications()
 
 			if err != nil {
-
+				logger.GetLogger().Error("Failed to get applications, reason: %v", err)
 				return
 			}
 
@@ -100,11 +105,16 @@ func watchApplicationChanges() error {
 				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			})
 
+			if err != nil {
+				logger.GetLogger().Error("Failed to send applications to codefresh, reason: %v", err)
+				return
+			}
+
 			applicationCreatedHandler := handler.GetApplicationCreatedHandlerInstance()
 			err = applicationCreatedHandler.Handle(app)
 
 			if err != nil {
-				fmt.Print(err)
+				logger.GetLogger().Error("Failed to handle create application event use handler, reason: %v", err)
 				return
 			}
 		},
@@ -112,13 +122,13 @@ func watchApplicationChanges() error {
 			var app argo.ArgoApplication
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 			if err != nil {
-				fmt.Print(err)
+				logger.GetLogger().Error("Failed to decode argo application, reason: %v", err)
 				return
 			}
 
 			applications, err := argo.GetApplications()
 			if err != nil {
-
+				logger.GetLogger().Error("Failed to get applications, reason: %v", err)
 				return
 			}
 
@@ -127,7 +137,7 @@ func watchApplicationChanges() error {
 			})
 
 			if err != nil {
-				fmt.Print(err)
+				logger.GetLogger().Error("Failed to send applications to codefresh, reason: %v", err)
 				return
 			}
 
@@ -135,7 +145,7 @@ func watchApplicationChanges() error {
 			err = applicationRemovedHandler.Handle(app)
 
 			if err != nil {
-				fmt.Print(err)
+				logger.GetLogger().Error("Failed to handle remove application event use handler, reason: %v", err)
 				return
 			}
 
@@ -143,7 +153,7 @@ func watchApplicationChanges() error {
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			err := updateEnv(newObj)
 			if err != nil {
-				fmt.Println(fmt.Sprintf("Cant send env to codefresh because %v", err))
+				logger.GetLogger().Error("Failed to update environment, reason: %v", err)
 			}
 		},
 	})
@@ -152,11 +162,10 @@ func watchApplicationChanges() error {
 
 	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			fmt.Printf("project added: %s \n", obj)
 			projects, err := argo.GetProjects()
 
 			if err != nil {
-				// TODO: add error log
+				logger.GetLogger().Error("Failed to get projects, reason: %v", err)
 				return
 			}
 
@@ -165,12 +174,10 @@ func watchApplicationChanges() error {
 			})
 
 			if err != nil {
-				fmt.Print(err)
-				return
+				logger.GetLogger().Error("Failed to send projects to codefresh, reason: %v", err)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
-			fmt.Printf("project deleted: %s \n", obj)
 			projects, err := argo.GetProjects()
 
 			if err != nil {
@@ -182,8 +189,7 @@ func watchApplicationChanges() error {
 				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			})
 			if err != nil {
-				fmt.Print(err)
-				return
+				logger.GetLogger().Error("Failed to send projects to codefresh, reason: %v", err)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {

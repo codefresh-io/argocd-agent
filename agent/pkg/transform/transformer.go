@@ -6,8 +6,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/mitchellh/mapstructure"
-	"log"
 	"sort"
 )
 
@@ -44,7 +44,7 @@ func prepareEnvironmentActivity(applicationName string) ([]codefresh2.Environmen
 			var targetState argo.ManagedResourceState
 			err = json.Unmarshal([]byte(item.TargetState), &targetState)
 			if err != nil {
-				log.Println(err.Error())
+				logger.GetLogger().Error("Failed to unmarshal \"TargetState\" to ManagedResourceState, reason %v", err)
 				continue
 			}
 
@@ -56,7 +56,7 @@ func prepareEnvironmentActivity(applicationName string) ([]codefresh2.Environmen
 			var liveState argo.ManagedResourceState
 			err = json.Unmarshal([]byte(item.LiveState), &liveState)
 			if err != nil {
-				log.Println(err.Error())
+				logger.GetLogger().Error("Failed to unmarshal \"LiveState\" to ManagedResourceState, reason %v", err)
 				continue
 			}
 
@@ -95,10 +95,8 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return err, nil
 	}
 
-	err, gitops := getGitoptsInfo(repoUrl, revision)
-	if err != nil {
-		log.Println(err.Error())
-	}
+	// we still need send env , even if we have problem with retrieve gitops info
+	_, gitops := getGitoptsInfo(repoUrl, revision)
 
 	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
 
@@ -130,7 +128,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision string, name string) (error, int64) {
 	if historyList == nil {
-		fmt.Println(fmt.Sprintf("can`t find history id for application %s, because history list is empty", name))
+		logger.GetLogger().Error("can`t find history id for application %s, because history list is empty", name)
 		return nil, -1
 	}
 

@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	store2 "github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	"log"
 	"net/http"
 )
 
@@ -70,7 +69,7 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result *ResourceTree
@@ -101,7 +100,7 @@ func GetResourceTreeAll(applicationName string) (interface{}, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result interface{}
@@ -128,7 +127,7 @@ func GetManagedResources(applicationName string) (*ManagedResource, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result ManagedResource
@@ -155,7 +154,7 @@ func GetProjects() ([]ProjectItem, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result Project
@@ -189,7 +188,7 @@ func GetApplication(application string) (map[string]interface{}, error) {
 	}
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	defer resp.Body.Close()
@@ -214,7 +213,7 @@ func GetApplications() ([]ApplicationItem, error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var result Application
