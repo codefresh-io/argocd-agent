@@ -1,14 +1,23 @@
 package logger
 
 import (
+	"flag"
 	"github.com/golang/glog"
 )
 
 type Logger struct {
 }
 
+var logger *Logger
+
 func GetLogger() *Logger {
-	return &Logger{}
+	if logger == nil {
+		// NOTE: This next line is key you have to call flag.Parse() for the command line
+		// options or "flags" that are defined in the glog module to be picked up.
+		flag.Parse()
+		logger = &Logger{}
+	}
+	return logger
 }
 
 func (log *Logger) Info(msg string) {
