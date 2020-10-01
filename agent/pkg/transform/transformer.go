@@ -44,7 +44,7 @@ func prepareEnvironmentActivity(applicationName string) ([]codefresh2.Environmen
 			var targetState argo.ManagedResourceState
 			err = json.Unmarshal([]byte(item.TargetState), &targetState)
 			if err != nil {
-				logger.GetLogger().Error("Failed to unmarshal \"TargetState\" to ManagedResourceState, reason %v", err)
+				logger.GetLogger().Errorf("Failed to unmarshal \"TargetState\" to ManagedResourceState, reason %v", err)
 				continue
 			}
 
@@ -56,7 +56,7 @@ func prepareEnvironmentActivity(applicationName string) ([]codefresh2.Environmen
 			var liveState argo.ManagedResourceState
 			err = json.Unmarshal([]byte(item.LiveState), &liveState)
 			if err != nil {
-				logger.GetLogger().Error("Failed to unmarshal \"LiveState\" to ManagedResourceState, reason %v", err)
+				logger.GetLogger().Errorf("Failed to unmarshal \"LiveState\" to ManagedResourceState, reason %v", err)
 				continue
 			}
 
@@ -96,7 +96,11 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	}
 
 	// we still need send env , even if we have problem with retrieve gitops info
-	_, gitops := getGitoptsInfo(repoUrl, revision)
+	err, gitops := getGitoptsInfo(repoUrl, revision)
+
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
+	}
 
 	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
 
@@ -128,7 +132,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 
 func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision string, name string) (error, int64) {
 	if historyList == nil {
-		logger.GetLogger().Error("can`t find history id for application %s, because history list is empty", name)
+		logger.GetLogger().Errorf("can`t find history id for application %s, because history list is empty", name)
 		return nil, -1
 	}
 

@@ -78,7 +78,7 @@ func main() {
 	//  @todo - move codefresh git integration token to env during installation
 	err, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
 	if err != nil {
-		logger.GetLogger().Error("Failed to get git context, reason: %v", err)
+		logger.GetLogger().Errorf("Failed to get git context, reason: %v", err)
 	} else {
 		store.SetGit(contextPayload.Spec.Data.Auth.Password)
 	}
@@ -88,7 +88,7 @@ func main() {
 
 	err = extract.Watch()
 	if err != nil {
-		logger.GetLogger().Error("Cant run agent because %v", err.Error())
+		logger.GetLogger().Errorf("Cant run agent because %v", err.Error())
 		store.SetHeartbeatError(err.Error())
 		heartbeat.HeartBeatTask()
 		panic(err)

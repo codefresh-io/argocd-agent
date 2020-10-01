@@ -184,7 +184,7 @@ func GetApplication(application string) (map[string]interface{}, error) {
 
 	if resp.StatusCode != 200 {
 		// TODO: add error handling and move it to common place
-		return nil, errors.New("Something wrong")
+		return nil, errors.New(fmt.Sprintf("Failed to retrieve application, reason %v", resp.Status))
 	}
 
 	if err != nil {

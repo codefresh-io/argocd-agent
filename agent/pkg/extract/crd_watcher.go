@@ -83,21 +83,21 @@ func watchApplicationChanges() error {
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to decode argo application, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to decode argo application, reason: %v", err)
 				return
 			}
 
 			err = updateEnv(obj)
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to update environment, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 				return
 			}
 
 			applications, err := argo.GetApplications()
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to get applications, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
 				return
 			}
 
@@ -106,7 +106,7 @@ func watchApplicationChanges() error {
 			})
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to send applications to codefresh, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to send applications to codefresh, reason: %v", err)
 				return
 			}
 
@@ -114,7 +114,7 @@ func watchApplicationChanges() error {
 			err = applicationCreatedHandler.Handle(app)
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to handle create application event use handler, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to handle create application event use handler, reason: %v", err)
 				return
 			}
 		},
@@ -122,13 +122,13 @@ func watchApplicationChanges() error {
 			var app argo.ArgoApplication
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 			if err != nil {
-				logger.GetLogger().Error("Failed to decode argo application, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to decode argo application, reason: %v", err)
 				return
 			}
 
 			applications, err := argo.GetApplications()
 			if err != nil {
-				logger.GetLogger().Error("Failed to get applications, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
 				return
 			}
 
@@ -137,7 +137,7 @@ func watchApplicationChanges() error {
 			})
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to send applications to codefresh, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to send applications to codefresh, reason: %v", err)
 				return
 			}
 
@@ -145,7 +145,7 @@ func watchApplicationChanges() error {
 			err = applicationRemovedHandler.Handle(app)
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to handle remove application event use handler, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to handle remove application event use handler, reason: %v", err)
 				return
 			}
 
@@ -153,7 +153,7 @@ func watchApplicationChanges() error {
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			err := updateEnv(newObj)
 			if err != nil {
-				logger.GetLogger().Error("Failed to update environment, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 			}
 		},
 	})
@@ -165,7 +165,7 @@ func watchApplicationChanges() error {
 			projects, err := argo.GetProjects()
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to get projects, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to get projects, reason: %v", err)
 				return
 			}
 
@@ -174,7 +174,7 @@ func watchApplicationChanges() error {
 			})
 
 			if err != nil {
-				logger.GetLogger().Error("Failed to send projects to codefresh, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
@@ -189,7 +189,7 @@ func watchApplicationChanges() error {
 				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			})
 			if err != nil {
-				logger.GetLogger().Error("Failed to send projects to codefresh, reason: %v", err)
+				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {

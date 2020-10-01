@@ -24,13 +24,13 @@ func handleNewApplications(applications []string) {
 	for _, application := range applications {
 		newApp, err := extract.ExtractNewApplication(application)
 		if err != nil {
-			logger.GetLogger().Error("Failed to handle new gitops application %s, reason: %v", application, err.Error())
+			logger.GetLogger().Errorf("Failed to handle new gitops application %v, reason: %v", application, err)
 			continue
 		}
-		logger.GetLogger().Info("Detect new gitops application %s, initiate initialization", application)
+		logger.GetLogger().Infof("Detect new gitops application %s, initiate initialization", application)
 		_, err = codefresh.GetInstance().SendEnvironment(*newApp)
 		if err != nil {
-			logger.GetLogger().Error("Failed to send environment, reason %v", err)
+			logger.GetLogger().Errorf("Failed to send environment, reason %v", err)
 		}
 	}
 }

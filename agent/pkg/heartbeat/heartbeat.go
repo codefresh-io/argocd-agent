@@ -9,6 +9,6 @@ import (
 func HeartBeatTask() {
 	err := codefresh.GetInstance().HeartBeat(store.GetStore().Heartbeat.Error)
 	if err != nil {
-		logger.GetLogger().Error("Failed to send heartbeat status, reason %v", err)
+		logger.GetLogger().Errorf("Failed to send heartbeat status, reason %v", err)
 	}
 }
