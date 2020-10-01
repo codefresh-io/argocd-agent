@@ -54,10 +54,14 @@ func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
 		return err, env
 	}
 
-	err = util.ProcessDataWithFilter("environment", env, func() error {
+	err, res := util.ProcessDataWithFilter("environment", env, func() error {
 		_, err = codefresh2.GetInstance().SendEnvironment(*env)
 		return err
 	})
+
+	if res == nil {
+		return nil, nil
+	}
 
 	return nil, env
 }
@@ -103,7 +107,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			err = util.ProcessDataWithFilter("applications", applications, func() error {
+			err, apps := util.ProcessDataWithFilter("applications", applications, func() error {
 				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			})
 
@@ -112,7 +116,11 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			logger.GetLogger().Info("Successfully sent applications to codefresh")
+			if apps != nil {
+				logger.GetLogger().Info("Successfully sent applications to codefresh")
+			} else {
+				logger.GetLogger().Info("Applications were filtered and not sent to codefresh")
+			}
 
 			applicationCreatedHandler := handler.GetApplicationCreatedHandlerInstance()
 			err = applicationCreatedHandler.Handle(app)
@@ -137,13 +145,19 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			err = util.ProcessDataWithFilter("applications", applications, func() error {
+			err, apps := util.ProcessDataWithFilter("applications", applications, func() error {
 				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
 			})
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to send applications to codefresh, reason: %v", err)
 				return
+			}
+
+			if apps != nil {
+				logger.GetLogger().Info("Successfully sent applications to codefresh")
+			} else {
+				logger.GetLogger().Info("Applications were filtered and not sent to codefresh")
 			}
 
 			applicationRemovedHandler := handler.GetApplicationRemovedHandlerInstance()
@@ -175,14 +189,19 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			err = util.ProcessDataWithFilter("projects", projects, func() error {
+			err, prj := util.ProcessDataWithFilter("projects", projects, func() error {
 				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			})
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
-			} else {
+				return
+			}
+
+			if prj != nil {
 				logger.GetLogger().Info("Successfully sent projects to codefresh")
+			} else {
+				logger.GetLogger().Info("Projects were filtered and not sent to codefresh")
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
@@ -193,14 +212,21 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			err = util.ProcessDataWithFilter("projects", projects, func() error {
+			err, prj := util.ProcessDataWithFilter("projects", projects, func() error {
 				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
 			})
+
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
-			} else {
-				logger.GetLogger().Info("Successfully sent projects to codefresh")
+				return
 			}
+
+			if prj != nil {
+				logger.GetLogger().Info("Successfully sent projects to codefresh")
+			} else {
+				logger.GetLogger().Info("Projects were filtered and not sent to codefresh")
+			}
+
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 		},
