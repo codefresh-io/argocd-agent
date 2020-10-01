@@ -5,7 +5,7 @@
 
 
 ## Installation    
-
+ 
 
 ```sh
 codefresh argocd-agent install
