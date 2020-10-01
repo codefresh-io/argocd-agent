@@ -8,7 +8,7 @@
  
 
 ```sh
-codefresh argocd-agent install 
+codefresh argocd-agent install  
 ```
 
 ## Usage
