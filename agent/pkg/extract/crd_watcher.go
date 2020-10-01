@@ -48,10 +48,10 @@ func buildConfig() (*rest.Config, error) {
 	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
 
-func updateEnv(obj interface{}) error {
+func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
 	err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
 	if err != nil {
-		return err
+		return err, env
 	}
 
 	err = util.ProcessDataWithFilter("environment", env, func() error {
@@ -59,7 +59,7 @@ func updateEnv(obj interface{}) error {
 		return err
 	})
 
-	return nil
+	return nil, env
 }
 
 func watchApplicationChanges() error {
@@ -87,12 +87,14 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			err = updateEnv(obj)
+			err, env := updateEnv(obj)
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 				return
 			}
+
+			logger.GetLogger().Infof("Successfully sent environment \"%v\" update to codefresh, services count %v", env.Name, len(env.Activities))
 
 			applications, err := argo.GetApplications()
 
@@ -110,12 +112,15 @@ func watchApplicationChanges() error {
 				return
 			}
 
+			logger.GetLogger().Info("Successfully sent applications to codefresh")
+
 			applicationCreatedHandler := handler.GetApplicationCreatedHandlerInstance()
 			err = applicationCreatedHandler.Handle(app)
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to handle create application event use handler, reason: %v", err)
-				return
+			} else {
+				logger.GetLogger().Infof("Successfully handle new application \"%v\" ", app.Metadata.Name)
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
@@ -146,14 +151,15 @@ func watchApplicationChanges() error {
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to handle remove application event use handler, reason: %v", err)
-				return
 			}
 
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			err := updateEnv(newObj)
+			err, env := updateEnv(newObj)
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
+			} else {
+				logger.GetLogger().Infof("Successfully sent environment \"%v\" update to codefresh, services count %v", env.Name, len(env.Activities))
 			}
 		},
 	})
@@ -175,6 +181,8 @@ func watchApplicationChanges() error {
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
+			} else {
+				logger.GetLogger().Info("Successfully sent projects to codefresh")
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
@@ -190,6 +198,8 @@ func watchApplicationChanges() error {
 			})
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
+			} else {
+				logger.GetLogger().Info("Successfully sent projects to codefresh")
 			}
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {

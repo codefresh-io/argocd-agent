@@ -16,7 +16,7 @@ func (log *Logger) Info(msg string) {
 }
 
 func (log *Logger) Infof(format string, args ...interface{}) {
-	glog.Infof(format, args)
+	glog.Infof(format, args...)
 }
 
 func (log *Logger) Errorf(format string, args ...interface{}) {
