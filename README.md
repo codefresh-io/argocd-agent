@@ -11,7 +11,7 @@
 codefresh argocd-agent install
 ```
 
-## Usage 
+## Usage
 This tool require for use new codefresh argocd integration and environment view 
 
 ## Run tests
