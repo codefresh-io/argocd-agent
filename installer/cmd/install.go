@@ -234,14 +234,11 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	content, err := ioutil.ReadFile("../agent/VERSION")
-	if err != nil {
-		fmt.Errorf(err.Error())
-	}
-	version := strings.Trim(string(content), " ")
-	fmt.Println(version)
+
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
+
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", getAgentVersion(), "")
 
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
@@ -262,5 +259,20 @@ func init() {
 	}
 
 	flags.StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
+
+}
+
+func getAgentVersion() string {
+	content, err := ioutil.ReadFile("../agent/VERSION")
+	if err != nil {
+		fmt.Errorf(err.Error())
+		return ""
+	}else{
+		version := strings.TrimFunc(string(content), func (r rune) bool {
+			_r := string(r)
+			return _r == " " || _r =="\n" || _r =="\t" || _r =="\r"
+		})
+		return version
+	}
 
 }

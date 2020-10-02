@@ -107,7 +107,8 @@ type EnvironmentPayload struct {
 }
 
 type Heartbeat struct {
-	Error string `json:"error"`
+	Error 			string `json:"error"`
+	AgentVersion 	string `json:"agentVersion"`
 }
 
 type requestOptions struct {
