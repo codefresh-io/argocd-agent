@@ -54,8 +54,12 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 		return err, "", ""
 	}
 
+	// from url like this -> https://github.com/codefresh-io/argocd-agent.git/
+	// to array like this -> string[]{"codefresh-io","argocd-agent.git",""}
 	urlParts := strings.Split(u.Path, "/")
 	filteredUrlParts := []string{}
+
+	// removing all empty strings from array
 	for _, part := range urlParts {
 		if part != "" {
 			filteredUrlParts = append(filteredUrlParts, part)
@@ -63,8 +67,15 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 	}
 	if len(filteredUrlParts) > 1 {
 		var re = regexp.MustCompile(`\.git$`)
-		owner := filteredUrlParts[len(filteredUrlParts)-2]
+
+		// getting the last element from array like -> string[]{"codefresh-io","argocd-agent.git"}
+		// and removing unnecessary part of string
+		// result will be "argocd-agent"
 		repo := re.ReplaceAllString(filteredUrlParts[len(filteredUrlParts)-1], "")
+
+		//getting the penultimate element from array like -> string[]{"codefresh-io","argocd-agent.git"}
+		// result will be "codefresh-io"
+		owner := filteredUrlParts[len(filteredUrlParts)-2]
 		return nil, owner, repo
 	}
 	return nil, "", ""
