@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/guregu/null"
 	"net/http"
@@ -48,6 +49,9 @@ func (a *Api) GetDefaultGitContext() (error, *ContextPayload) {
 }
 
 func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
+
+	logger.GetLogger().Infof("Successfully sent environment \"%v\" update to codefresh, services count %v", environment.Name, len(environment.Activities))
+
 	var result map[string]interface{}
 	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)
 	if err != nil {
@@ -70,6 +74,8 @@ func (a *Api) SendResources(kind string, items interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	logger.GetLogger().Infof("Successfully sent type: \"%s\" to codefresh", kind)
 
 	return nil
 }
