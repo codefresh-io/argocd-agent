@@ -72,6 +72,8 @@ spec:
       serviceAccountName: cf-argocd-agent
       containers:
       - env:
+		- name: AGENT_VERSION
+          value: {{ .Agent.Version }}
         - name: ARGO_HOST
           value: {{ .Argo.Host }}
         - name: ARGO_USERNAME
