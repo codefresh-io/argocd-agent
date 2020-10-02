@@ -24,8 +24,8 @@ func TestExtractRepoAndOwnerFromUrl(t *testing.T) {
 		if owner != "owner" {
 			t.Errorf("'ExtractRepoAndOwnerFromUrl check owner' failed, expected '%v', got '%v'", "owner", owner)
 		}
-		if repo != "repo.git" {
-			t.Errorf("'ExtractRepoAndOwnerFromUrl check repo' failed, expected '%v', got '%v'", "repo.git", repo)
+		if repo != "repo" {
+			t.Errorf("'ExtractRepoAndOwnerFromUrl check repo' failed, expected '%v', got '%v'", "repo", repo)
 		}
 	}
 }
