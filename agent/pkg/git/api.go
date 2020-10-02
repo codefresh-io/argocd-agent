@@ -6,6 +6,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/whilp/git-urls"
 	"golang.org/x/oauth2"
+	"regexp"
 	"strings"
 )
 
@@ -61,7 +62,10 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 		}
 	}
 	if len(filteredUrlParts) > 1 {
-		return nil, filteredUrlParts[len(filteredUrlParts)-2], filteredUrlParts[len(filteredUrlParts)-1]
+		var re = regexp.MustCompile(`\.git$`)
+		owner := filteredUrlParts[len(filteredUrlParts)-2]
+		repo := re.ReplaceAllString(filteredUrlParts[len(filteredUrlParts)-1], "")
+		return nil, owner, repo
 	}
 	return nil, "", ""
 }
