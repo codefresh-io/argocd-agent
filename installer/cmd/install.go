@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"strings"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/cliconfig"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
@@ -15,6 +16,7 @@ import (
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os/user"
 	"path"
@@ -41,6 +43,9 @@ var installCmdOptions struct {
 		Token       string
 		Integration string
 		AutoSync    string
+	}
+	Agent struct {
+		Version		string
 	}
 }
 
@@ -229,6 +234,12 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
+	content, err := ioutil.ReadFile("../agent/VERSION")
+	if err != nil {
+		fmt.Errorf(err.Error())
+	}
+	version := strings.Trim(string(content), " ")
+	fmt.Println(version)
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
 
