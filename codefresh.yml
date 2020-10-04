@@ -1,0 +1,135 @@
+# More examples of Codefresh YAML can be found at
+# https://codefresh.io/docs/docs/yaml-examples/examples/
+
+
+version: "1.0"
+# Stages can help you organize your steps in stages
+stages:
+  - "prepare"
+  - "build"
+  - "push"
+  - "Release"
+
+steps:
+  main_clone:
+    title: "Cloning repository"
+    type: "git-clone"
+    repo: "codefresh-io/argocd-agent"
+    revision: "${{CF_BRANCH}}"
+    git: "cf_github"
+    stage: "prepare"
+
+  export_version:
+    title: Compare version
+    stage: build
+    image: codefresh/semver
+    commands:
+      - export ARGOCTL_VERSION=$(cat ./installer/VERSION)
+      - export ARGOAGENT_VERSION=$(cat ./agent/VERSION)
+      - echo "Argoctl version -> $ARGOCTL_VERSION "
+      - echo "Argoagent version -> $ARGOAGENT_VERSION "
+      - cf_export VERSION=$ARGOCTL_VERSION
+      - cf_export AGENT_VERSION=$ARGOAGENT_VERSION
+    when:
+      steps:
+        - name: main_clone
+          on:
+            - success
+      branch:
+        only:
+          - master
+
+  unit_test:
+    stage: "prepare"
+    title: 'Running unit tests'
+    working_directory: ${{main_clone}}
+    image: golang:1.14.2
+    commands:
+      - go get -u github.com/mcubik/goverreport
+      - go test ./... -v -coverprofile=codefresh-test-reporting && go tool cover -html=./codefresh-test-reporting
+      - goverreport -coverprofile=codefresh-test-reporting
+    when:
+      branch:
+        ignore:
+          - master
+      steps:
+        - name: main_clone
+          on:
+            - success
+
+  test_reporting_step:
+    title: Generate test reporting
+    fail_fast: false
+    stage: build
+    image: codefresh/cf-docker-test-reporting
+    working_directory: '${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/'
+    environment:
+      - BUCKET_NAME=codefresh-test-reporting
+      - CF_STORAGE_INTEGRATION=testReporting
+    when:
+      steps:
+        - name: unit_test
+          'on':
+            - finished
+
+  build:
+    title: "Building Docker image"
+    type: "build"
+    image_name: "codefresh-io/argocd-agent"
+    tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
+    dockerfile: "Dockerfile"
+    stage: "build"
+
+
+  push:
+    stage: 'push'
+    type: push
+    title: Pushing to a registry
+    candidate: ${{build}}
+    tags:
+      - stable
+      - ${{AGENT_VERSION}}
+    registry: dockerhub
+    image_name: codefresh/argocd-agent
+    when:
+      branch:
+        only:
+          - master
+
+  create_git_tag:
+    title: Push tag to git
+    image: codefresh/cli
+    stage: Release
+    commands:
+      - export OLD_ORIGIN=$(git remote get-url origin)
+      - git remote rm origin
+      - git remote add origin https://${{GITHUB_TOKEN}}@github.com/codefresh-io/argocd-agent.git
+      - git tag ${{VERSION}}
+      - git push --tags
+      - git remote rm origin
+      - git remote add origin $OLD_ORIGIN
+    fail_fast: false
+    when:
+      steps:
+        - name: export_version
+        - name: main_clone
+      branch:
+        only:
+          - master
+
+  release_binaries:
+    title: Create release in Github with argo-agent CLI
+    image: goreleaser/goreleaser:v0.124.1
+    stage: Release
+    fail_fast: false
+    commands:
+      - cd installer
+      - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
+    when:
+      steps:
+        - name: create_git_tag
+          on:
+            - finished
+      branch:
+        only:
+          - master
