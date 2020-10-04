@@ -44,7 +44,7 @@ func buildConfig() (*rest.Config, error) {
 		return rest.InClusterConfig()
 	}
 	kubeconfig := filepath.Join(
-		os.Getenv("HOME"), ".kube", "dev-ro-mgmt_kubeconfig",
+		os.Getenv("HOME"), ".kube", "config",
 	)
 	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
