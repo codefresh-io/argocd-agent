@@ -18,7 +18,6 @@ steps:
     revision: "${{CF_BRANCH}}"
     git: "cf_github"
     stage: "prepare"
-    working_directory: "$GOPATH/src/github.com/codefresh-io/argocd-listener"
 
   export_version:
     title: Compare version
@@ -46,9 +45,9 @@ steps:
     working_directory: ${{main_clone}}
     image: golang:1.14.2
     commands:
-      - go get -u github.com/jokeyrhyme/go-coverage-threshold/cmd/go-coverage-threshold
+      - go get -u github.com/mcubik/goverreport
       - go test ./... -v -coverprofile=codefresh-test-reporting && go tool cover -html=./codefresh-test-reporting
-      - go-coverage-threshold
+      - goverreport -sort=block -order=desc -threshold=85 -coverprofile=coverprofile.out
     when:
       branch:
         ignore:
