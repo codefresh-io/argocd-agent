@@ -47,7 +47,7 @@ steps:
     commands:
       - go get -u github.com/mcubik/goverreport
       - go test ./... -v -coverprofile=codefresh-test-reporting && go tool cover -html=./codefresh-test-reporting
-      - goverreport -sort=block -order=desc -threshold=85 -coverprofile=coverprofile.out
+      - goverreport -sort=block -order=desc -threshold=85 -coverprofile=codefresh-test-reporting
     when:
       branch:
         ignore:
