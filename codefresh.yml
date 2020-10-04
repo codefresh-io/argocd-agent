@@ -18,6 +18,7 @@ steps:
     revision: "${{CF_BRANCH}}"
     git: "cf_github"
     stage: "prepare"
+    working_directory: "$GOPATH/src/github.com/codefresh-io/argocd-listener"
 
   export_version:
     title: Compare version
