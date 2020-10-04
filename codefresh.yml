@@ -57,21 +57,6 @@ steps:
           on:
             - success
 
-  test_reporting_step:
-    title: Generate test reporting
-    fail_fast: false
-    stage: build
-    image: codefresh/cf-docker-test-reporting
-    working_directory: '${{CF_VOLUME_PATH}}/${{CF_REPO_NAME}}/'
-    environment:
-      - BUCKET_NAME=codefresh-test-reporting
-      - CF_STORAGE_INTEGRATION=testReporting
-    when:
-      steps:
-        - name: unit_test
-          'on':
-            - finished
-
   build:
     title: "Building Docker image"
     type: "build"
