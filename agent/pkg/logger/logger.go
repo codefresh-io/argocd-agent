@@ -12,6 +12,9 @@ var logger *Logger
 
 func GetLogger() *Logger {
 	if logger == nil {
+		_ = flag.Set("logtostderr", "true")
+		_ = flag.Set("stderrthreshold", "WARNING")
+		_ = flag.Set("v", "2")
 		// NOTE: This next line is key you have to call flag.Parse() for the command line
 		// options or "flags" that are defined in the glog module to be picked up.
 		flag.Parse()
