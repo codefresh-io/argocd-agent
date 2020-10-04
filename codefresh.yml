@@ -45,6 +45,7 @@ steps:
     working_directory: ${{main_clone}}
     image: golang:1.14.2
     commands:
+      - export GOPATH=/codefresh/volume/argocd-agent
       - echo $GOPATH
       - go get -u github.com/jokeyrhyme/go-coverage-threshold/cmd/go-coverage-threshold
       - go test ./... -v -coverprofile=codefresh-test-reporting && go tool cover -html=./codefresh-test-reporting
