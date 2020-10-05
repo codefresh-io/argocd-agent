@@ -78,8 +78,9 @@ func main() {
 	agentVersion, agentVersionExistence := os.LookupEnv("AGENT_VERSION")
 	if !agentVersionExistence {
 		logger.GetLogger().Errorf("No agent version!")
+	} else {
+		store.SetAgent(agentVersion)
 	}
-	store.SetAgent(agentVersion)
 
 	//  @todo - move codefresh git integration token to env during installation
 	err, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
