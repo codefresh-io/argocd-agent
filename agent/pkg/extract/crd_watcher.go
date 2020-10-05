@@ -5,6 +5,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
@@ -15,12 +16,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
-	"k8s.io/client-go/tools/clientcmd"
-	"os"
-	"path/filepath"
-	"strconv"
 	"time"
 )
 
@@ -37,17 +33,6 @@ var (
 		Resource: "appprojects",
 	}
 )
-
-func buildConfig() (*rest.Config, error) {
-	inCluster, _ := strconv.ParseBool(os.Getenv("IN_CLUSTER"))
-	if inCluster {
-		return rest.InClusterConfig()
-	}
-	kubeconfig := filepath.Join(
-		os.Getenv("HOME"), ".kube", "config",
-	)
-	return clientcmd.BuildConfigFromFlags("", kubeconfig)
-}
 
 func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
 	err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
@@ -66,7 +51,7 @@ func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
 }
 
 func watchApplicationChanges() error {
-	config, err := buildConfig()
+	config, err := kube.BuildConfig()
 	if err != nil {
 		return err
 	}
