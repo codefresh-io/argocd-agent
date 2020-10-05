@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"strings"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/cliconfig"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
@@ -16,7 +16,6 @@ import (
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"io/ioutil"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os/user"
 	"path"
@@ -238,7 +237,7 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
 
-	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", getAgentVersion(), "")
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", fs.GetAgentVersion(), "")
 
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
@@ -260,22 +259,4 @@ func init() {
 
 	flags.StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 
-}
-
-func getAgentVersion() string {
-	content, err := ioutil.ReadFile("../agent/VERSION")
-	if err != nil {
-		fmt.Errorf(err.Error())
-		return ""
-	}else{
-		version := getVersionFromContentString(string(content))
-		return version
-	}
-}
-
-func getVersionFromContentString(content string) string{
-	return strings.TrimFunc(content, func (r rune) bool {
-		_r := string(r)
-		return _r == " " || _r =="\n" || _r =="\t" || _r =="\r"
-	})
 }
