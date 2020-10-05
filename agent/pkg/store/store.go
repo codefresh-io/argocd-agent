@@ -10,6 +10,9 @@ type Environment struct {
 
 type (
 	Values struct {
+		Agent struct {
+			Version string
+		}
 		Git struct {
 			Token string
 		}
@@ -68,5 +71,11 @@ func SetEnvironments(environments []Environment) *Values {
 func SetGit(Token string) *Values {
 	values := GetStore()
 	values.Git.Token = Token
+	return values
+}
+
+func SetAgent(Version string) *Values {
+	values := GetStore()
+	values.Agent.Version = Version
 	return values
 }

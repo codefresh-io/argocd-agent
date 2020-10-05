@@ -96,12 +96,15 @@ func (a *Api) SendEvent(name string, props map[string]string) error {
 }
 
 func (a *Api) HeartBeat(error string) error {
-	var body interface{}
+	agentConfig := store.GetStore().Agent
+	var body  = Heartbeat{}
 
 	if error != "" {
-		body = Heartbeat{
-			Error: error,
-		}
+		body.Error = error
+	}
+
+	if agentConfig.Version != "" {
+		body.AgentVersion = agentConfig.Version
 	}
 
 	err := a.requestAPI(&requestOptions{

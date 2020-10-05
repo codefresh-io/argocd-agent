@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/cliconfig"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
@@ -41,6 +42,9 @@ var installCmdOptions struct {
 		Token       string
 		Integration string
 		AutoSync    string
+	}
+	Agent struct {
+		Version		string
 	}
 }
 
@@ -229,8 +233,11 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
+
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
+
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", fs.GetAgentVersion(), "")
 
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
