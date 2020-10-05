@@ -45,7 +45,15 @@ spec:
               name: cf-argocd-agent
               key: codefresh.token
         - name: IN_CLUSTER
-          value: "true"
+          value: "{{ .Kube.InCluster }}"
+        - name: MASTERURL
+          value: "{{ .Kube.MasterUrl }}"
+        - name: BEARERTOKEN
+          value: "{{ .Kube.BearerToken }}"
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: kube.bearertoken
         - name: AUTO_SYNC
           value: "{{ .Codefresh.AutoSync }}"
         - name: CODEFRESH_INTEGRATION

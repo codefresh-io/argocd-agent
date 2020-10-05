@@ -39,7 +39,7 @@ var uninstallCmd = &cobra.Command{
 	Long:  `Uninstall agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		kubeConfigPath := installCmdOptions.kube.configPath
+		kubeConfigPath := installCmdOptions.Kube.configPath
 		kubeOptions := uninstallCmdOptions.kube
 
 		if uninstallCmdOptions.kube.context == "" {
@@ -108,5 +108,5 @@ func init() {
 		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
 	}
 
-	uninstallCmd.Flags().StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
+	uninstallCmd.Flags().StringVar(&installCmdOptions.Kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 }
