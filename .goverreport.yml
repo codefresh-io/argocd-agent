@@ -1,0 +1,3 @@
+exclusions: [test, vendor]
+threshold: 30
+thresholdType: stmt

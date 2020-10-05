@@ -1,13 +1,29 @@
 package util
 
-import "reflect"
+import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"reflect"
+)
 
 var previousState = make(map[string]interface{})
 
-func ProcessDataWithFilter(itemType string, data interface{}, callback func() error) error {
-	oldItem := previousState[itemType]
+func ProcessDataWithFilter(itemType string, key *string, data interface{}, comparator func(oldItem interface{}, newItem interface{}) bool, callback func() error) error {
 
-	if reflect.DeepEqual(oldItem, data) {
+	stateKey := itemType
+
+	if key != nil {
+		stateKey += "." + *key
+	}
+
+	oldItem := previousState[stateKey]
+
+	if comparator == nil {
+		// default comparator
+		comparator = reflect.DeepEqual
+	}
+
+	if comparator(oldItem, data) {
+		logger.GetLogger().Infof("Filter item with key \"%s\" before send to codefresh", stateKey)
 		return nil
 	}
 
@@ -16,7 +32,7 @@ func ProcessDataWithFilter(itemType string, data interface{}, callback func() er
 	if err != nil {
 		return err
 	}
-	previousState[itemType] = data
+	previousState[stateKey] = data
 
 	return nil
 }
