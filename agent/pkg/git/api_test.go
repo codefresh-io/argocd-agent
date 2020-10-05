@@ -29,3 +29,11 @@ func TestExtractRepoAndOwnerFromUrl(t *testing.T) {
 		}
 	}
 }
+
+func TestGetInstance(t *testing.T) {
+	err, api := GetInstance("https://github.com/owner/repo")
+	_ = api
+	if err !=nil {
+		t.Errorf("'GetInstance' check error failed, error: %v", err.Error())
+	}
+}
