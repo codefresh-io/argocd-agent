@@ -46,7 +46,18 @@ subjects:
     name: cf-argocd-agent
     namespace: {{ .Namespace }}`
 
-	templatesMap["4_deployment.yaml"] = `apiVersion: apps/v1
+	templatesMap["4_secret.yaml"] = `apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: cf-argocd-agent
+  namespace: {{ .Namespace }}
+data:
+  codefresh.token: {{ .Codefresh.Token }}
+  argo.token: {{ .Argo.Token }}
+  kube.bearertoken: {{ .Kube.BearerToken }}`
+
+	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -110,17 +121,6 @@ spec:
         name: cf-argocd-agent
       restartPolicy: Always
 `
-
-	templatesMap["4_secret.yaml"] = `apiVersion: v1
-kind: Secret
-type: Opaque
-metadata:
-  name: cf-argocd-agent
-  namespace: {{ .Namespace }}
-data:
-  codefresh.token: {{ .Codefresh.Token }}
-  argo.token: {{ .Argo.Token }}
-  kube.bearertoken: {{ .Kube.BearerToken }}`
 
 	return templatesMap
 }
