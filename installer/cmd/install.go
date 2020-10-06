@@ -24,12 +24,15 @@ import (
 )
 
 var installCmdOptions struct {
-	kube struct {
+	Kube struct {
 		namespace    string
-		inCluster    bool
+		InCluster    bool
 		context      string
 		nodeSelector string
 		configPath   string
+
+		MasterUrl   string
+		BearerToken string
 	}
 	Argo struct {
 		Host     string
@@ -44,7 +47,7 @@ var installCmdOptions struct {
 		AutoSync    string
 	}
 	Agent struct {
-		Version		string
+		Version string
 	}
 }
 
@@ -161,8 +164,8 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		kubeConfigPath := installCmdOptions.kube.configPath
-		kubeOptions := installCmdOptions.kube
+		kubeConfigPath := installCmdOptions.Kube.configPath
+		kubeOptions := installCmdOptions.Kube
 
 		if kubeOptions.context == "" {
 			contexts, err := kube.GetAllContexts(kubeConfigPath)
@@ -178,7 +181,7 @@ var installCmd = &cobra.Command{
 			ContextName:      kubeOptions.context,
 			Namespace:        kubeOptions.namespace,
 			PathToKubeConfig: kubeConfigPath,
-			InCluster:        kubeOptions.inCluster,
+			InCluster:        kubeOptions.InCluster,
 		})
 		if err != nil {
 			return err
@@ -201,6 +204,27 @@ var installCmd = &cobra.Command{
 		err, autoSync := prompt.Confirm("Do you want auto sync argo apps to codefresh?")
 		if err != nil {
 			return err
+		}
+
+		err, inCluster := prompt.Confirm("Is your Argo CD installation running on this cluster?")
+		if err != nil {
+			return err
+		}
+
+		installCmdOptions.Kube.InCluster = inCluster
+
+		if !inCluster {
+			err = prompt.InputWithDefault(&installCmdOptions.Kube.MasterUrl, "Enter Kubernetes URL where your Argo CD installation is running", "")
+			if err != nil {
+				return err
+			}
+
+			err = prompt.InputWithDefault(&installCmdOptions.Kube.BearerToken, "Enter Kuberentes token where your Argo CD installation is running", "")
+			if err != nil {
+				return err
+			}
+
+			installCmdOptions.Kube.BearerToken = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Kube.BearerToken))
 		}
 
 		installCmdOptions.Codefresh.AutoSync = strconv.FormatBool(autoSync)
@@ -247,9 +271,9 @@ func init() {
 	flags.StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "")
 
-	flags.StringVar(&installCmdOptions.kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
-	flags.StringVar(&installCmdOptions.kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
-	flags.BoolVar(&installCmdOptions.kube.inCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
+	flags.StringVar(&installCmdOptions.Kube.namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
+	flags.StringVar(&installCmdOptions.Kube.context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
+	flags.BoolVar(&installCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
@@ -257,6 +281,6 @@ func init() {
 		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
 	}
 
-	flags.StringVar(&installCmdOptions.kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
+	flags.StringVar(&installCmdOptions.Kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 
 }
