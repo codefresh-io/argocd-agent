@@ -97,7 +97,6 @@ spec:
         - name: MASTERURL
           value: "{{ .Kube.MasterUrl }}"
         - name: BEARERTOKEN
-          value: "{{ .Kube.BearerToken }}"
           valueFrom:
             secretKeyRef:
               name: cf-argocd-agent
