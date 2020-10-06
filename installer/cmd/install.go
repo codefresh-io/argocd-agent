@@ -206,7 +206,7 @@ var installCmd = &cobra.Command{
 			return err
 		}
 
-		err, inCluster := prompt.Confirm("Do you want watch argocd resources from same cluster where agent is running?")
+		err, inCluster := prompt.Confirm("Is your Argo CD installation running on this cluster?")
 		if err != nil {
 			return err
 		}
@@ -214,12 +214,12 @@ var installCmd = &cobra.Command{
 		installCmdOptions.Kube.InCluster = inCluster
 
 		if !inCluster {
-			err = prompt.InputWithDefault(&installCmdOptions.Kube.MasterUrl, "Kubernetes master url", "")
+			err = prompt.InputWithDefault(&installCmdOptions.Kube.MasterUrl, "Enter Kubernetes URL where your Argo CD installation is running", "")
 			if err != nil {
 				return err
 			}
 
-			err = prompt.InputWithDefault(&installCmdOptions.Kube.BearerToken, "Kubernetes bearer token", "")
+			err = prompt.InputWithDefault(&installCmdOptions.Kube.BearerToken, "Enter Kuberentes token where your Argo CD installation is running", "")
 			if err != nil {
 				return err
 			}
