@@ -83,9 +83,10 @@ steps:
 
   store_agent_version:
     title: Update agent version
+    stage: 'push'
     type: "freestyle"
     image: "tutum/curl:latest"
-    working_directory: ${{clone}}
+    working_directory: ${{main_clone}}
     commands:
       - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{ARGOAGENT_VERSION}}\"}'"
     when:
