@@ -88,7 +88,8 @@ steps:
     image: "tutum/curl:latest"
     working_directory: ${{main_clone}}
     commands:
-      - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{ARGOAGENT_VERSION}}\"}'"
+      - echo "try to store version >>$AGENT_VERSION<<"
+      - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{AGENT_VERSION}}\"}'"
       - "curl    -XGET ${{CF_URL}}/api/admin/argo-agent/version  -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" "
     when:
       steps:
