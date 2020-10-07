@@ -89,6 +89,7 @@ steps:
     working_directory: ${{main_clone}}
     commands:
       - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{ARGOAGENT_VERSION}}\"}'"
+      - "curl    -XGET ${{CF_URL}}/api/admin/argo-agent/version  -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" "
     when:
       steps:
         - name: export_version
