@@ -81,6 +81,21 @@ steps:
         only:
           - master
 
+  store_agent_version:
+    title: Update agent version
+    type: "freestyle"
+    image: "tutum/curl:latest"
+    working_directory: ${{clone}}
+    commands:
+      - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{ARGOAGENT_VERSION}}\"}'"
+    when:
+      steps:
+        - name: export_version
+        - name: main_clone
+      branch:
+        only:
+          - master
+
   create_git_tag:
     title: Push tag to git
     image: codefresh/cli
