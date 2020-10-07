@@ -2,6 +2,7 @@ package fs
 
 import (
 	"io/ioutil"
+	"regexp"
 	"testing"
 )
 
@@ -9,8 +10,12 @@ func TestGetAgentVersion(t *testing.T) {
 	content, _ := ioutil.ReadFile("../../../agent/VERSION")
 	versionFromFile := string(content)
 	trimVersion := GetAgentVersion("../../../agent/VERSION")
+	re := regexp.MustCompile(`^\d+\.\d+\.\d+$`)
+
 	if versionFromFile != trimVersion || versionFromFile == "" {
 		t.Errorf("Agent version is not valid! expected: >>%v<<, got: >>%v<<", trimVersion, versionFromFile)
+	}else if !re.Match([]byte(versionFromFile)) {
+		t.Errorf("Agent version is not in valid format! got: >>%v<<", versionFromFile)
 	}
 }
 
