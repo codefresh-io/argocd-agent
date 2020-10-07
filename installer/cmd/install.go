@@ -261,7 +261,7 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
 
-	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", fs.GetAgentVersion(), "")
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", fs.GetAgentVersion("../agent/VERSION"), "")
 
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")

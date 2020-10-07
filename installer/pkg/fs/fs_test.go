@@ -1,8 +1,18 @@
 package fs
 
 import (
+	"io/ioutil"
 	"testing"
 )
+
+func TestGetAgentVersion(t *testing.T) {
+	content, _ := ioutil.ReadFile("../../../agent/VERSION")
+	versionFromFile := string(content)
+	trimVersion := GetAgentVersion("../../../agent/VERSION")
+	if versionFromFile != trimVersion || versionFromFile == "" {
+		t.Errorf("Agent version is not valid! expected: >>%v<<, got: >>%v<<", trimVersion, versionFromFile)
+	}
+}
 
 func TestGetVersionFromContentString(t *testing.T) {
 	expectedVersion := "0.1.2"
