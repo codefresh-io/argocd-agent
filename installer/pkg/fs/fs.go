@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func GetAgentVersion(pathToFIle string) string {
+func GetPackageVersionFromFIle(pathToFIle string) string {
 	content, err := ioutil.ReadFile(pathToFIle)
 	if err != nil {
 		fmt.Errorf(err.Error())

@@ -50,6 +50,7 @@ var installCmdOptions struct {
 		Version string
 	}
 }
+var version = ""
 
 func ensureIntegration() error {
 	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
@@ -256,13 +257,20 @@ var installCmd = &cobra.Command{
 	},
 }
 
+func resolvePackageVersion() string {
+	versionFromFile := fs.GetPackageVersionFromFIle("./VERSION")
+	if versionFromFile != "" {
+		return versionFromFile
+	}
+	return version
+}
+
 func init() {
 
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
 
-	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", fs.GetAgentVersion("../agent/VERSION"), "")
-
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", resolvePackageVersion(), "")
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
@@ -282,5 +290,4 @@ func init() {
 	}
 
 	flags.StringVar(&installCmdOptions.Kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
-
 }
