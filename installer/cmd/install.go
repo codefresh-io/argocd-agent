@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/cliconfig"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/fatih/structs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -50,6 +50,9 @@ var installCmdOptions struct {
 		Version string
 	}
 }
+
+// variable derived from ldflag
+var version = ""
 
 func ensureIntegration() error {
 	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
@@ -261,8 +264,7 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 	flags := installCmd.Flags()
 
-	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", fs.GetAgentVersion("../agent/VERSION"), "")
-
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", util.ResolvePackageVersion(version), "")
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
@@ -282,5 +284,4 @@ func init() {
 	}
 
 	flags.StringVar(&installCmdOptions.Kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
-
 }
