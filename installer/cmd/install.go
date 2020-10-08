@@ -50,6 +50,8 @@ var installCmdOptions struct {
 		Version string
 	}
 }
+
+// variable derived from ldflag
 var version = ""
 
 func ensureIntegration() error {
@@ -258,10 +260,12 @@ var installCmd = &cobra.Command{
 }
 
 func resolvePackageVersion() string {
+	// Getting version from file (for local development)
 	versionFromFile := fs.GetPackageVersionFromFile("./VERSION")
 	if versionFromFile != "" {
 		return versionFromFile
 	}
+	// Getting version from ldflag
 	return version
 }
 
