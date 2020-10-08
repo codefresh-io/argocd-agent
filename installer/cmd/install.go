@@ -258,7 +258,7 @@ var installCmd = &cobra.Command{
 }
 
 func resolvePackageVersion() string {
-	versionFromFile := fs.GetPackageVersionFromFIle("./VERSION")
+	versionFromFile := fs.GetPackageVersionFromFile("./VERSION")
 	if versionFromFile != "" {
 		return versionFromFile
 	}

@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func GetPackageVersionFromFIle(pathToFIle string) string {
-	content, err := ioutil.ReadFile(pathToFIle)
+func GetPackageVersionFromFile(pathToFile string) string {
+	content, err := ioutil.ReadFile(pathToFile)
 	if err != nil {
 		fmt.Errorf(err.Error())
 		return ""
