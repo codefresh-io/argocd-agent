@@ -20,7 +20,7 @@ func GetApplicationCreatedHandlerInstance() *ApplicationCreatedHandler {
 }
 
 func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application argo.ArgoApplication) error {
-	if !store.GetStore().Codefresh.AutoSync {
+	if store.GetStore().Codefresh.SyncMode != codefresh.ContinueSync {
 		// ignore handling if autosync disabled
 		return nil
 	}

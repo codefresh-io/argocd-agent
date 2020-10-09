@@ -112,15 +112,16 @@ spec:
             secretKeyRef:
               name: cf-argocd-agent
               key: kube.bearertoken
-        - name: AUTO_SYNC
-          value: "{{ .Codefresh.AutoSync }}"
+        - name: SYNC_MODE
+          value: "{{ .Codefresh.SyncMode }}"
+        - name: APPLICATIONS_FOR_SYNC
+          value: "{{ .Codefresh.ApplicationsForSync }}"
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: cf-argocd-agent
-      restartPolicy: Always
-`
+      restartPolicy: Always`
 
 	return templatesMap
 }

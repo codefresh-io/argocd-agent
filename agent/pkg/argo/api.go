@@ -143,10 +143,7 @@ func GetManagedResources(applicationName string) (*ManagedResource, error) {
 	return &result, nil
 }
 
-func GetProjects() ([]ProjectItem, error) {
-	token := store2.GetStore().Argo.Token
-	host := store2.GetStore().Argo.Host
-
+func GetProjects(token string, host string) ([]ProjectItem, error) {
 	client := buildHttpClient()
 
 	req, err := http.NewRequest("GET", host+"/api/v1/projects", nil)
@@ -168,6 +165,13 @@ func GetProjects() ([]ProjectItem, error) {
 	}
 
 	return result.Items, nil
+}
+
+func GetProjectsWithCredentialsFromStorage() ([]ProjectItem, error) {
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
+
+	return GetProjects(token, host)
 }
 
 func GetApplication(application string) (map[string]interface{}, error) {
@@ -202,9 +206,14 @@ func GetApplication(application string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func GetApplications() ([]ApplicationItem, error) {
+func GetApplicationsWithCredentialsFromStorage() ([]ApplicationItem, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
+
+	return GetApplications(token, host)
+}
+
+func GetApplications(token string, host string) ([]ApplicationItem, error) {
 
 	client := buildHttpClient()
 

@@ -1,16 +1,18 @@
 package main
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
-	"strconv"
 )
 
 func main() {
@@ -63,17 +65,17 @@ func main() {
 		panic(errors.New("CODEFRESH_INTEGRATION variable doesnt exist"))
 	}
 
-	autoSync, autoSyncExistence := os.LookupEnv("AUTO_SYNC")
-	if !autoSyncExistence {
-		autoSync = "false"
+	var applications []string
+	syncMode, _ := os.LookupEnv("SYNC_MODE")
+	if syncMode == codefresh2.SelectSync {
+		applicationsToSyncEncodedJson, _ := os.LookupEnv("APPLICATIONS_FOR_SYNC")
+		applicationsToSyncJson, _ := base64.StdEncoding.DecodeString(applicationsToSyncEncodedJson)
+		_ = json.Unmarshal(applicationsToSyncJson, &applications)
 	}
 
-	autoSyncBool, parseError := strconv.ParseBool(autoSync)
-	if parseError != nil {
-		autoSyncBool = false
-	}
+	store.SetSyncOptions(syncMode, applications)
 
-	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName, autoSyncBool)
+	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
 
 	agentVersion, agentVersionExistence := os.LookupEnv("AGENT_VERSION")
 	if !agentVersionExistence {
@@ -92,6 +94,11 @@ func main() {
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
+
+	err = handler.GetSyncHandlerInstance().Handle()
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
+	}
 
 	err = extract.Watch()
 	if err != nil {

@@ -82,7 +82,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			applications, err := argo.GetApplications()
+			applications, err := argo.GetApplicationsWithCredentialsFromStorage()
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
@@ -117,7 +117,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			applications, err := argo.GetApplications()
+			applications, err := argo.GetApplicationsWithCredentialsFromStorage()
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
 				return
@@ -152,7 +152,7 @@ func watchApplicationChanges() error {
 
 	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			projects, err := argo.GetProjects()
+			projects, err := argo.GetProjectsWithCredentialsFromStorage()
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to get projects, reason: %v", err)
@@ -168,7 +168,7 @@ func watchApplicationChanges() error {
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
-			projects, err := argo.GetProjects()
+			projects, err := argo.GetProjectsWithCredentialsFromStorage()
 
 			if err != nil {
 				//TODO: add error handling

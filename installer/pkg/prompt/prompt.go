@@ -75,6 +75,28 @@ func Confirm(label string) (error, bool) {
 	return nil, result
 }
 
+func Multiselect(items []string, label string) (error, []string) {
+	result := make([]string, 0)
+
+	var multiQs = []*survey.Question{
+		{
+			Name: "letter",
+			Prompt: &survey.MultiSelect{
+				Message: "Choose one or more words :",
+				Options: items,
+			},
+		},
+	}
+
+	err := survey.Ask(multiQs, &result)
+
+	if err != nil {
+		return err, nil
+	}
+
+	return nil, result
+}
+
 func Select(items []string, label string) (error, string) {
 	result := ""
 

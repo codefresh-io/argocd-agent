@@ -97,7 +97,7 @@ func (a *Api) SendEvent(name string, props map[string]string) error {
 
 func (a *Api) HeartBeat(error string) error {
 	agentConfig := store.GetStore().Agent
-	var body  = Heartbeat{}
+	var body = Heartbeat{}
 
 	if error != "" {
 		body.Error = error
@@ -308,6 +308,8 @@ func (a *Api) CreateEnvironment(name string, project string, application string)
 	if err != nil {
 		return err
 	}
+
+	logger.GetLogger().Infof("Successfully create gitops application with name %s and application %s", name, application)
 
 	return nil
 }
