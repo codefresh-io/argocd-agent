@@ -1,7 +1,7 @@
 package fs
 
 import (
-	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"io/ioutil"
 	"strings"
 )
@@ -9,7 +9,7 @@ import (
 func GetPackageVersionFromFile(pathToFile string) string {
 	content, err := ioutil.ReadFile(pathToFile)
 	if err != nil {
-		fmt.Errorf(err.Error())
+		logger.GetLogger().Errorf("Failed to retrieve package version, reason %v", err)
 		return ""
 	} else {
 		version := getVersionFromContentString(string(content))

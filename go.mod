@@ -8,6 +8,7 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/cvgw/gocheckcov v0.4.0 // indirect
+	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b

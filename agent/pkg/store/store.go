@@ -21,10 +21,11 @@ type (
 			Host  string
 		}
 		Codefresh struct {
-			Host        string
-			Token       string
-			Integration string
-			AutoSync    bool
+			Host                string
+			Token               string
+			Integration         string
+			SyncMode            string
+			ApplicationsForSync []string
 		}
 		Heartbeat struct {
 			Error string
@@ -48,12 +49,18 @@ func SetArgo(token string, host string) *Values {
 	return values
 }
 
-func SetCodefresh(host string, token string, integration string, autoSync bool) *Values {
+func SetCodefresh(host string, token string, integration string) *Values {
 	values := GetStore()
 	values.Codefresh.Token = token
 	values.Codefresh.Host = host
 	values.Codefresh.Integration = integration
-	values.Codefresh.AutoSync = autoSync
+	return values
+}
+
+func SetSyncOptions(syncMode string, applicationsToSync []string) *Values {
+	values := GetStore()
+	values.Codefresh.SyncMode = syncMode
+	values.Codefresh.ApplicationsForSync = applicationsToSync
 	return values
 }
 

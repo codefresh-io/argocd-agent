@@ -30,7 +30,7 @@ var updateCMD = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 
-		kubeConfigPath := installCmdOptions.Kube.configPath
+		kubeConfigPath := installCmdOptions.Kube.ConfigPath
 		kubeOptions := updateCmdOptions.kube
 
 		if kubeOptions.context == "" {
@@ -93,5 +93,5 @@ func init() {
 		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
 	}
 
-	flags.StringVar(&installCmdOptions.Kube.configPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
+	flags.StringVar(&installCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 }
