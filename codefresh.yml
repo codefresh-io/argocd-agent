@@ -25,11 +25,8 @@ steps:
     image: codefresh/semver
     commands:
       - export ARGOCTL_VERSION=$(cat ./installer/VERSION)
-      - export ARGOAGENT_VERSION=$(cat ./agent/VERSION)
       - echo "Argoctl version -> $ARGOCTL_VERSION "
-      - echo "Argoagent version -> $ARGOAGENT_VERSION "
       - cf_export VERSION=$ARGOCTL_VERSION
-      - cf_export AGENT_VERSION=$ARGOAGENT_VERSION
     when:
       steps:
         - name: main_clone
@@ -73,10 +70,28 @@ steps:
     candidate: ${{build}}
     tags:
       - stable
-      - ${{AGENT_VERSION}}
+      - ${{VERSION}}
     registry: dockerhub
     image_name: codefresh/argocd-agent
     when:
+      branch:
+        only:
+          - master
+
+  store_agent_version:
+    title: Update agent version
+    stage: 'push'
+    type: "freestyle"
+    image: "tutum/curl:latest"
+    working_directory: ${{main_clone}}
+    commands:
+      - echo "try to store version >>$VERSION<<"
+      - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{VERSION}}\"}'"
+      - "curl    -XGET ${{CF_URL}}/api/admin/argo-agent/version  -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" "
+    when:
+      steps:
+        - name: export_version
+        - name: main_clone
       branch:
         only:
           - master

@@ -14,7 +14,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -X github.com/codefresh-io/argocd-agent/installer/cmd.version={{.Version}} -X github.com/codefresh-io/argocd-agent/installer/cmd.commit={{.Commit}} -X github.com/codefresh-io/argocd-agent/installer/cmd.date={{.Date}}
+      - -X github.com/codefresh-io/argocd-listener/installer/cmd.version={{.Version}} -X github.com/codefresh-io/argocd-agent/installer/cmd.version={{.Version}} -X github.com/codefresh-io/argocd-agent/installer/cmd.commit={{.Commit}} -X github.com/codefresh-io/argocd-agent/installer/cmd.date={{.Date}}
 
 archives:
   -

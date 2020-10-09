@@ -6,20 +6,20 @@ import (
 	"strings"
 )
 
-func GetAgentVersion() string {
-	content, err := ioutil.ReadFile("../agent/VERSION")
+func GetPackageVersionFromFile(pathToFile string) string {
+	content, err := ioutil.ReadFile(pathToFile)
 	if err != nil {
 		fmt.Errorf(err.Error())
 		return ""
-	}else{
+	} else {
 		version := getVersionFromContentString(string(content))
 		return version
 	}
 }
 
-func getVersionFromContentString(content string) string{
-	return strings.TrimFunc(content, func (r rune) bool {
+func getVersionFromContentString(content string) string {
+	return strings.TrimFunc(content, func(r rune) bool {
 		_r := string(r)
-		return _r == " " || _r =="\n" || _r =="\t" || _r =="\r"
+		return _r == " " || _r == "\n" || _r == "\t" || _r == "\r"
 	})
 }
