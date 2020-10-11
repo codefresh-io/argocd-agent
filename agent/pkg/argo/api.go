@@ -10,6 +10,30 @@ import (
 	"net/http"
 )
 
+type ArgoApi interface {
+	GetApplicationsWithCredentialsFromStorage() ([]ApplicationItem, error)
+}
+
+type Api struct {
+	Token string
+	Host  string
+}
+
+var api *Api
+
+func GetInstance() *Api {
+	if api != nil {
+		return api
+	}
+
+	argoConfig := store2.GetStore().Argo
+	api = &Api{
+		Token: argoConfig.Token,
+		Host:  argoConfig.Host,
+	}
+	return api
+}
+
 func buildHttpClient() *http.Client {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -206,11 +230,8 @@ func GetApplication(application string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func GetApplicationsWithCredentialsFromStorage() ([]ApplicationItem, error) {
-	token := store2.GetStore().Argo.Token
-	host := store2.GetStore().Argo.Host
-
-	return GetApplications(token, host)
+func (api *Api) GetApplicationsWithCredentialsFromStorage() ([]ApplicationItem, error) {
+	return GetApplications(api.Token, api.Host)
 }
 
 func GetApplications(token string, host string) ([]ApplicationItem, error) {

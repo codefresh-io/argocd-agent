@@ -10,15 +10,21 @@ import (
 )
 
 type SyncHandler struct {
+	codefreshApi codefresh.CodefreshApi
+
+	argoApi argo.ArgoApi
 }
 
 var syncHandler *SyncHandler
 
-func GetSyncHandlerInstance() *SyncHandler {
+func GetSyncHandlerInstance(codefreshApi codefresh.CodefreshApi, argoApi argo.ArgoApi) *SyncHandler {
 	if syncHandler != nil {
 		return syncHandler
 	}
-	syncHandler = &SyncHandler{}
+	syncHandler = &SyncHandler{
+		codefreshApi,
+		argoApi,
+	}
 	return syncHandler
 }
 
@@ -31,13 +37,12 @@ func (syncHandler *SyncHandler) Handle() error {
 	}
 
 	if syncMode == codefresh.OneTimeSync {
-		applications, err := argo.GetApplicationsWithCredentialsFromStorage()
+		applications, err := syncHandler.argoApi.GetApplicationsWithCredentialsFromStorage()
 		if err != nil {
 			return err
 		}
-		api := codefresh.GetInstance()
 		for _, application := range applications {
-			err = api.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
+			err = syncHandler.codefreshApi.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to create environment, reason %v", err)
 			}
@@ -48,14 +53,13 @@ func (syncHandler *SyncHandler) Handle() error {
 		selectedApps := store.GetStore().Codefresh.ApplicationsForSync
 		logger.GetLogger().Infof("Start sync applications: %v", strings.Join(selectedApps, ","))
 
-		applications, err := argo.GetApplicationsWithCredentialsFromStorage()
+		applications, err := syncHandler.argoApi.GetApplicationsWithCredentialsFromStorage()
 		if err != nil {
 			return err
 		}
-		api := codefresh.GetInstance()
 		for _, application := range applications {
 			if util.Contains(selectedApps, application.Metadata.Name) {
-				err = api.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
+				err = syncHandler.codefreshApi.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
 				if err != nil {
 					logger.GetLogger().Errorf("Failed to create environment, reason %v", err)
 				}

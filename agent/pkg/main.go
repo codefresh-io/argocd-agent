@@ -95,7 +95,7 @@ func main() {
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
 
-	err = handler.GetSyncHandlerInstance().Handle()
+	err = handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}

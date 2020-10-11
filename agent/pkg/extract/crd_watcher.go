@@ -82,7 +82,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			applications, err := argo.GetApplicationsWithCredentialsFromStorage()
+			applications, err := argo.GetInstance().GetApplicationsWithCredentialsFromStorage()
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
@@ -117,7 +117,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			applications, err := argo.GetApplicationsWithCredentialsFromStorage()
+			applications, err := argo.GetInstance().GetApplicationsWithCredentialsFromStorage()
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
 				return

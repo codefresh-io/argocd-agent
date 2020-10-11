@@ -18,6 +18,10 @@ type Api struct {
 	Integration string
 }
 
+type CodefreshApi interface {
+	CreateEnvironment(name string, project string, application string) error
+}
+
 var api *Api
 
 func GetInstance() *Api {
