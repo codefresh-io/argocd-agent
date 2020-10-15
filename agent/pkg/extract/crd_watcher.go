@@ -35,7 +35,8 @@ var (
 )
 
 func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
-	err, env := transform.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
+	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+	err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
 	if err != nil {
 		return err, env
 	}

@@ -11,73 +11,82 @@ import (
 	"sort"
 )
 
-func initDeploymentsStatuses(applicationName string) map[string]string {
-	statuses := make(map[string]string)
-	resourceTree, _ := argo.GetResourceTree(applicationName)
-	for _, node := range resourceTree.Nodes {
-		if node.Kind == "Deployment" || node.Kind == "Rollout" {
-			if node.Health.Status == "" {
-				statuses[node.Uid] = "Missing"
-			} else {
-				statuses[node.Uid] = node.Health.Status
-			}
+type EnvTransformer struct {
+	argoApi argo.ArgoApi
+}
 
+var envTransformer *EnvTransformer
+
+func GetEnvTransformerInstance(argoApi argo.ArgoApi) *EnvTransformer {
+	if envTransformer != nil {
+		return envTransformer
+	}
+	envTransformer = &EnvTransformer{
+		argoApi,
+	}
+	return envTransformer
+}
+
+func (envTransformer *EnvTransformer) initDeploymentsStatuses(applicationName string) map[string]string {
+	statuses := make(map[string]string)
+	resourceTree, _ := envTransformer.argoApi.GetResourceTree(applicationName)
+	for _, node := range resourceTree.Nodes {
+		if node.Health.Status == "" {
+			statuses[node.Uid] = "Missing"
+		} else {
+			statuses[node.Uid] = node.Health.Status
 		}
 	}
 	return statuses
 }
 
-func prepareEnvironmentActivity(applicationName string) ([]codefresh2.EnvironmentActivity, error) {
+func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName string) ([]codefresh2.EnvironmentActivity, error) {
 
-	resource, err := argo.GetManagedResources(applicationName)
+	resource, err := envTransformer.argoApi.GetManagedResources(applicationName)
 	if err != nil {
 		return nil, err
 	}
 
-	statuses := initDeploymentsStatuses(applicationName)
+	statuses := envTransformer.initDeploymentsStatuses(applicationName)
 
-	var activities []codefresh2.EnvironmentActivity
+	var services = make(map[string]codefresh2.EnvironmentActivity)
 
 	for _, item := range resource.Items {
-		if item.Kind == "Deployment" || item.Kind == "Rollout" {
+		var liveState argo.ManagedResourceState
+		err = json.Unmarshal([]byte(item.LiveState), &liveState)
+		if err != nil {
+			logger.GetLogger().Errorf("Failed to unmarshal \"LiveState\" to ManagedResourceState, reason %v", err)
+			continue
+		}
 
-			var targetState argo.ManagedResourceState
-			err = json.Unmarshal([]byte(item.TargetState), &targetState)
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to unmarshal \"TargetState\" to ManagedResourceState, reason %v", err)
-				continue
-			}
-
-			var targetImages []string
-			for _, container := range targetState.Spec.Template.Spec.Containers {
-				targetImages = append(targetImages, container.Image)
-			}
-
-			var liveState argo.ManagedResourceState
-			err = json.Unmarshal([]byte(item.LiveState), &liveState)
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to unmarshal \"LiveState\" to ManagedResourceState, reason %v", err)
-				continue
-			}
-
-			var liveImages []string
-			for _, container := range liveState.Spec.Template.Spec.Containers {
+		var liveImages []string
+		for _, container := range liveState.Spec.Template.Spec.Containers {
+			if container.Image != "" {
 				liveImages = append(liveImages, container.Image)
 			}
-			status := statuses[liveState.Metadata.Uid]
-			activities = append(activities, codefresh2.EnvironmentActivity{
-				Name:         item.Name,
-				TargetImages: targetImages,
-				Status:       status,
-				LiveImages:   liveImages,
-			})
+
 		}
+		if len(liveImages) != 0 {
+			status := statuses[liveState.Metadata.Uid]
+			services[item.Name] = codefresh2.EnvironmentActivity{
+				Name:       item.Name,
+				Status:     status,
+				LiveImages: liveImages,
+			}
+		}
+
 	}
 
-	return activities, nil
+	var result = make([]codefresh2.EnvironmentActivity, 0, len(services))
+
+	for _, svc := range services {
+		result = append(result, svc)
+	}
+
+	return result, nil
 }
 
-func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
+func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
 	var app argo.ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
@@ -90,7 +99,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 	revision := app.Status.OperationState.SyncResult.Revision
 	repoUrl := app.Spec.Source.RepoURL
 
-	resources, err := argo.GetResourceTreeAll(name)
+	resources, err := envTransformer.argoApi.GetResourceTreeAll(name)
 	if err != nil {
 		return err, nil
 	}
@@ -108,7 +117,7 @@ func PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Envi
 		return err, nil
 	}
 
-	activities, err := prepareEnvironmentActivity(name)
+	activities, err := envTransformer.prepareEnvironmentActivity(name)
 	if err != nil {
 		return err, nil
 	}

@@ -12,7 +12,10 @@ func ExtractNewApplication(application string) (*codefresh.Environment, error) {
 	if err != nil {
 		return nil, err
 	}
-	err, env := transform.PrepareEnvironment(applicationObj)
+
+	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+
+	err, env := envTransformer.PrepareEnvironment(applicationObj)
 	if err != nil {
 		return nil, err
 	}
