@@ -12,6 +12,9 @@ import (
 
 type ArgoApi interface {
 	GetApplicationsWithCredentialsFromStorage() ([]ApplicationItem, error)
+	GetResourceTree(applicationName string) (*ResourceTree, error)
+	GetResourceTreeAll(applicationName string) (interface{}, error)
+	GetManagedResources(applicationName string) (*ManagedResource, error)
 }
 
 type Api struct {
@@ -77,19 +80,16 @@ func GetToken(username string, password string, host string) (string, error) {
 	return result["token"].(string), nil
 }
 
-func GetResourceTree(applicationName string) (*ResourceTree, error) {
-	token := store2.GetStore().Argo.Token
-	host := store2.GetStore().Argo.Host
-
+func (api *Api) GetResourceTree(applicationName string) (*ResourceTree, error) {
 	client := buildHttpClient()
 
-	req, err := http.NewRequest("GET", host+"/api/v1/applications/"+applicationName+"/resource-tree", nil)
+	req, err := http.NewRequest("GET", api.Host+"/api/v1/applications/"+applicationName+"/resource-tree", nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Add("Authorization", "Bearer "+api.Token)
 	resp, err := client.Do(req)
 
 	if err != nil {
@@ -110,17 +110,14 @@ func GetResourceTree(applicationName string) (*ResourceTree, error) {
 }
 
 //  TODO: refactor
-func GetResourceTreeAll(applicationName string) (interface{}, error) {
-	token := store2.GetStore().Argo.Token
-	host := store2.GetStore().Argo.Host
-
+func (api *Api) GetResourceTreeAll(applicationName string) (interface{}, error) {
 	client := buildHttpClient()
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/applications/%s/resource-tree", host, applicationName), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/api/v1/applications/%s/resource-tree", api.Host, applicationName), nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", api.Token))
 	resp, err := client.Do(req)
 
 	if err != nil {
@@ -140,7 +137,7 @@ func GetResourceTreeAll(applicationName string) (interface{}, error) {
 	return result.(map[string]interface{})["nodes"], nil
 }
 
-func GetManagedResources(applicationName string) (*ManagedResource, error) {
+func (api *Api) GetManagedResources(applicationName string) (*ManagedResource, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 

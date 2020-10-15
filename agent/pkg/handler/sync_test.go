@@ -12,6 +12,18 @@ var createdEnv []string
 type MockArgoApi struct {
 }
 
+func (api *MockArgoApi) GetResourceTree(applicationName string) (*argo.ResourceTree, error) {
+	panic("implement me")
+}
+
+func (api *MockArgoApi) GetResourceTreeAll(applicationName string) (interface{}, error) {
+	panic("implement me")
+}
+
+func (api *MockArgoApi) GetManagedResources(applicationName string) (*argo.ManagedResource, error) {
+	panic("implement me")
+}
+
 type MockCodefreshApi struct {
 }
 
