@@ -86,6 +86,18 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 	return result, nil
 }
 
+func filterResources(resources interface{}) []interface{} {
+	result := make([]interface{}, 0)
+	for _, resource := range resources.([]interface{}) {
+		resourceItem := resource.(map[string]interface{})
+		resourceKind := resourceItem["kind"]
+		if resourceKind == "Service" || resourceKind == "Pod" {
+			result = append(result, resourceItem)
+		}
+	}
+	return result
+}
+
 func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
 	var app argo.ArgoApplication
@@ -130,7 +142,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   activities,
-		Resources:    resources,
+		Resources:    filterResources(resources),
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 	}
