@@ -7,8 +7,10 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	v1 "k8s.io/api/core/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os/user"
 	"path"
@@ -67,7 +69,32 @@ var updateCMD = &cobra.Command{
 			kubeOptions.namespace = selectedNamespace
 		}
 
-		err = kubeobj.DeletePod(kubeClient.GetClientSet(), kubeOptions.namespace, "app=cf-argocd-agent")
+		deploymentList, err := kubeobj.GetDeployments(kubeClient.GetClientSet(), kubeOptions.namespace, "app=cf-argocd-agent")
+
+		if err != nil {
+			return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
+		}
+
+		if len(deploymentList.Items) == 0 {
+			return errors.New("Argo agent failed to update because no deployments were found")
+		}
+
+		deployment := &deploymentList.Items[0]
+
+		envs := deployment.Spec.Template.Spec.Containers[0].Env
+
+		newEnvs := make([]v1.EnvVar, 0)
+
+		for _, env := range envs {
+			if env.Name == "AGENT_VERSION" {
+				env.Value = util.ResolvePackageVersion("")
+			}
+			newEnvs = append(newEnvs, env)
+		}
+
+		deployment.Spec.Template.Spec.Containers[0].Env = newEnvs
+
+		_, err = kubeobj.UpdateDeployment(kubeClient.GetClientSet(), deployment, kubeOptions.namespace)
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
@@ -90,7 +117,7 @@ func init() {
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
 	if currentUser != nil {
-		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "olegs.yaml")
 	}
 
 	flags.StringVar(&installCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")

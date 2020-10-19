@@ -8,8 +8,9 @@ import (
 	"k8s.io/client-go/kubernetes"
 
 	appsv1 "k8s.io/api/apps/v1"
-	"k8s.io/api/core/v1"
-	v1beta1 "k8s.io/api/extensions/v1beta1"
+	v1api "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -561,4 +562,13 @@ func DeletePod(clientset *kubernetes.Clientset, namespace string, labelSelector 
 
 	listOptions := metav1.ListOptions{LabelSelector: labelSelector}
 	return clientset.CoreV1().Pods(namespace).DeleteCollection(&metav1.DeleteOptions{PropagationPolicy: &propagationPolicy}, listOptions)
+}
+
+func GetDeployments(clientset *kubernetes.Clientset, namespace string, labelSelector string) (*appsv1.DeploymentList, error) {
+	listOptions := metav1.ListOptions{LabelSelector: labelSelector}
+	return clientset.AppsV1().Deployments(namespace).List(listOptions)
+}
+
+func UpdateDeployment(clientset *kubernetes.Clientset, deployment *v1api.Deployment, namespace string) (*v1api.Deployment, error) {
+	return clientset.AppsV1().Deployments(namespace).Update(deployment)
 }
