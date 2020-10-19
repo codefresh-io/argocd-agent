@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os/user"
 	"path"
@@ -23,6 +24,37 @@ var updateCmdOptions struct {
 		context    string
 		configPath string
 	}
+}
+
+func updateDeploymentWithNewVersion(clientSet *kubernetes.Clientset, namespace string) error {
+	deploymentList, err := kubeobj.GetDeployments(clientSet, namespace, "app=cf-argocd-agent")
+
+	if err != nil {
+		return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
+	}
+
+	if len(deploymentList.Items) == 0 {
+		return errors.New("Argo agent failed to update because no deployments were found")
+	}
+
+	deployment := &deploymentList.Items[0]
+
+	envs := deployment.Spec.Template.Spec.Containers[0].Env
+
+	newEnvs := make([]v1.EnvVar, 0)
+
+	for _, env := range envs {
+		if env.Name == "AGENT_VERSION" {
+			env.Value = util.ResolvePackageVersion("")
+		}
+		newEnvs = append(newEnvs, env)
+	}
+
+	deployment.Spec.Template.Spec.Containers[0].Env = newEnvs
+
+	_, err = kubeobj.UpdateDeployment(clientSet, deployment, namespace)
+
+	return err
 }
 
 var updateCMD = &cobra.Command{
@@ -69,32 +101,7 @@ var updateCMD = &cobra.Command{
 			kubeOptions.namespace = selectedNamespace
 		}
 
-		deploymentList, err := kubeobj.GetDeployments(kubeClient.GetClientSet(), kubeOptions.namespace, "app=cf-argocd-agent")
-
-		if err != nil {
-			return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
-		}
-
-		if len(deploymentList.Items) == 0 {
-			return errors.New("Argo agent failed to update because no deployments were found")
-		}
-
-		deployment := &deploymentList.Items[0]
-
-		envs := deployment.Spec.Template.Spec.Containers[0].Env
-
-		newEnvs := make([]v1.EnvVar, 0)
-
-		for _, env := range envs {
-			if env.Name == "AGENT_VERSION" {
-				env.Value = util.ResolvePackageVersion("")
-			}
-			newEnvs = append(newEnvs, env)
-		}
-
-		deployment.Spec.Template.Spec.Containers[0].Env = newEnvs
-
-		_, err = kubeobj.UpdateDeployment(kubeClient.GetClientSet(), deployment, kubeOptions.namespace)
+		err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.namespace)
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
