@@ -55,11 +55,6 @@ var uninstallCmd = &cobra.Command{
 			kubeOptions.context = selectedContext
 		}
 
-		err := prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to uninstall", "default")
-		if err != nil {
-			return err
-		}
-
 		kubeClient, err := kube.New(&kube.Options{
 			ContextName:      kubeOptions.context,
 			Namespace:        kubeOptions.namespace,
@@ -69,6 +64,20 @@ var uninstallCmd = &cobra.Command{
 
 		if err != nil {
 			panic(err)
+		}
+
+		namespaces, err := kubeClient.GetNamespaces()
+		if err != nil {
+			err = prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to uninstall", "default")
+			if err != nil {
+				return err
+			}
+		} else {
+			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace to uninstall")
+			if err != nil {
+				return err
+			}
+			kubeOptions.namespace = selectedNamespace
 		}
 
 		uninstallOptions := templates.DeleteOptions{
