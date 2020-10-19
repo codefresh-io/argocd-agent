@@ -72,6 +72,10 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 				Name:       item.Name,
 				Status:     status,
 				LiveImages: liveImages,
+				ReplicaSet: codefresh2.EnvironmentActivityRS{
+					General: liveState.Status.Replicas,
+					Ready:   liveState.Status.ReadyReplicas,
+				},
 			}
 		}
 
