@@ -13,6 +13,7 @@ type (
 		buildClient() (*kubernetes.Clientset, error)
 		GetNamespaces() ([]string, error)
 		GetClientSet() *kubernetes.Clientset
+		IsArgoServerOnCluster(string) bool
 	}
 
 	kube struct {
@@ -69,6 +70,11 @@ func (k *kube) buildClient() (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 	return kubernetes.NewForConfig(config)
+}
+
+func (k *kube) IsArgoServerOnCluster(namespace string) bool {
+	_, err := k.clientSet.CoreV1().Services(namespace).Get("argocd-server", metav1.GetOptions{})
+	return err == nil
 }
 
 func (k *kube) GetNamespaces() ([]string, error) {

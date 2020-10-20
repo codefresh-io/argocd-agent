@@ -1,16 +1,7 @@
 package install
 
 type InstallCmdOptions struct {
-	Kube struct {
-		Namespace    string
-		InCluster    bool
-		Context      string
-		NodeSelector string
-		ConfigPath   string
-
-		MasterUrl   string
-		BearerToken string
-	}
+	Kube Kube
 	Argo struct {
 		Host     string
 		Username string
@@ -27,4 +18,15 @@ type InstallCmdOptions struct {
 	Agent struct {
 		Version string
 	}
+}
+
+type Kube struct {
+	Namespace    string
+	InCluster    bool
+	Context      string
+	NodeSelector string
+	ConfigPath   string
+
+	MasterUrl   string
+	BearerToken string
 }
