@@ -26,7 +26,7 @@ func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
 	installOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installOptions.Argo.Host, "")
 
 	//err, useArgocdToken := prompt.Confirm("Choose an authentication method")
-	useArgocdToken := "Auth token - Recommended"
+	useArgocdToken := "Auth token - Recommended [https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/]"
 	useUserAndPass := "Username and password"
 	authenticationMethodOptions := []string{useArgocdToken, useUserAndPass}
 	err, authenticationMethod := prompt.Select(authenticationMethodOptions, "Choose an authentication method")
