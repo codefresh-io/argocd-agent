@@ -7,7 +7,7 @@ import (
 )
 
 func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
-	err := prompt.Input(&installOptions.Argo.Host, "Argo host, example: https://example.com")
+	err := prompt.Input(&installOptions.Argo.Host, "Argo host, for example: https://example.com")
 	if err != nil {
 		return err
 	}
@@ -25,17 +25,21 @@ func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
 	// removing / in the end
 	installOptions.Argo.Host = regexp.MustCompile("/+$").ReplaceAllString(installOptions.Argo.Host, "")
 
-	err, useArgocdToken := prompt.Confirm("Do you want use argocd auth token instead username/password auth?")
+	//err, useArgocdToken := prompt.Confirm("Choose an authentication method")
+	useArgocdToken := "Auth token - Recommended [https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/]"
+	useUserAndPass := "Username and password"
+	authenticationMethodOptions := []string{useArgocdToken, useUserAndPass}
+	err, authenticationMethod := prompt.Select(authenticationMethodOptions, "Choose an authentication method")
 	if err != nil {
 		return err
 	}
 
-	if useArgocdToken {
+	if authenticationMethod == useArgocdToken {
 		err = prompt.InputWithDefault(&installOptions.Argo.Token, "Argo token", "")
 		if err != nil {
 			return err
 		}
-	} else {
+	} else if authenticationMethod == useUserAndPass {
 		err = prompt.InputWithDefault(&installOptions.Argo.Username, "Argo username", "admin")
 		if err != nil {
 			return err

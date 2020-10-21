@@ -12,8 +12,7 @@ import (
 
 func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
 	syncModes := orderedmap.NewOrderedMap()
-	syncModes.Set("Import existing Argo applications to Codefresh and auto-import all new ones in the future", "CONTINUE_SYNC")
-	syncModes.Set("Import all existing Argo applications to Codefresh", "ONE_TIME_SYNC")
+	syncModes.Set("Import all existing Argo applications to Codefresh", "SYNC")
 	syncModes.Set("Select specific Argo applications to import", "SELECT")
 	syncModes.Set("Do not import anything from Argo to Codefresh", "NONE")
 
@@ -21,7 +20,14 @@ func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
 
 	syncMode, _ := syncModes.Get(autoSyncMode)
 
-	if syncMode == "SELECT" {
+	if syncMode == "SYNC" {
+		_, autoSync := prompt.Confirm("Enable auto-sync of applications, this will import all existing applications and update Codefresh in the future")
+		if autoSync {
+			syncMode = "CONTINUE_SYNC"
+		} else {
+			syncMode = "ONE_TIME_SYNC"
+		}
+	} else if syncMode == "SELECT" {
 
 		argoToken := installOptions.Argo.Token
 
