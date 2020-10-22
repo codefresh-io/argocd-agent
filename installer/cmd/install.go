@@ -73,7 +73,7 @@ var installCmd = &cobra.Command{
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
-
+		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
 		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
 
 		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
@@ -98,7 +98,7 @@ var installCmd = &cobra.Command{
 		kubeConfigPath := installCmdOptions.Kube.ConfigPath
 		kubeOptions := installCmdOptions.Kube
 
-		_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
+		_, cluster := questionnaire.AskAboutKubeContext(&installCmdOptions)
 
 		kubeClient, err := kube.New(&kube.Options{
 			ContextName:      kubeOptions.Context,
@@ -113,9 +113,14 @@ var installCmd = &cobra.Command{
 
 		kubeOptions = installCmdOptions.Kube
 
-		questionnaire.AskAboutSyncOptions(&installCmdOptions)
+		argoServerPlaced := kubeClient.IsArgoServerOnCluster(kubeOptions.Namespace)
+		if !argoServerPlaced {
+			msg := fmt.Sprintf("We didnt find ArgoCD on \"%s/%s\"", cluster, kubeOptions.Namespace)
+			sendArgoAgentInstalledEvent(FAILED, msg)
+			return errors.New(msg)
+		}
 
-		_ = questionnaire.AskAboutAgentPlaceOptions(&installCmdOptions)
+		questionnaire.AskAboutSyncOptions(&installCmdOptions)
 
 		installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
 		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
