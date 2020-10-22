@@ -28,6 +28,7 @@ type ManagedResourceItem struct {
 type ManagedResourceState struct {
 	Spec     ManagedResourceStateSpec
 	Metadata ManagedResourceStateMetadata
+	Status   ManagedResourceStateStatus
 }
 
 type ManagedResourceStateMetadata struct {
@@ -36,6 +37,11 @@ type ManagedResourceStateMetadata struct {
 
 type ManagedResourceStateSpec struct {
 	Template ManagedResourceStateTemplate
+}
+
+type ManagedResourceStateStatus struct {
+	Replicas      int64
+	ReadyReplicas int64
 }
 
 type ManagedResourceStateTemplate struct {
