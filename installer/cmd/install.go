@@ -89,6 +89,8 @@ var installCmd = &cobra.Command{
 			Integration: installCmdOptions.Codefresh.Integration,
 		}
 
+		_ = questionnaire.AskAboutGitContext(&installCmdOptions)
+
 		err = ensureIntegration()
 		if err != nil {
 			sendArgoAgentInstalledEvent(FAILED, err.Error())

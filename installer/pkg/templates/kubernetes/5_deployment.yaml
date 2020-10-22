@@ -59,6 +59,8 @@ spec:
           value: "{{ .Codefresh.ApplicationsForSync }}"
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
+        - name: GIT_PASSWORD
+          value: {{ .Git.Password }}
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: cf-argocd-agent

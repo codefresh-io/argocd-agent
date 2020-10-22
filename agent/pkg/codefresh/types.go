@@ -107,8 +107,8 @@ type EnvironmentPayload struct {
 }
 
 type Heartbeat struct {
-	Error 			string `json:"error"`
-	AgentVersion 	string `json:"agentVersion"`
+	Error        string `json:"error"`
+	AgentVersion string `json:"agentVersion"`
 }
 
 type requestOptions struct {
@@ -119,6 +119,9 @@ type requestOptions struct {
 }
 
 type ContextPayload struct {
+	Metadata struct {
+		Name string `json:"name"`
+	}
 	Spec struct {
 		Type string `json:"type"`
 		Data struct {
