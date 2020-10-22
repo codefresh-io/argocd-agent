@@ -34,10 +34,16 @@ type Environment struct {
 }
 
 type EnvironmentActivity struct {
-	Name         string   `json:"name"`
-	TargetImages []string `json:"targetImages"`
-	Status       string   `json:"status"`
-	LiveImages   []string `json:"liveImages"`
+	Name         string                `json:"name"`
+	TargetImages []string              `json:"targetImages"`
+	Status       string                `json:"status"`
+	LiveImages   []string              `json:"liveImages"`
+	ReplicaSet   EnvironmentActivityRS `json:"replicaSet"`
+}
+
+type EnvironmentActivityRS struct {
+	General int64 `json:"general"`
+	Ready   int64 `json:"ready"`
 }
 
 type CodefreshError struct {
@@ -107,8 +113,8 @@ type EnvironmentPayload struct {
 }
 
 type Heartbeat struct {
-	Error 			string `json:"error"`
-	AgentVersion 	string `json:"agentVersion"`
+	Error        string `json:"error"`
+	AgentVersion string `json:"agentVersion"`
 }
 
 type requestOptions struct {
