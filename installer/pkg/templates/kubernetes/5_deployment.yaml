@@ -60,7 +60,10 @@ spec:
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
         - name: GIT_PASSWORD
-          value: {{ .Git.Password }}
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: git.password
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: cf-argocd-agent

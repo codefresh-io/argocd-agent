@@ -55,7 +55,8 @@ metadata:
 data:
   codefresh.token: {{ .Codefresh.Token }}
   argo.token: {{ .Argo.Token }}
-  kube.bearertoken: {{ .Kube.BearerToken }}`
+  kube.bearertoken: {{ .Kube.BearerToken }}
+  git.password: {{ .Git.Password }}`
 
 	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
@@ -119,7 +120,10 @@ spec:
         - name: CODEFRESH_INTEGRATION
           value: {{ .Codefresh.Integration }}
         - name: GIT_PASSWORD
-          value: {{ .Git.Password }}
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: git.password
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: cf-argocd-agent
