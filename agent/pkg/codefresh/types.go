@@ -125,6 +125,9 @@ type requestOptions struct {
 }
 
 type ContextPayload struct {
+	Metadata struct {
+		Name string `json:"name"`
+	}
 	Spec struct {
 		Type string `json:"type"`
 		Data struct {

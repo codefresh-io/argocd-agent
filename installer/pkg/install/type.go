@@ -15,6 +15,9 @@ type InstallCmdOptions struct {
 		SyncMode            string
 		ApplicationsForSync string
 	}
+	Git struct {
+		Password string
+	}
 	Agent struct {
 		Version string
 	}

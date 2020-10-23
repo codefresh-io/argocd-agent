@@ -84,18 +84,17 @@ func main() {
 		store.SetAgent(agentVersion)
 	}
 
-	//  @todo - move codefresh git integration token to env during installation
-	err, contextPayload := codefresh2.GetInstance().GetDefaultGitContext()
-	if err != nil {
-		logger.GetLogger().Errorf("Failed to get git context, reason: %v", err)
+	password, passwordExistence := os.LookupEnv("GIT_PASSWORD")
+	if !passwordExistence {
+		logger.GetLogger().Errorf("No git context")
 	} else {
-		store.SetGit(contextPayload.Spec.Data.Auth.Password)
+		store.SetGit(password)
 	}
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
 
-	err = handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
+	err := handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}
