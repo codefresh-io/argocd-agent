@@ -81,6 +81,13 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 	return nil, "", ""
 }
 
+func (a *Api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
+	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
+	if err != nil {
+		return err, nil
+	}
+	return nil, revisionCommit
+}
 
 func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
@@ -159,4 +166,3 @@ func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 	}
 	return nil, issues, pullRequests
 }
-
