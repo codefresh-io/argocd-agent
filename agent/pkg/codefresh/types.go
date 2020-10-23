@@ -21,16 +21,17 @@ type CFEnvironment struct {
 }
 
 type Environment struct {
-	Gitops       git.Gitops            `json:"gitops"`
-	FinishedAt   string                `json:"finishedAt"`
-	HealthStatus string                `json:"healthStatus"`
-	SyncStatus   string                `json:"status"`
-	HistoryId    int64                 `json:"historyId"`
-	SyncRevision string                `json:"revision"`
-	Name         string                `json:"name"`
-	Activities   []EnvironmentActivity `json:"activities"`
-	Resources    interface{}           `json:"resources"`
-	RepoUrl      string                `json:"repoUrl"`
+	Gitops        git.Gitops            `json:"gitops"`
+	FinishedAt    string                `json:"finishedAt"`
+	HealthStatus  string                `json:"healthStatus"`
+	SyncStatus    string                `json:"status"`
+	HistoryId     int64                 `json:"historyId"`
+	SyncRevision  string                `json:"revision"`
+	Name          string                `json:"name"`
+	Activities    []EnvironmentActivity `json:"activities"`
+	Resources     interface{}           `json:"resources"`
+	RepoUrl       string                `json:"repoUrl"`
+	CommitMessage string                `json:"commitMessage"`
 }
 
 type EnvironmentActivity struct {
