@@ -7,18 +7,20 @@ import (
 )
 
 func AskAboutNamespace(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
-	namespaces, err := kubeClient.GetNamespaces()
-	if err != nil {
-		err = prompt.InputWithDefault(&installOptions.Kube.Namespace, "Kubernetes namespace to install", "default")
+	if installOptions.Kube.Namespace == "" {
+		namespaces, err := kubeClient.GetNamespaces()
 		if err != nil {
-			return err
+			err = prompt.InputWithDefault(&installOptions.Kube.Namespace, "Kubernetes namespace to install", "default")
+			if err != nil {
+				return err
+			}
+		} else {
+			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
+			if err != nil {
+				return err
+			}
+			installOptions.Kube.Namespace = selectedNamespace
 		}
-	} else {
-		err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
-		if err != nil {
-			return err
-		}
-		installOptions.Kube.Namespace = selectedNamespace
 	}
 	return nil
 }

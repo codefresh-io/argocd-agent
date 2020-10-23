@@ -42,9 +42,12 @@ func ensureIntegration() error {
 		return codefreshErr
 	}
 
-	err, needUpdate := prompt.Confirm("You already have integration with this name, do you want to update it")
-	if err != nil {
-		return err
+	needUpdate := installCmdOptions.Argo.Update
+	if !needUpdate {
+		err, needUpdate = prompt.Confirm("You already have integration with this name, do you want to update it")
+		if err != nil {
+			return err
+		}
 	}
 
 	if !needUpdate {
@@ -161,16 +164,22 @@ func init() {
 
 	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", util.ResolvePackageVersion(version), "")
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
+	flags.StringVar(&installCmdOptions.Argo.Token, "argo-token", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Password, "argo-password", "", "")
+	flags.BoolVar(&installCmdOptions.Argo.Update, "update", false, "Update integration if exists")
 
 	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "http://local.codefresh.io", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
-	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "")
+	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "Argocd integration in Codefresh")
+	flags.StringVar(&installCmdOptions.Codefresh.SyncMode, "sync-mode", "", "")
+	flags.StringArrayVar(&installCmdOptions.Codefresh.ApplicationsForSyncArr, "sync-apps", make([]string, 0), "")
 
 	flags.StringVar(&installCmdOptions.Kube.Namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
 	flags.StringVar(&installCmdOptions.Kube.Context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
+
+	flags.StringVar(&installCmdOptions.Git.Integration, "git-integration", "", "Name of git integration in Codefresh")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
