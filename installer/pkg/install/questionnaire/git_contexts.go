@@ -7,23 +7,20 @@ import (
 )
 
 func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
-	if installOptions.Git.Password == "" {
-		err, contexts := holder.ApiHolder.GetGitContexts()
-		if err != nil {
-			return err
-		}
-
-		var values = make(map[string]string)
-		for _, v := range *contexts {
-			values[v.Metadata.Name] = v.Spec.Data.Auth.Password
-		}
-		var list []string
-		for _, v := range *contexts {
-			list = append(list, v.Metadata.Name)
-		}
-
-		err, selectedContext := prompt.Select(list, "Select Git context")
-		installOptions.Git.Password = values[selectedContext]
+	err, contexts := holder.ApiHolder.GetGitContexts()
+	if err != nil {
+		return err
 	}
-	return nil
+
+	var values = make(map[string]string)
+	var list []string
+	for _, v := range *contexts {
+		values[v.Metadata.Name] = v.Spec.Data.Auth.Password
+		list = append(list, v.Metadata.Name)
+	}
+
+	err, selectedContext := prompt.Select(list, "Select Git context")
+	installOptions.Git.Password = values[selectedContext]
+
+	return err
 }
