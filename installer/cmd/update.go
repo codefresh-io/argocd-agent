@@ -45,7 +45,7 @@ func updateDeploymentWithNewVersion(clientSet *kubernetes.Clientset, namespace s
 
 	for _, env := range envs {
 		if env.Name == "AGENT_VERSION" {
-			env.Value = util.ResolvePackageVersion("")
+			env.Value = util.ResolvePackageVersion(version)
 		}
 		newEnvs = append(newEnvs, env)
 	}
