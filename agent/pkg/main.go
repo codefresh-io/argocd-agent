@@ -88,7 +88,9 @@ func main() {
 	if !passwordExistence {
 		logger.GetLogger().Errorf("No git context")
 	} else {
+		logger.GetLogger().Infof("Receive token %s before parse", password)
 		pass, _ := base64.StdEncoding.DecodeString(password)
+		logger.GetLogger().Infof("Receive token %s after parse", pass)
 		store.SetGit(string(pass))
 	}
 
