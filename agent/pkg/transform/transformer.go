@@ -92,6 +92,9 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 
 func filterResources(resources interface{}) []interface{} {
 	result := make([]interface{}, 0)
+	if resources == nil {
+		return result
+	}
 	for _, resource := range resources.([]interface{}) {
 		resourceItem := resource.(map[string]interface{})
 		resourceKind := resourceItem["kind"]
@@ -154,7 +157,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	err, commit := getCommitByRevision(repoUrl, revision)
 
 	if commit != nil {
-		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", commit.Message, repoUrl)
+		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
 		env.Commit = *commit
 	}
 
@@ -190,10 +193,15 @@ func getCommitByRevision(repoUrl string, revision string) (error, *codefresh2.Co
 		return err, nil
 	}
 
-	return nil, &codefresh2.Commit{
+	result := &codefresh2.Commit{
 		Message: commit.Commit.Message,
-		Avatar:  commit.Author.AvatarURL,
 	}
+
+	if commit.Author != nil {
+		result.Avatar = commit.Author.AvatarURL
+	}
+
+	return nil, result
 }
 
 func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {

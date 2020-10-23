@@ -21,8 +21,8 @@ type CFEnvironment struct {
 }
 
 type Commit struct {
-	Message *string
-	Avatar  *string
+	Message *string `json:"message"`
+	Avatar  *string `json:"avatar"`
 }
 
 type Environment struct {
