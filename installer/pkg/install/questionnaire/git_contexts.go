@@ -1,6 +1,7 @@
 package questionnaire
 
 import (
+	"encoding/base64"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -20,7 +21,7 @@ func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 	}
 
 	err, selectedContext := prompt.Select(list, "Select Git context")
-	installOptions.Git.Password = values[selectedContext]
+	installOptions.Git.Password = base64.StdEncoding.EncodeToString([]byte(values[selectedContext]))
 
 	return err
 }
