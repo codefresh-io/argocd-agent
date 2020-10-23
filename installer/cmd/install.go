@@ -122,6 +122,9 @@ var installCmd = &cobra.Command{
 			return errors.New(msg)
 		}
 
+		// Need check if we want support not in cluster mode with Product owner
+		installCmdOptions.Kube.InCluster = true
+
 		questionnaire.AskAboutSyncOptions(&installCmdOptions)
 
 		installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
