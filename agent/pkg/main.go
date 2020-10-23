@@ -88,8 +88,7 @@ func main() {
 	if !passwordExistence {
 		logger.GetLogger().Errorf("No git context")
 	} else {
-		pass, _ := base64.StdEncoding.DecodeString(password)
-		store.SetGit(string(pass))
+		store.SetGit(password)
 	}
 
 	scheduler.StartHeartBeat()
