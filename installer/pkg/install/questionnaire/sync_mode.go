@@ -11,39 +11,51 @@ import (
 )
 
 func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
-	syncModes := orderedmap.NewOrderedMap()
-	syncModes.Set("Import all existing Argo applications to Codefresh", "SYNC")
-	syncModes.Set("Select specific Argo applications to import", "SELECT")
-	syncModes.Set("Do not import anything from Argo to Codefresh", "NONE")
+	var syncMode interface{}
 
-	_, autoSyncMode := prompt.Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd sync behavior please")
+	if installOptions.Codefresh.SyncMode != "" {
+		syncMode = installOptions.Codefresh.SyncMode
+	} else {
+		syncModes := orderedmap.NewOrderedMap()
+		syncModes.Set("Import all existing Argo applications to Codefresh", "SYNC")
+		syncModes.Set("Select specific Argo applications to import", "SELECT")
+		syncModes.Set("Do not import anything from Argo to Codefresh", "NONE")
 
-	syncMode, _ := syncModes.Get(autoSyncMode)
+		_, autoSyncMode := prompt.Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd sync behavior please")
 
-	if syncMode == "SYNC" {
-		_, autoSync := prompt.Confirm("Enable auto-sync of applications, this will import all existing applications and update Codefresh in the future")
-		if autoSync {
-			syncMode = "CONTINUE_SYNC"
-		} else {
-			syncMode = "ONE_TIME_SYNC"
+		syncMode, _ = syncModes.Get(autoSyncMode)
+
+		if syncMode == "SYNC" {
+			_, autoSync := prompt.Confirm("Enable auto-sync of applications, this will import all existing applications and update Codefresh in the future")
+			if autoSync {
+				syncMode = "CONTINUE_SYNC"
+			} else {
+				syncMode = "ONE_TIME_SYNC"
+			}
 		}
-	} else if syncMode == "SELECT" {
+	}
 
-		argoToken := installOptions.Argo.Token
+	if syncMode == "SELECT" {
+		applicationsForSync := installOptions.Codefresh.ApplicationsForSyncArr
 
-		if installOptions.Argo.Username != "" {
-			argoToken, _ = argo.GetToken(installOptions.Argo.Username, installOptions.Argo.Password, installOptions.Argo.Host)
+		if len(applicationsForSync) == 0 {
+
+			argoToken := installOptions.Argo.Token
+
+			if installOptions.Argo.Username != "" {
+				argoToken, _ = argo.GetToken(installOptions.Argo.Username, installOptions.Argo.Password, installOptions.Argo.Host)
+			}
+
+			applications, _ := argo.GetApplications(argoToken, installOptions.Argo.Host)
+
+			applicationNames := make([]string, 0)
+
+			for _, prj := range applications {
+				applicationNames = append(applicationNames, prj.Metadata.Name)
+			}
+
+			_, applicationsForSync = prompt.Multiselect(applicationNames, "Please select application for sync")
 		}
-
-		applications, _ := argo.GetApplications(argoToken, installOptions.Argo.Host)
-
-		applicationNames := make([]string, 0)
-
-		for _, prj := range applications {
-			applicationNames = append(applicationNames, prj.Metadata.Name)
-		}
-
-		_, applicationsForSync := prompt.Multiselect(applicationNames, "Please select application for sync")
 
 		applicationsAsJson, _ := json.Marshal(applicationsForSync)
 

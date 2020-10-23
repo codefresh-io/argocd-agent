@@ -8,6 +8,15 @@ import (
 )
 
 func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
+	if installOptions.Git.Integration != "" { // Integration is passed
+		err, context := holder.ApiHolder.GetGitContextByName(installOptions.Git.Integration)
+		if err != nil {
+			return err
+		}
+		installOptions.Git.Password = (*context).Spec.Data.Auth.Password
+		return nil
+	}
+
 	err, contexts := holder.ApiHolder.GetGitContexts()
 	if err != nil {
 		return err

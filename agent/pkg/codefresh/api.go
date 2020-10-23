@@ -71,6 +71,24 @@ func (a *Api) GetGitContexts() (error, *[]ContextPayload) {
 	return nil, &result
 }
 
+func (a *Api) GetGitContextByName(name string) (error, *ContextPayload) {
+	var result ContextPayload
+	var qs = map[string]string{
+		"decrypt": "true",
+	}
+
+	err := a.requestAPI(&requestOptions{
+		method: "GET",
+		path:   "/contexts/" + name,
+		qs:     qs,
+	}, &result)
+	if err != nil {
+		return err, nil
+	}
+	// todo - add logs
+	return nil, &result
+}
+
 func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
 
 	logger.GetLogger().Infof("Successfully sent environment \"%v\" update to codefresh, services count %v", environment.Name, len(environment.Activities))
