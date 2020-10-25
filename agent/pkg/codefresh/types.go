@@ -25,6 +25,10 @@ type Commit struct {
 	Avatar  *string `json:"avatar"`
 }
 
+type SyncPolicy struct {
+	AutoSync bool `json:"autoSync"`
+}
+
 type Environment struct {
 	Gitops       git.Gitops            `json:"gitops"`
 	FinishedAt   string                `json:"finishedAt"`
@@ -37,6 +41,7 @@ type Environment struct {
 	Resources    interface{}           `json:"resources"`
 	RepoUrl      string                `json:"repoUrl"`
 	Commit       Commit                `json:"commit"`
+	SyncPolicy   SyncPolicy            `json:"syncPolicy"`
 }
 
 type EnvironmentActivity struct {
