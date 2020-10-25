@@ -141,6 +141,8 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		return err, nil
 	}
 
+	syncPolicy := codefresh2.SyncPolicy{AutoSync: &app.Spec.SyncPolicy != nil && app.Spec.SyncPolicy.Automated != nil}
+
 	env := codefresh2.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
@@ -152,6 +154,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		Resources:    filterResources(resources),
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
+		SyncPolicy:   syncPolicy,
 	}
 
 	err, commit := getCommitByRevision(repoUrl, revision)

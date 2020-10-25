@@ -129,7 +129,10 @@ type ArgoApplication struct {
 		Source struct {
 			RepoURL string
 		}
-		Project string
+		Project    string
+		SyncPolicy struct {
+			Automated interface{}
+		}
 	}
 	Metadata struct {
 		Name string
