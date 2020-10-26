@@ -7,16 +7,19 @@ type InstallCmdOptions struct {
 		Username string
 		Password string
 		Token    string
+		Update   bool
 	}
 	Codefresh struct {
-		Host                string
-		Token               string
-		Integration         string
-		SyncMode            string
-		ApplicationsForSync string
+		Host                   string
+		Token                  string
+		Integration            string
+		SyncMode               string
+		ApplicationsForSync    string
+		ApplicationsForSyncArr []string
 	}
 	Git struct {
-		Password string
+		Integration string
+		Password    string
 	}
 	Agent struct {
 		Version string

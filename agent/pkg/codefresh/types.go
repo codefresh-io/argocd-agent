@@ -20,18 +20,28 @@ type CFEnvironment struct {
 	} `json:"spec"`
 }
 
+type Commit struct {
+	Message *string `json:"message"`
+	Avatar  *string `json:"avatar"`
+}
+
+type SyncPolicy struct {
+	AutoSync bool `json:"autoSync"`
+}
+
 type Environment struct {
-	Gitops        git.Gitops            `json:"gitops"`
-	FinishedAt    string                `json:"finishedAt"`
-	HealthStatus  string                `json:"healthStatus"`
-	SyncStatus    string                `json:"status"`
-	HistoryId     int64                 `json:"historyId"`
-	SyncRevision  string                `json:"revision"`
-	Name          string                `json:"name"`
-	Activities    []EnvironmentActivity `json:"activities"`
-	Resources     interface{}           `json:"resources"`
-	RepoUrl       string                `json:"repoUrl"`
-	CommitMessage string                `json:"commitMessage"`
+	Gitops       git.Gitops            `json:"gitops"`
+	FinishedAt   string                `json:"finishedAt"`
+	HealthStatus string                `json:"healthStatus"`
+	SyncStatus   string                `json:"status"`
+	HistoryId    int64                 `json:"historyId"`
+	SyncRevision string                `json:"revision"`
+	Name         string                `json:"name"`
+	Activities   []EnvironmentActivity `json:"activities"`
+	Resources    interface{}           `json:"resources"`
+	RepoUrl      string                `json:"repoUrl"`
+	Commit       Commit                `json:"commit"`
+	SyncPolicy   SyncPolicy            `json:"syncPolicy"`
 }
 
 type EnvironmentActivity struct {

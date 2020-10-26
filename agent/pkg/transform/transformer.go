@@ -2,7 +2,6 @@ package transform
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
@@ -93,6 +92,9 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 
 func filterResources(resources interface{}) []interface{} {
 	result := make([]interface{}, 0)
+	if resources == nil {
+		return result
+	}
 	for _, resource := range resources.([]interface{}) {
 		resourceItem := resource.(map[string]interface{})
 		resourceKind := resourceItem["kind"]
@@ -139,24 +141,27 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		return err, nil
 	}
 
-	_, commitMessage := getCommitMessageByRevision(repoUrl, revision)
-
-	if commitMessage != "" {
-		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", commitMessage, repoUrl)
-	}
+	syncPolicy := codefresh2.SyncPolicy{AutoSync: &app.Spec.SyncPolicy != nil && app.Spec.SyncPolicy.Automated != nil}
 
 	env := codefresh2.Environment{
-		HealthStatus:  app.Status.Health.Status,
-		SyncStatus:    app.Status.Sync.Status,
-		SyncRevision:  revision,
-		Gitops:        *gitops,
-		HistoryId:     historyId,
-		Name:          name,
-		Activities:    activities,
-		Resources:     filterResources(resources),
-		RepoUrl:       repoUrl,
-		FinishedAt:    app.Status.OperationState.FinishedAt,
-		CommitMessage: commitMessage,
+		HealthStatus: app.Status.Health.Status,
+		SyncStatus:   app.Status.Sync.Status,
+		SyncRevision: revision,
+		Gitops:       *gitops,
+		HistoryId:    historyId,
+		Name:         name,
+		Activities:   activities,
+		Resources:    filterResources(resources),
+		RepoUrl:      repoUrl,
+		FinishedAt:   app.Status.OperationState.FinishedAt,
+		SyncPolicy:   syncPolicy,
+	}
+
+	err, commit := getCommitByRevision(repoUrl, revision)
+
+	if commit != nil {
+		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
+		env.Commit = *commit
 	}
 
 	return nil, &env
@@ -181,17 +186,25 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 	return fmt.Errorf("can`t find history id for application %s", name), 0
 }
 
-func getCommitMessageByRevision(repoUrl string, revision string) (error, string) {
+func getCommitByRevision(repoUrl string, revision string) (error, *codefresh2.Commit) {
 	err, gitClient := git.GetInstance(repoUrl)
 	if err != nil {
-		return err, ""
+		return err, nil
 	}
-	err, commits := gitClient.GetCommitsBySha(revision)
-	if len(commits) == 0 {
-		return errors.New("Failed to find commits by sha " + revision), ""
+	err, commit := gitClient.GetCommitBySha(revision)
+	if err != nil {
+		return err, nil
 	}
 
-	return nil, *commits[0].Commit.Message
+	result := &codefresh2.Commit{
+		Message: commit.Commit.Message,
+	}
+
+	if commit.Author != nil {
+		result.Avatar = commit.Author.AvatarURL
+	}
+
+	return nil, result
 }
 
 func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
