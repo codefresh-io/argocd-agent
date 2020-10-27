@@ -77,28 +77,6 @@ var installCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var err error
 		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
-		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
-
-		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
-		if err != nil {
-			return err
-		}
-
-		_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
-
-		holder.ApiHolder = codefresh.Api{
-			Token:       installCmdOptions.Codefresh.Token,
-			Host:        installCmdOptions.Codefresh.Host,
-			Integration: installCmdOptions.Codefresh.Integration,
-		}
-
-		_ = questionnaire.AskAboutGitContext(&installCmdOptions)
-
-		err = ensureIntegration()
-		if err != nil {
-			sendArgoAgentInstalledEvent(FAILED, err.Error())
-			return err
-		}
 
 		kubeConfigPath := installCmdOptions.Kube.ConfigPath
 		kubeOptions := installCmdOptions.Kube
@@ -123,6 +101,29 @@ var installCmd = &cobra.Command{
 			msg := fmt.Sprintf("We didnt find ArgoCD on \"%s/%s\"", cluster, kubeOptions.Namespace)
 			sendArgoAgentInstalledEvent(FAILED, msg)
 			return errors.New(msg)
+		}
+
+		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
+
+		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
+		if err != nil {
+			return err
+		}
+
+		_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
+
+		holder.ApiHolder = codefresh.Api{
+			Token:       installCmdOptions.Codefresh.Token,
+			Host:        installCmdOptions.Codefresh.Host,
+			Integration: installCmdOptions.Codefresh.Integration,
+		}
+
+		_ = questionnaire.AskAboutGitContext(&installCmdOptions)
+
+		err = ensureIntegration()
+		if err != nil {
+			sendArgoAgentInstalledEvent(FAILED, err.Error())
+			return err
 		}
 
 		// Need check if we want support not in cluster mode with Product owner

@@ -73,8 +73,14 @@ func (k *kube) buildClient() (*kubernetes.Clientset, error) {
 }
 
 func (k *kube) IsArgoServerOnCluster(namespace string) bool {
-	_, err := k.clientSet.CoreV1().Services(namespace).Get("argocd-server", metav1.GetOptions{})
-	return err == nil
+
+	opts := metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=argocd-server"}
+
+	svcs, err := k.clientSet.CoreV1().Services(namespace).List(opts)
+	if err != nil || svcs == nil {
+		return false
+	}
+	return len(svcs.Items) > 0
 }
 
 func (k *kube) GetNamespaces() ([]string, error) {
