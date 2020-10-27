@@ -202,6 +202,11 @@ func getCommitByRevision(repoUrl string, revision string) (error, *codefresh2.Co
 
 	if commit.Author != nil {
 		result.Avatar = commit.Author.AvatarURL
+	} else {
+		err, usr := gitClient.GetUserByUsername(*commit.Commit.Author.Name)
+		if err != nil && usr.AvatarURL != nil {
+			result.Avatar = usr.AvatarURL
+		}
 	}
 
 	return nil, result

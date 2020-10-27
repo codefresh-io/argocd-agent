@@ -89,6 +89,14 @@ func (a *Api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
 	return nil, revisionCommit
 }
 
+func (a *Api) GetUserByUsername(username string) (error, *github.User) {
+	user, _, err := api.Client.Users.Get(api.Ctx, username)
+	if err != nil {
+		return err, nil
+	}
+	return nil, user
+}
+
 func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
 	if err != nil {
