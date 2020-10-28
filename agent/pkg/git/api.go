@@ -102,18 +102,7 @@ func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	if err != nil {
 		return err, nil
 	}
-	commits := []*github.RepositoryCommit{revisionCommit}
-	if len(revisionCommit.Parents) > 0 {
-		for i := 0; i < len(revisionCommit.Parents); i++ {
-			commitInfo, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, *revisionCommit.Parents[i].SHA)
-			commits = append(commits, commitInfo)
-			if err != nil {
-				return err, nil
-			}
-		}
-	}
-
-	return nil, commits
+	return nil, []*github.RepositoryCommit{revisionCommit}
 }
 
 func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []User) {
