@@ -18,6 +18,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"os"
 	"os/user"
 	"path"
 )
@@ -185,7 +186,10 @@ func init() {
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
 	if currentUser != nil {
-		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+		kubeConfigPath = os.Getenv("KUBECONFIG")
+		if kubeConfigPath == "" {
+			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+		}
 	}
 
 	flags.StringVar(&installCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")

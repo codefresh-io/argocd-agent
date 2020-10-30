@@ -13,6 +13,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"os"
 	"os/user"
 	"path"
 )
@@ -124,7 +125,10 @@ func init() {
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
 	if currentUser != nil {
-		kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+		kubeConfigPath = os.Getenv("KUBECONFIG")
+		if kubeConfigPath == "" {
+			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+		}
 	}
 
 	flags.StringVar(&installCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")

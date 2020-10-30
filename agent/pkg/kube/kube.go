@@ -24,8 +24,12 @@ func BuildConfig() (*rest.Config, error) {
 		return cfg, nil
 	}
 
-	kubeconfig := filepath.Join(
-		os.Getenv("HOME"), ".kube", "config",
-	)
+	kubeconfig := os.Getenv("KUBECONFIG")
+	if kubeconfig == "" {
+		kubeconfig = filepath.Join(
+			os.Getenv("HOME"), ".kube", "config",
+		)
+	}
+
 	return clientcmd.BuildConfigFromFlags("", kubeconfig)
 }
