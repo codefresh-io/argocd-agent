@@ -91,7 +91,8 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("applications", nil, applications, nil, func() error {
-				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
+				applications := transform.AdaptArgoApplications(applications)
+				return api.SendResources("applications", applications, len(applications))
 			})
 
 			if err != nil {
@@ -125,7 +126,8 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("applications", nil, applications, nil, func() error {
-				return api.SendResources("applications", transform.AdaptArgoApplications(applications))
+				applications := transform.AdaptArgoApplications(applications)
+				return api.SendResources("applications", applications, len(applications))
 			})
 
 			if err != nil {
@@ -161,7 +163,8 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
-				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
+				projects := transform.AdaptArgoProjects(projects)
+				return api.SendResources("projects", projects, len(projects))
 			})
 
 			if err != nil {
@@ -177,7 +180,8 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
-				return api.SendResources("projects", transform.AdaptArgoProjects(projects))
+				projects := transform.AdaptArgoProjects(projects)
+				return api.SendResources("projects", projects, len(projects))
 			})
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)

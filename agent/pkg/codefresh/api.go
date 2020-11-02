@@ -102,10 +102,12 @@ func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, 
 	return result, nil
 }
 
-func (a *Api) SendResources(kind string, items interface{}) error {
+func (a *Api) SendResources(kind string, items interface{}, amount int) error {
 	if items == nil {
 		return nil
 	}
+
+	logger.GetLogger().Infof("Trying sent resources with type: \"%s\" to codefresh, amount: \"%v\"", kind, amount)
 
 	err := a.requestAPI(&requestOptions{
 		method: "POST",

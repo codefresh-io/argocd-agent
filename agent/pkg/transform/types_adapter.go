@@ -6,7 +6,7 @@ import (
 )
 
 func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh2.AgentApplication {
-	var result []codefresh2.AgentApplication
+	var result = make([]codefresh2.AgentApplication, 0)
 
 	for _, item := range applications {
 		namespace := item.Spec.Destination.Namespace
@@ -29,7 +29,7 @@ func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh2.Age
 }
 
 func AdaptArgoProjects(projects []argo.ProjectItem) []codefresh2.AgentProject {
-	var result []codefresh2.AgentProject
+	var result = make([]codefresh2.AgentProject, 0)
 
 	for _, item := range projects {
 		newItem := codefresh2.AgentProject{
