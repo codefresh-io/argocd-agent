@@ -140,6 +140,18 @@ func watchApplicationChanges() error {
 				logger.GetLogger().Errorf("Failed to handle remove application event use handler, reason: %v", err)
 			}
 
+			envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+			err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
+			if err != nil {
+				logger.GetLogger().Errorf("Failed to PrepareEnvironment, reason: %v", err)
+			}
+			env.HealthStatus = "Deleted"
+			_, err = codefresh2.GetInstance().SendEnvironment(*env)
+
+			if err != nil {
+				logger.GetLogger().Errorf("Failed to change application status to 'deleted', reason: %v", err)
+			}
+
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 			err, _ := updateEnv(newObj)
