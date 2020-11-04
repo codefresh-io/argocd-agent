@@ -27,12 +27,13 @@ type InstallCmdOptions struct {
 }
 
 type Kube struct {
-	Namespace    string
-	InCluster    bool
-	Context      string
-	NodeSelector string
-	ConfigPath   string
+	ManifestPath	string
+	Namespace       string
+	InCluster   	bool
+	Context			string
+	NodeSelector 	string
+	ConfigPath   	string
 
-	MasterUrl   string
-	BearerToken string
+	MasterUrl   	string
+	BearerToken 	string
 }

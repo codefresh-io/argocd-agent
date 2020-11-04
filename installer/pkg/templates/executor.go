@@ -4,13 +4,38 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Masterminds/sprig"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"html/template"
 	"k8s.io/apimachinery/pkg/runtime"
 	"regexp"
+	"strconv"
+	"strings"
 
 	"k8s.io/client-go/kubernetes/scheme"
 )
+
+
+func SplitSingleTemplate(singleTemplate string) []string {
+	return strings.Split(singleTemplate, "\n---\n")
+}
+
+func ResolveKubeTemplates(ManifestPath string) (error, map[string]string) {
+	var kubeTemplates map[string]string
+	if ManifestPath != "" {
+		err, yml := fs.ReadFile(ManifestPath)
+		if err != nil {
+			return err, nil
+		}
+		kubeTemplates = make(map[string]string)
+		for n, tpl := range SplitSingleTemplate(yml) {
+			kubeTemplates["template_"+strconv.Itoa(n)+".yaml"] = tpl
+		}
+	} else {
+		kubeTemplates = kubernetes.TemplatesMap()
+	}
+	return nil, kubeTemplates
+}
 
 func ExecuteTemplate(tplStr string, data interface{}) (string, error) {
 

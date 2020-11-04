@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+func ReadFile(pathToFile string) (error, string) {
+	content, err := ioutil.ReadFile(pathToFile)
+	if err != nil {
+		return err, ""
+	}
+	return nil, string(content)
+}
+
 func GetPackageVersionFromFile(pathToFile string) string {
 	content, err := ioutil.ReadFile(pathToFile)
 	if err != nil {
