@@ -40,8 +40,8 @@ func Install(opt *InstallOptions) (error, string, string) {
 	}
 
 	if opt.KubeManifestPath != "" {
-		singleTemplate := GenerateSingleManifest(parsedTemplates)
-		err = fs.WriteFile(opt.KubeManifestPath, singleTemplate)
+		manifest := GenerateSingleManifest(parsedTemplates)
+		err = fs.WriteFile(opt.KubeManifestPath, manifest)
 		if err != nil {
 			return err, "", ""
 		}
