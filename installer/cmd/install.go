@@ -177,6 +177,7 @@ func init() {
 	flags.StringVar(&installCmdOptions.Codefresh.SyncMode, "sync-mode", "", "")
 	flags.StringArrayVar(&installCmdOptions.Codefresh.ApplicationsForSyncArr, "sync-apps", make([]string, 0), "")
 
+	flags.StringVar(&installCmdOptions.Kube.ManifestPath, "kube-manifest-path", "", "")
 	flags.StringVar(&installCmdOptions.Kube.Namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
 	flags.StringVar(&installCmdOptions.Kube.Context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
