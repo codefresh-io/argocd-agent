@@ -136,10 +136,11 @@ var installCmd = &cobra.Command{
 		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
 
 		installOptions := templates.InstallOptions{
-			Templates:      kubernetes.TemplatesMap(),
-			TemplateValues: structs.Map(installCmdOptions),
-			Namespace:      kubeOptions.Namespace,
-			KubeClientSet:  kubeClient.GetClientSet(),
+			Templates:        kubernetes.TemplatesMap(),
+			TemplateValues:   structs.Map(installCmdOptions),
+			Namespace:        kubeOptions.Namespace,
+			KubeClientSet:    kubeClient.GetClientSet(),
+			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 		}
 
 		var kind, name string
