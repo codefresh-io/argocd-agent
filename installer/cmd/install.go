@@ -183,6 +183,9 @@ func init() {
 
 	flags.StringVar(&installCmdOptions.Git.Integration, "git-integration", "", "Name of git integration in Codefresh")
 
+	flags.StringVar(&installCmdOptions.Host.HttpProxy, "http-proxy", "", "Http proxy")
+	flags.StringVar(&installCmdOptions.Host.HttpsProxy, "https-proxy", "", "Https proxy")
+
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
 	if currentUser != nil {
