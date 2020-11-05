@@ -3,8 +3,24 @@ package fs
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"io/ioutil"
+	"os"
 	"strings"
 )
+
+func WriteFile(pathToFile string, content string) error {
+	f, err := os.OpenFile(pathToFile, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.WriteString(content)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func GetPackageVersionFromFile(pathToFile string) string {
 	content, err := ioutil.ReadFile(pathToFile)
