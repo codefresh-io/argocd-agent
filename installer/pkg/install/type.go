@@ -21,6 +21,10 @@ type InstallCmdOptions struct {
 		Integration string
 		Password    string
 	}
+	Host struct {
+		HttpProxy  string
+		HttpsProxy string
+	}
 	Agent struct {
 		Version string
 	}
