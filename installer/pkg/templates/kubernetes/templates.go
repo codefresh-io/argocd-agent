@@ -86,15 +86,15 @@ spec:
       - env:
         {{- if .Host.HttpProxy }}
         - name: HTTP_PROXY
-          value: .Host.HttpProxy
+          value: {{ .Host.HttpProxy }}
         - name: http_proxy
-          value: .Host.HttpProxy
+          value: {{ .Host.HttpProxy }}
         {{- end }}
         {{- if .Host.HttpsProxy }}
         - name: HTTPS_PROXY
-          value: .Host.HttpsProxy
+          value: {{ .Host.HttpsProxy }}
         - name: https_proxy
-          value: .Host.HttpsProxy
+          value: {{ .Host.HttpsProxy }}
         {{- end }}
         - name: AGENT_VERSION
           value: "{{ .Agent.Version }}"
