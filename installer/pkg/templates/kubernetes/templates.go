@@ -84,17 +84,17 @@ spec:
       serviceAccountName: cf-argocd-agent
       containers:
       - env:
-        {{- if .Values.Host.HttpProxy }}
+        {{- if .Host.HttpProxy }}
         - name: HTTP_PROXY
-          value: .Values.Host.HttpProxy
+          value: .Host.HttpProxy
         - name: http_proxy
-          value: .Values.Host.HttpProxy
+          value: .Host.HttpProxy
         {{- end }}
-        {{- if .Values.Host.HttpsProxy }}
+        {{- if .Host.HttpsProxy }}
         - name: HTTPS_PROXY
-          value: .Values.Host.HttpsProxy
+          value: .Host.HttpsProxy
         - name: https_proxy
-          value: .Values.Host.HttpsProxy
+          value: .Host.HttpsProxy
         {{- end }}
         - name: AGENT_VERSION
           value: "{{ .Agent.Version }}"
