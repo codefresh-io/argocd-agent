@@ -48,12 +48,21 @@ func ParseTemplates(templatesMap map[string]string, data interface{}) (map[strin
 	return parsedTemplates, nil
 }
 
+func GenerateSingleManifest(parsedTemplates map[string]string) string {
+	singleTemplate := ""
+	for _, tpl := range parsedTemplates {
+		singleTemplate += tpl
+		singleTemplate += "\n---\n"
+	}
+	return singleTemplate
+}
+
 // KubeObjectsFromTemplates return map of runtime.Objects from templateMap
 // see https://github.com/kubernetes/client-go/issues/193 for examples
-func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) (map[string]runtime.Object, error) {
+func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) (map[string]runtime.Object, map[string]string, error) {
 	parsedTemplates, err := ParseTemplates(templatesMap, data)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Deserializing all kube objects from parsedTemplates
@@ -63,14 +72,14 @@ func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) 
 	for n, objStr := range parsedTemplates {
 		obj, _, err := kubeDecode([]byte(objStr), nil, nil)
 		if err != nil {
-			return nil, err
+			return nil, parsedTemplates, err
 		}
 		kubeObjects[n] = obj
 	}
-	return kubeObjects, nil
+	return kubeObjects, parsedTemplates, nil
 }
 
-func GetKubeObjectsFromTemplate(values map[string]interface{}) (map[string]runtime.Object, error) {
+func GetKubeObjectsFromTemplate(values map[string]interface{}) (map[string]runtime.Object, map[string]string, error) {
 	templatesMap := kubernetes.TemplatesMap()
 	return KubeObjectsFromTemplates(templatesMap, values)
 }

@@ -31,6 +31,7 @@ type InstallCmdOptions struct {
 }
 
 type Kube struct {
+	ManifestPath string
 	Namespace    string
 	InCluster    bool
 	Context      string
