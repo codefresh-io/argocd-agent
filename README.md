@@ -1,5 +1,8 @@
 # ArgoCD agent for codefresh gitops dashboard 
 
+[![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/codefresh-inc/argo%2Fagent?type=cf-1&key=eyJhbGciOiJIUzI1NiJ9.NTY3MmQ4ZGViNjcyNGI2ZTM1OWFkZjYy.AN2wExsAsq7FseTbVxxWls8muNx_bBUnQWQVS8IgDTI)]( https://g.codefresh.io/pipelines/edit/new/builds?id=5f21305719d46c880abeeeb5&pipeline=agent&projects=argo&projectId=5f16b786f25d80a086a56bcb)
+
+
 Codefresh providing [dashboard](https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/) for watching on all activities that happens on argocd side. Codefresh argocd agent important part for check all argocd CRD use watch api and notify codefresh about all changes. 
 
 Like: 
@@ -10,7 +13,6 @@ Like:
 In addition this agent do automatic application sync between argocd and codefresh 
 
 
-[![Codefresh build status]( https://g.codefresh.io/api/badges/pipeline/codefresh-inc/argo%2Fagent?type=cf-1&key=eyJhbGciOiJIUzI1NiJ9.NTY3MmQ4ZGViNjcyNGI2ZTM1OWFkZjYy.AN2wExsAsq7FseTbVxxWls8muNx_bBUnQWQVS8IgDTI)]( https://g.codefresh.io/pipelines/edit/new/builds?id=5f21305719d46c880abeeeb5&pipeline=agent&projects=argo&projectId=5f16b786f25d80a086a56bcb)
 
 ## Prerequisites
 
@@ -50,6 +52,19 @@ codefresh upgrade gitops argocd-agent
 ## How to use the ArgoCD agent
 
 <img src="/art/dashboard.png" width="1200px">
+
+##Local execution
+
+###Environment variables 
+
+* ARGO_HOST - Argocd host (like https://34.71.103.174/)
+* ARGO_USERNAME - Argocd username ( Need provide if ARGO_TOKEN empty )
+* ARGO_PASSWORD - Argocd password ( Need provide if ARGO_TOKEN empty )
+* ARGO_TOKEN - Argocd user token
+* CODEFRESH_TOKEN - [Codefresh user token](https://codefresh.io/docs/docs/integrations/codefresh-api/#authentication-instructions)
+* CODEFRESH_INTEGRATION - Codefresh gitops integration name
+* CODEFRESH_HOST - Codefresh host ( prodution https://g.codefresh.io)
+* GIT_PASSWORD - Git token
 
 ## Run tests
 `go test -cover ./...`
