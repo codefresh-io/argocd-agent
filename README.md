@@ -56,8 +56,6 @@ codefresh upgrade gitops argocd-agent
 
 ##Local execution
 
-###Environment variables 
-
 * ARGO_HOST - Argocd host (like https://34.71.103.174/)
 * ARGO_USERNAME - Argocd username ( Need provide if ARGO_TOKEN empty )
 * ARGO_PASSWORD - Argocd password ( Need provide if ARGO_TOKEN empty )
