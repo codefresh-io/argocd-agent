@@ -11,7 +11,7 @@
 codefresh install gitops argocd-agent 
 ```
 
-<img src="/art/installation.gif?raw=true" width="600px">
+<img src="/art/installation.gif?raw=true" width="1200px">
 
 ## Usage
 This tool require for use new codefresh argocd integration and environment view  
