@@ -53,6 +53,7 @@ codefresh upgrade gitops argocd-agent
 
 <img src="/art/dashboard.png" width="1200px">
 
+
 ##Local execution
 
 ###Environment variables 
