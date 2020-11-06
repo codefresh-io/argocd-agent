@@ -21,12 +21,17 @@ type InstallCmdOptions struct {
 		Integration string
 		Password    string
 	}
+	Host struct {
+		HttpProxy  string
+		HttpsProxy string
+	}
 	Agent struct {
 		Version string
 	}
 }
 
 type Kube struct {
+	ManifestPath string
 	Namespace    string
 	InCluster    bool
 	Context      string

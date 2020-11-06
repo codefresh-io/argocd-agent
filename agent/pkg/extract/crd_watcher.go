@@ -51,6 +51,19 @@ func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
 	return nil, env
 }
 
+func updateDeletedEnv(obj interface{}) (error, *codefresh2.Environment) {
+	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+	err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
+	if err != nil {
+		return err, env
+	}
+
+	env.HealthStatus = "Deleted"
+	_, err = codefresh2.GetInstance().SendEnvironment(*env)
+
+	return nil, env
+}
+
 func watchApplicationChanges() error {
 	config, err := kube.BuildConfig()
 	if err != nil {
@@ -140,6 +153,11 @@ func watchApplicationChanges() error {
 
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to handle remove application event use handler, reason: %v", err)
+			}
+
+			err, _ = updateDeletedEnv(obj)
+			if err != nil {
+				logger.GetLogger().Errorf("Failed to update application status as 'Deleted', reason: %v", err)
 			}
 
 		},

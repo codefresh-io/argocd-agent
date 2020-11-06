@@ -2,6 +2,7 @@ package templates
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	kubeobj "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -11,11 +12,12 @@ import (
 )
 
 type InstallOptions struct {
-	Templates      map[string]string
-	TemplateValues map[string]interface{}
-	KubeClientSet  *kubernetes.Clientset
-	Namespace      string
-	KubeBuilder    interface {
+	Templates        map[string]string
+	TemplateValues   map[string]interface{}
+	KubeClientSet    *kubernetes.Clientset
+	Namespace        string
+	KubeManifestPath string
+	KubeBuilder      interface {
 		BuildClient() (*kubernetes.Clientset, error)
 	}
 }
@@ -32,9 +34,17 @@ type DeleteOptions struct {
 
 func Install(opt *InstallOptions) (error, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
-	kubeObjects, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
+	kubeObjects, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
 		return err, "", ""
+	}
+
+	if opt.KubeManifestPath != "" {
+		manifest := GenerateSingleManifest(parsedTemplates)
+		err = fs.WriteFile(opt.KubeManifestPath, manifest)
+		if err != nil {
+			return err, "", ""
+		}
 	}
 
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
@@ -62,7 +72,7 @@ func Install(opt *InstallOptions) (error, string, string) {
 
 func Delete(opt *DeleteOptions) (error, string, string) {
 
-	kubeObjects, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
+	kubeObjects, _, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
 		return err, "", ""
 	}
