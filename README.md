@@ -30,6 +30,22 @@ codefresh install gitops argocd-agent
 
 <img src="/art/installation.gif?raw=true" width="1200px">
 
+## Uninstall     
+ 
+
+```sh
+codefresh uninstall gitops argocd-agent 
+```
+
+## Upgrade     
+
+Codefresh will show you indicator inside your [gitops integration](https://g.codefresh.io/account-admin/account-conf/integration/gitops) when you need upgrade your agent
+
+<img src="/art/upgrade.png?raw=true" width="800px"> 
+
+```sh
+codefresh upgrade gitops argocd-agent 
+```
 
 ## How to use the ArgoCD agent
 
