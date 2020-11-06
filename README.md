@@ -53,6 +53,11 @@ codefresh upgrade gitops argocd-agent
 
 <img src="/art/dashboard.png" width="1200px">
 
+## How it works ( Diagram )
+
+<img src="/art/high_level.png" width="1200px">
+
+<img src="/art/detailed.png" width="1200px">
 
 ## Local execution
 
