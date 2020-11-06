@@ -80,3 +80,5 @@ spec:
         imagePullPolicy: Always
         name: cf-argocd-agent
       restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/arch: amd64

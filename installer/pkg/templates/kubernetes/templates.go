@@ -139,7 +139,10 @@ spec:
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
         name: cf-argocd-agent
-      restartPolicy: Always`
+      restartPolicy: Always
+      nodeSelector:
+        kubernetes.io/arch: amd64
+`
 
 	return templatesMap
 }
