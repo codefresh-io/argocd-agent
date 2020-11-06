@@ -136,10 +136,11 @@ var installCmd = &cobra.Command{
 		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
 
 		installOptions := templates.InstallOptions{
-			Templates:      kubernetes.TemplatesMap(),
-			TemplateValues: structs.Map(installCmdOptions),
-			Namespace:      kubeOptions.Namespace,
-			KubeClientSet:  kubeClient.GetClientSet(),
+			Templates:        kubernetes.TemplatesMap(),
+			TemplateValues:   structs.Map(installCmdOptions),
+			Namespace:        kubeOptions.Namespace,
+			KubeClientSet:    kubeClient.GetClientSet(),
+			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 		}
 
 		var kind, name string
@@ -177,11 +178,15 @@ func init() {
 	flags.StringVar(&installCmdOptions.Codefresh.SyncMode, "sync-mode", "", "")
 	flags.StringArrayVar(&installCmdOptions.Codefresh.ApplicationsForSyncArr, "sync-apps", make([]string, 0), "")
 
+	flags.StringVar(&installCmdOptions.Kube.ManifestPath, "output", "", "Path to k8s manifest output file, example: /home/user/out.yaml")
 	flags.StringVar(&installCmdOptions.Kube.Namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
 	flags.StringVar(&installCmdOptions.Kube.Context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be installed (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&installCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
 	flags.StringVar(&installCmdOptions.Git.Integration, "git-integration", "", "Name of git integration in Codefresh")
+
+	flags.StringVar(&installCmdOptions.Host.HttpProxy, "http-proxy", "", "Http proxy")
+	flags.StringVar(&installCmdOptions.Host.HttpsProxy, "https-proxy", "", "Https proxy")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
