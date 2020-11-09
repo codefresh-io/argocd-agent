@@ -87,6 +87,7 @@ type ApplicationMetadata struct {
 
 type ApplicationSpecDestination struct {
 	Server    string `json:"server"`
+	Name      string `json:"name"`
 	Namespace string `json:"namespace"`
 }
 
