@@ -25,12 +25,13 @@ Make sure that you have
 
 ArgoCD agent has following resource requirements 
 ```
- requests:
-   memory: "128Mi"
-   cpu: "0.2"
- limits:
-   memory: "256Mi"
-   cpu: "0.4"
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "0.4"
+  limits:
+    memory: "512Mi"
+    cpu: "0.8"
 ```
 
 ## Installation     
