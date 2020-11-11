@@ -23,6 +23,16 @@ Make sure that you have
 * a [Codefresh CLI](https://codefresh-io.github.io/cli/) that will be used for install agent
 * a [ArgoCD Server](https://argoproj.github.io/argo-cd/cli_installation/)
 
+ArgoCD agent has following resource requirements 
+```
+ requests:
+   memory: "128Mi"
+   cpu: "0.2"
+ limits:
+   memory: "256Mi"
+   cpu: "0.4"
+```
+
 ## Installation     
  
 
