@@ -141,11 +141,11 @@ spec:
         name: cf-argocd-agent
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "0.2"
-          limits:
             memory: "256Mi"
             cpu: "0.4"
+          limits:
+            memory: "512Mi"
+            cpu: "0.8"
       restartPolicy: Always
       nodeSelector:
         kubernetes.io/arch: amd64
