@@ -2,21 +2,13 @@ package scheduler
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
-	"github.com/jasonlvhit/gocron"
+	"github.com/robfig/cron/v3"
 )
 
-var HeartBeatInterval uint64 = 5
+var HeartBeatInterval uint64 = 8
 
 func StartHeartBeat() {
-	job := gocron.Every(HeartBeatInterval).Second().Do(heartbeat.HeartBeatTask)
-
-	if job != nil {
-		err := job.Error()
-
-		if err != "" {
-			panic("Cant heartbeat job because " + err)
-		}
-	}
-
-	go gocron.Start()
+	c := cron.New()
+	_, _ = c.AddFunc("@every 8s", heartbeat.HeartBeatTask)
+	c.Start()
 }
