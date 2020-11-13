@@ -7,6 +7,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
@@ -112,6 +113,13 @@ var installCmd = &cobra.Command{
 		}
 
 		_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
+
+		err = acceptance_tests.Run(&installCmdOptions.Argo)
+		if err != nil {
+			msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
+			sendArgoAgentInstalledEvent(FAILED, msg)
+			return errors.New(msg)
+		}
 
 		holder.ApiHolder = codefresh.Api{
 			Token:       installCmdOptions.Codefresh.Token,

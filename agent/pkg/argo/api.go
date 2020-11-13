@@ -80,6 +80,34 @@ func GetToken(username string, password string, host string) (string, error) {
 	return result["token"].(string), nil
 }
 
+func (api *Api) CheckToken() error {
+	client := buildHttpClient()
+	req, err := http.NewRequest("GET", api.Host+"/api/v1/account", nil)
+
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Authorization", "Bearer "+api.Token)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return err
+	}
+
+	var result map[string]interface{}
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (api *Api) GetResourceTree(applicationName string) (*ResourceTree, error) {
 	client := buildHttpClient()
 

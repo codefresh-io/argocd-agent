@@ -18,3 +18,21 @@ func Success(message string) {
 	color.Green.Println(message)
 	_, _ = color.Reset()
 }
+
+func Info(message string){
+	color.Println(message)
+}
+
+func SuccessTest(message string){
+	green := color.New(color.Green, color.Bold)
+	green.Print("√ ")
+	_, _ = color.Reset()
+	color.Println(message)
+}
+
+func FailureTest(message string){
+	red := color.New(color.Red, color.Bold)
+	red.Print("x ")
+	_, _ = color.Reset()
+	color.Println(message)
+}
