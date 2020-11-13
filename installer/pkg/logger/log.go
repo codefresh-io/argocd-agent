@@ -36,3 +36,9 @@ func FailureTest(message string){
 	_, _ = color.Reset()
 	color.Println(message)
 }
+
+func Summary(message string, value string){
+	color.Print("    " + message + ": ")
+	color.Cyan.Println(value)
+	_, _ = color.Reset()
+}

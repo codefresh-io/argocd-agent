@@ -160,7 +160,7 @@ var installCmd = &cobra.Command{
 			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 		}
 
-		helper.ShowSummary()
+		helper.ShowSummary(&installCmdOptions)
 
 		var kind, name string
 		err, kind, name = templates.Install(&installOptions)
