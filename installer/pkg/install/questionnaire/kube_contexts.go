@@ -15,8 +15,13 @@ func AskAboutKubeContext(installOptions *install.InstallCmdOptions) (error, stri
 			return err, kubeOptions.Context
 		}
 
-		err, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
-		kubeOptions.Context = selectedContext
+		if len(contexts) == 1 {
+			kubeOptions.Context = contexts[0]
+		} else {
+			_, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
+			kubeOptions.Context = selectedContext
+		}
+
 	}
 	return nil, kubeOptions.Context
 }
