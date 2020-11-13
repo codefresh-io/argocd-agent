@@ -80,15 +80,15 @@ func GetToken(username string, password string, host string) (string, error) {
 	return result["token"].(string), nil
 }
 
-func (api *Api) CheckToken(token string, host string) error {
+func (api *Api) CheckToken() error {
 	client := buildHttpClient()
-	req, err := http.NewRequest("GET", host+"/api/v1/account", nil)
+	req, err := http.NewRequest("GET", api.Host+"/api/v1/account", nil)
 
 	if err != nil {
 		return err
 	}
 
-	req.Header.Add("Authorization", "Bearer "+token)
+	req.Header.Add("Authorization", "Bearer "+api.Token)
 	resp, err := client.Do(req)
 
 	if err != nil {

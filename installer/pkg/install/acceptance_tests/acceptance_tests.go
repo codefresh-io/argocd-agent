@@ -11,21 +11,18 @@ func Run(argoOptions *install.ArgoOptions) error {
 	logger.Info("\nTesting requirements")
 	logger.Info("--------------------")
 	defer logger.Info("--------------------\n")
-	
+
 	credentialsMsg := "checking argocd credentials..."
 	projectsMsg := "checking argocd projects accessibility..."
 	applicationsMsg := "checking argocd applications accessibility..."
 	var err error
-	var token string
 
-	token, err = checkArgoCredentials(argoOptions)
+	err = checkArgoCredentials(argoOptions)
 	if err != nil {
 		logger.FailureTest(credentialsMsg)
 		return err
 	}
-	
 	logger.SuccessTest(credentialsMsg)
-	store.SetArgo(token, argoOptions.Host)
 
 	err = checkProjects()
 	if err != nil {
@@ -43,15 +40,19 @@ func Run(argoOptions *install.ArgoOptions) error {
 	return nil
 }
 
-func checkArgoCredentials(argoOptions *install.ArgoOptions) (string, error){
+func checkArgoCredentials(argoOptions *install.ArgoOptions) error {
 	var err error
 	token := argoOptions.Token
 	if token == "" {
 		token, err = argo.GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
-	}else{
-		err = argo.GetInstance().CheckToken(token, argoOptions.Host)
+		if err == nil {
+			store.SetArgo(token, argoOptions.Host)
+		}
+	} else {
+		store.SetArgo(token, argoOptions.Host)
+		err = argo.GetInstance().CheckToken()
 	}
-	return token, err
+	return err
 }
 
 func checkProjects() error {
@@ -59,7 +60,7 @@ func checkProjects() error {
 	return err
 }
 
-func checkApplications() error{
+func checkApplications() error {
 	_, err := argo.GetInstance().GetApplicationsWithCredentialsFromStorage()
 	return err
 }
