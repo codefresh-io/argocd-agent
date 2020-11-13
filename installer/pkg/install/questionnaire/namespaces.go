@@ -15,7 +15,7 @@ func AskAboutNamespace(installOptions *install.InstallCmdOptions, kubeClient kub
 				return err
 			}
 		} else {
-			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
+			err, selectedNamespace := prompt.Select(namespaces, "We didn't find ArgoCD in the default namespace, please select the namespace where it installed")
 			if err != nil {
 				return err
 			}
