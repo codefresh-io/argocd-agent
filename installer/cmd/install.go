@@ -98,11 +98,19 @@ var installCmd = &cobra.Command{
 
 		kubeOptions = installCmdOptions.Kube
 
-		argoServerPlaced := kubeClient.IsArgoServerOnCluster(kubeOptions.Namespace)
-		if !argoServerPlaced {
+		argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
+
+		if err != nil {
 			msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", cluster, kubeOptions.Namespace)
 			sendArgoAgentInstalledEvent(FAILED, msg)
 			return errors.New(msg)
+		} else {
+			if kube.IsLoadBalancer(argoServerSvc) {
+				balancerHost, _ := kube.GetLoadBalancerHost(argoServerSvc)
+				if balancerHost != "" {
+					installCmdOptions.Argo.Host = balancerHost
+				}
+			}
 		}
 
 		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)

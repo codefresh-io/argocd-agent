@@ -1,6 +1,9 @@
 package kube
 
 import (
+	"errors"
+	"fmt"
+	core "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -13,7 +16,7 @@ type (
 		buildClient() (*kubernetes.Clientset, error)
 		GetNamespaces() ([]string, error)
 		GetClientSet() *kubernetes.Clientset
-		IsArgoServerOnCluster(string) bool
+		GetArgoServerSvc(string) (core.Service, error)
 	}
 
 	kube struct {
@@ -50,6 +53,25 @@ func New(o *Options) (Kube, error) {
 	return client, nil
 }
 
+func IsLoadBalancer(svc core.Service) bool {
+	return svc.Spec.Type == "LoadBalancer"
+}
+
+func GetLoadBalancerHost(svc core.Service) (string, error) {
+	ingress := svc.Status.LoadBalancer.Ingress
+	if ingress == nil || len(ingress) == 0 {
+		return "", errors.New(fmt.Sprint("Invalid Ingress"))
+	}
+
+	if ingress[0].Hostname != "" {
+		return "https://" + ingress[0].Hostname, nil
+	}
+	if ingress[0].IP != "" {
+		return "https://" + ingress[0].IP, nil
+	}
+	return "", errors.New(fmt.Sprint("Can't resolve Ingress Hostname or IP"))
+}
+
 func (k *kube) buildClient() (*kubernetes.Clientset, error) {
 	var config *rest.Config
 	var err error
@@ -72,15 +94,21 @@ func (k *kube) buildClient() (*kubernetes.Clientset, error) {
 	return kubernetes.NewForConfig(config)
 }
 
-func (k *kube) IsArgoServerOnCluster(namespace string) bool {
-
+func (k *kube) GetArgoServerSvc(namespace string) (core.Service, error) {
+	var argoServerSvc core.Service
 	opts := metav1.ListOptions{LabelSelector: "app.kubernetes.io/name=argocd-server"}
 
 	svcs, err := k.clientSet.CoreV1().Services(namespace).List(opts)
-	if err != nil || svcs == nil {
-		return false
+
+	if err != nil {
+		return argoServerSvc, err
 	}
-	return len(svcs.Items) > 0
+	if svcs == nil || len(svcs.Items) == 0 {
+		return argoServerSvc, errors.New(fmt.Sprint("Invalid svcs"))
+	}
+
+	argoServerSvc = svcs.Items[0]
+	return argoServerSvc, nil
 }
 
 func (k *kube) GetNamespaces() ([]string, error) {
