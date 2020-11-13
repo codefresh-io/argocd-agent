@@ -100,7 +100,7 @@ var installCmd = &cobra.Command{
 
 		argoServerPlaced := kubeClient.IsArgoServerOnCluster(kubeOptions.Namespace)
 		if !argoServerPlaced {
-			msg := fmt.Sprintf("We didnt find ArgoCD on \"%s/%s\"", cluster, kubeOptions.Namespace)
+			msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", cluster, kubeOptions.Namespace)
 			sendArgoAgentInstalledEvent(FAILED, msg)
 			return errors.New(msg)
 		}
