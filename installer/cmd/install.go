@@ -116,7 +116,7 @@ var installCmd = &cobra.Command{
 
 		err = acceptance_tests.Run(&installCmdOptions.Argo)
 		if err != nil {
-			msg := fmt.Sprint("Testing requirements failed")
+			msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
 			sendArgoAgentInstalledEvent(FAILED, msg)
 			return errors.New(msg)
 		}
