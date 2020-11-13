@@ -4,12 +4,13 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
 
 func Run(argoOptions *install.ArgoOptions) error {
-	info("\nTesting requirements")
-	info("--------------------")
-	defer info("--------------------\n")
+	logger.Info("\nTesting requirements")
+	logger.Info("--------------------")
+	defer logger.Info("--------------------\n")
 	
 	credentialsMsg := "checking argocd credentials..."
 	projectsMsg := "checking argocd projects accessibility..."
@@ -19,25 +20,26 @@ func Run(argoOptions *install.ArgoOptions) error {
 
 	token, err = checkArgoCredentials(argoOptions)
 	if err != nil {
-		failure(credentialsMsg)
+		logger.FailureTest(credentialsMsg)
 		return err
 	}
-	success(credentialsMsg)
+	
+	logger.SuccessTest(credentialsMsg)
 	store.SetArgo(token, argoOptions.Host)
 
 	err = checkProjects()
 	if err != nil {
-		failure(projectsMsg)
+		logger.FailureTest(projectsMsg)
 		return err
 	}
-	success(projectsMsg)
+	logger.SuccessTest(projectsMsg)
 
 	err = checkApplications()
 	if err != nil {
-		failure(applicationsMsg)
+		logger.FailureTest(applicationsMsg)
 		return err
 	}
-	success(applicationsMsg)
+	logger.SuccessTest(applicationsMsg)
 	return nil
 }
 
@@ -47,7 +49,7 @@ func checkArgoCredentials(argoOptions *install.ArgoOptions) (string, error){
 	if token == "" {
 		token, err = argo.GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
 	}else{
-		err = argo.CheckToken(token, argoOptions.Host)
+		err = argo.GetInstance().CheckToken(token, argoOptions.Host)
 	}
 	return token, err
 }

@@ -80,7 +80,7 @@ func GetToken(username string, password string, host string) (string, error) {
 	return result["token"].(string), nil
 }
 
-func CheckToken(token string, host string) error {
+func (api *Api) CheckToken(token string, host string) error {
 	client := buildHttpClient()
 	req, err := http.NewRequest("GET", host+"/api/v1/account", nil)
 
