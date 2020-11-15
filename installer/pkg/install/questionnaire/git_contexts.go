@@ -22,6 +22,7 @@ func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 		return err
 	}
 
+	var selectedContext string
 	var values = make(map[string]string)
 	var list []string
 	for _, v := range *contexts {
@@ -29,7 +30,12 @@ func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 		list = append(list, v.Metadata.Name)
 	}
 
-	err, selectedContext := prompt.Select(list, "Select Git context")
+	if len(list) == 1 {
+		selectedContext = list[0]
+	} else {
+		err, selectedContext = prompt.Select(list, "Select Git context")
+	}
+
 	installOptions.Git.Password = base64.StdEncoding.EncodeToString([]byte(values[selectedContext]))
 
 	return err

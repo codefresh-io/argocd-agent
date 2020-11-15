@@ -7,6 +7,7 @@ import (
 )
 
 func AskAboutNamespace(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
+	const defaultNamespace = "argocd"
 	if installOptions.Kube.Namespace == "" {
 		namespaces, err := kubeClient.GetNamespaces()
 		if err != nil {
@@ -15,7 +16,13 @@ func AskAboutNamespace(installOptions *install.InstallCmdOptions, kubeClient kub
 				return err
 			}
 		} else {
-			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
+			for _, namespace := range namespaces {
+				if namespace == defaultNamespace {
+					installOptions.Kube.Namespace = defaultNamespace
+					return nil
+				}
+			}
+			err, selectedNamespace := prompt.Select(namespaces, "We didn't find ArgoCD in the \"argocd\" namespace, please select the namespace where it installed")
 			if err != nil {
 				return err
 			}
