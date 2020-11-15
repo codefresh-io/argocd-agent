@@ -8,7 +8,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
@@ -107,7 +106,7 @@ var installCmd = &cobra.Command{
 			return errors.New(msg)
 		} else {
 			if kube.IsLoadBalancer(argoServerSvc) {
-				balancerHost, _ := kube.GetLoadBalancerHost(argoServerSvc)
+				balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
 				if balancerHost != "" {
 					installCmdOptions.Argo.Host = balancerHost
 				}
@@ -159,8 +158,6 @@ var installCmd = &cobra.Command{
 			KubeClientSet:    kubeClient.GetClientSet(),
 			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 		}
-
-		helper.ShowSummary(&installCmdOptions)
 
 		var kind, name string
 		err, kind, name = templates.Install(&installOptions)

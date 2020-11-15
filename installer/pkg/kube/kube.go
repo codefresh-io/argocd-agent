@@ -17,6 +17,7 @@ type (
 		GetNamespaces() ([]string, error)
 		GetClientSet() *kubernetes.Clientset
 		GetArgoServerSvc(string) (core.Service, error)
+		GetLoadBalancerHost(svc core.Service) (string, error)
 	}
 
 	kube struct {
@@ -57,18 +58,19 @@ func IsLoadBalancer(svc core.Service) bool {
 	return svc.Spec.Type == "LoadBalancer"
 }
 
-func GetLoadBalancerHost(svc core.Service) (string, error) {
-	ingress := svc.Status.LoadBalancer.Ingress
-	if ingress == nil || len(ingress) == 0 {
+func (k *kube) GetLoadBalancerHost(svc core.Service) (string, error) {
+	if svc.Status.LoadBalancer.Ingress == nil || len(svc.Status.LoadBalancer.Ingress) == 0 {
 		return "", errors.New(fmt.Sprint("Invalid Ingress"))
 	}
 
-	if ingress[0].Hostname != "" {
-		return "https://" + ingress[0].Hostname, nil
+	ingress := svc.Status.LoadBalancer.Ingress[0]
+	if ingress.Hostname != "" {
+		return "https://" + ingress.Hostname, nil
 	}
-	if ingress[0].IP != "" {
-		return "https://" + ingress[0].IP, nil
+	if ingress.IP != "" {
+		return "https://" + ingress.IP, nil
 	}
+
 	return "", errors.New(fmt.Sprint("Can't resolve Ingress Hostname or IP"))
 }
 
@@ -107,8 +109,7 @@ func (k *kube) GetArgoServerSvc(namespace string) (core.Service, error) {
 		return argoServerSvc, errors.New(fmt.Sprint("Invalid svcs"))
 	}
 
-	argoServerSvc = svcs.Items[0]
-	return argoServerSvc, nil
+	return svcs.Items[0], nil
 }
 
 func (k *kube) GetNamespaces() ([]string, error) {
