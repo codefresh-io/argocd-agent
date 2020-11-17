@@ -94,11 +94,12 @@ type AgentState struct {
 }
 
 type IntegrationPayloadData struct {
-	Name     string      `json:"name"`
-	Url      string      `json:"url"`
-	Username null.String `json:"username"`
-	Password null.String `json:"password"`
-	Token    null.String `json:"token"`
+	Name          string      `json:"name"`
+	Url           string      `json:"url"`
+	ServerVersion string      `json:"serverVersion"`
+	Username      null.String `json:"username"`
+	Password      null.String `json:"password"`
+	Token         null.String `json:"token"`
 }
 
 type IntegrationPayload struct {

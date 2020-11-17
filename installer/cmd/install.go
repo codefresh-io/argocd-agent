@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
@@ -30,7 +31,12 @@ var installCmdOptions = install.InstallCmdOptions{}
 var version = ""
 
 func ensureIntegration() error {
-	err := holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
+	serverVersion, err := argo.GetInstance().GetVersion()
+	if err != nil {
+		return err
+	}
+
+	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion)
 	if err == nil {
 		return nil
 	}
@@ -56,7 +62,7 @@ func ensureIntegration() error {
 		return fmt.Errorf("you should update integration")
 	}
 
-	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token)
+	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion)
 
 	if err != nil {
 		return err
