@@ -175,10 +175,11 @@ func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
 	return result.Docs, nil
 }
 
-func prepareIntegration(name string, host string, username string, password string, token string) IntegrationPayloadData {
+func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string) IntegrationPayloadData {
 	payloadData := IntegrationPayloadData{
-		Name: name,
-		Url:  host,
+		Name:          name,
+		Url:           host,
+		ServerVersion: serverVersion,
 	}
 
 	if username != "" {
@@ -192,17 +193,18 @@ func prepareIntegration(name string, host string, username string, password stri
 	if token != "" {
 		payloadData.Token = null.NewString(token, true)
 	}
+
 	return payloadData
 }
 
-func (a *Api) CreateIntegration(name string, host string, username string, password string, token string) error {
+func (a *Api) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string) error {
 
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   "/argo",
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: prepareIntegration(name, host, username, password, token),
+			Data: prepareIntegration(name, host, username, password, token, serverVersion),
 		},
 	}, nil)
 	if err != nil {
@@ -212,13 +214,13 @@ func (a *Api) CreateIntegration(name string, host string, username string, passw
 	return nil
 }
 
-func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string) error {
+func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string) error {
 	err := a.requestAPI(&requestOptions{
 		method: "PUT",
 		path:   fmt.Sprintf("/argo/%s", name),
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: prepareIntegration(name, host, username, password, token),
+			Data: prepareIntegration(name, host, username, password, token, serverVersion),
 		},
 	}, nil)
 	if err != nil {

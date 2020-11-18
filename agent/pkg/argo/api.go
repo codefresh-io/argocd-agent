@@ -15,6 +15,7 @@ type ArgoApi interface {
 	GetResourceTree(applicationName string) (*ResourceTree, error)
 	GetResourceTreeAll(applicationName string) (interface{}, error)
 	GetManagedResources(applicationName string) (*ManagedResource, error)
+	GetVersion() (string, error)
 }
 
 type Api struct {
@@ -163,6 +164,33 @@ func (api *Api) GetResourceTreeAll(applicationName string) (interface{}, error) 
 	}
 
 	return result.(map[string]interface{})["nodes"], nil
+}
+
+func (api *Api) GetVersion() (string, error) {
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
+
+	client := buildHttpClient()
+
+	req, err := http.NewRequest("GET", host+"/api/version", nil)
+	req.Header.Add("Authorization", "Bearer "+token)
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return "", err
+	}
+
+	var result ServerInfo
+
+	defer resp.Body.Close()
+
+	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if err != nil {
+		return "", err
+	}
+
+	return result.Version, nil
 }
 
 func (api *Api) GetManagedResources(applicationName string) (*ManagedResource, error) {

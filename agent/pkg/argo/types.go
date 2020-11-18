@@ -18,6 +18,10 @@ type ManagedResource struct {
 	Items []ManagedResourceItem
 }
 
+type ServerInfo struct {
+	Version string
+}
+
 type ManagedResourceItem struct {
 	Kind        string
 	TargetState string
