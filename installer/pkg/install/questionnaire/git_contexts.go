@@ -13,7 +13,7 @@ func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 		if err != nil {
 			return err
 		}
-		installOptions.Git.Password = (*context).Spec.Data.Auth.Password
+		installOptions.Git.Password = base64.StdEncoding.EncodeToString([]byte((*context).Spec.Data.Auth.Password))
 		return nil
 	}
 
