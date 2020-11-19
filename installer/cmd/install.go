@@ -9,6 +9,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
@@ -89,7 +90,7 @@ var installCmd = &cobra.Command{
 		kubeConfigPath := installCmdOptions.Kube.ConfigPath
 		kubeOptions := installCmdOptions.Kube
 
-		_, cluster := questionnaire.AskAboutKubeContext(&installCmdOptions)
+		_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
 
 		kubeClient, err := kube.New(&kube.Options{
 			ContextName:      kubeOptions.Context,
@@ -107,7 +108,7 @@ var installCmd = &cobra.Command{
 		argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
 
 		if err != nil {
-			msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", cluster, kubeOptions.Namespace)
+			msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
 			sendArgoAgentInstalledEvent(FAILED, msg)
 			return errors.New(msg)
 		} else {
@@ -164,6 +165,7 @@ var installCmd = &cobra.Command{
 			KubeClientSet:    kubeClient.GetClientSet(),
 			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 		}
+		helper.ShowSummary(&installCmdOptions)
 
 		var kind, name string
 		err, kind, name = templates.Install(&installOptions)
