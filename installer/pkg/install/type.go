@@ -1,8 +1,8 @@
 package install
 
 type InstallCmdOptions struct {
-	Kube Kube
-	Argo ArgoOptions
+	Kube      Kube
+	Argo      ArgoOptions
 	Codefresh struct {
 		Host                   string
 		Token                  string
@@ -34,6 +34,7 @@ type Kube struct {
 
 	MasterUrl   string
 	BearerToken string
+	ClusterName string
 }
 
 type ArgoOptions struct {

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
@@ -18,8 +19,8 @@ func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
 	} else {
 		syncModes := orderedmap.NewOrderedMap()
 		syncModes.Set("Import all existing Argo applications to Codefresh", "SYNC")
-		syncModes.Set("Select specific Argo applications to import", "SELECT")
-		syncModes.Set("Do not import anything from Argo to Codefresh", "NONE")
+		syncModes.Set("Select specific Argo applications to import", codefresh.SelectSync)
+		syncModes.Set("Do not import anything from Argo to Codefresh", codefresh.None)
 
 		_, autoSyncMode := prompt.Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd sync behavior please")
 
@@ -28,14 +29,14 @@ func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
 		if syncMode == "SYNC" {
 			_, autoSync := prompt.Confirm("Enable auto-sync of applications, this will import all existing applications and update Codefresh in the future")
 			if autoSync {
-				syncMode = "CONTINUE_SYNC"
+				syncMode = codefresh.ContinueSync
 			} else {
-				syncMode = "ONE_TIME_SYNC"
+				syncMode = codefresh.OneTimeSync
 			}
 		}
 	}
 
-	if syncMode == "SELECT" {
+	if syncMode == codefresh.SelectSync {
 		applicationsForSync := installOptions.Codefresh.ApplicationsForSyncArr
 
 		if len(applicationsForSync) == 0 {
