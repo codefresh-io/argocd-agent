@@ -9,6 +9,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/mitchellh/mapstructure"
 	"sort"
+	"time"
 )
 
 type EnvTransformer struct {
@@ -155,6 +156,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,
+		Date:         time.Now(),
 	}
 
 	err, commit := getCommitByRevision(repoUrl, revision)

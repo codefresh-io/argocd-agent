@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
 	"github.com/guregu/null"
+	"time"
 )
 
 type MongoCFEnvWrapper struct {
@@ -42,6 +43,7 @@ type Environment struct {
 	RepoUrl      string                `json:"repoUrl"`
 	Commit       Commit                `json:"commit"`
 	SyncPolicy   SyncPolicy            `json:"syncPolicy"`
+	Date         time.Time             `json:"date"`
 }
 
 type EnvironmentActivity struct {
