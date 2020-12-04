@@ -53,9 +53,14 @@ type EnvironmentActivity struct {
 	ReplicaSet   EnvironmentActivityRS `json:"replicaSet"`
 }
 
+type ReplicaState struct {
+	Current int64 `json:"current"`
+	Desired int64 `json:"desired"`
+}
+
 type EnvironmentActivityRS struct {
-	General int64 `json:"general"`
-	Ready   int64 `json:"ready"`
+	From ReplicaState `json:"from"`
+	To   ReplicaState `json:"to"`
 }
 
 type CodefreshError struct {

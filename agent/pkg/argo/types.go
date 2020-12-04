@@ -40,12 +40,15 @@ type ManagedResourceStateMetadata struct {
 }
 
 type ManagedResourceStateSpec struct {
+	Replicas int64
 	Template ManagedResourceStateTemplate
 }
 
 type ManagedResourceStateStatus struct {
-	Replicas      int64
-	ReadyReplicas int64
+	Replicas           int64
+	ReadyReplicas      int64
+	UpdatedReplicas    int64
+	UnavaiableReplicas int64
 }
 
 type ManagedResourceStateTemplate struct {

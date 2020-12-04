@@ -68,13 +68,25 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 		}
 		if len(liveImages) != 0 {
 			status := statuses[liveState.Metadata.Uid]
+
+			replicasStatus := liveState.Status
+
+			fromReplicaState := codefresh2.ReplicaState{
+				Current: replicasStatus.ReadyReplicas - (replicasStatus.UpdatedReplicas - replicasStatus.UnavaiableReplicas),
+			}
+
+			toReplicasState := codefresh2.ReplicaState{
+				Current: replicasStatus.UpdatedReplicas,
+				Desired: liveState.Spec.Replicas,
+			}
+
 			services[item.Name] = codefresh2.EnvironmentActivity{
 				Name:       item.Name,
 				Status:     status,
 				LiveImages: liveImages,
 				ReplicaSet: codefresh2.EnvironmentActivityRS{
-					General: liveState.Status.Replicas,
-					Ready:   liveState.Status.ReadyReplicas,
+					From: fromReplicaState,
+					To:   toReplicasState,
 				},
 			}
 		}
