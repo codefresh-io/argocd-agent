@@ -88,18 +88,20 @@ var updateCMD = &cobra.Command{
 			return err
 		}
 
-		namespaces, err := kubeClient.GetNamespaces()
-		if err != nil {
-			err = prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to update", "default")
+		if kubeOptions.namespace == "" {
+			namespaces, err := kubeClient.GetNamespaces()
 			if err != nil {
-				return err
+				err = prompt.InputWithDefault(&kubeOptions.namespace, "Kubernetes namespace to update", "default")
+				if err != nil {
+					return err
+				}
+			} else {
+				err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
+				if err != nil {
+					return err
+				}
+				kubeOptions.namespace = selectedNamespace
 			}
-		} else {
-			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
-			if err != nil {
-				return err
-			}
-			kubeOptions.namespace = selectedNamespace
 		}
 
 		err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.namespace)
