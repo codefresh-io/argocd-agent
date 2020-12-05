@@ -54,6 +54,6 @@ func (processor *EnvQueueProcessor) Run() {
 				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 			}
 		}
-		time.Sleep(1000)
+		time.Sleep(1 * time.Second)
 	}
 }
