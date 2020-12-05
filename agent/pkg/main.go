@@ -10,6 +10,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"os"
@@ -98,6 +99,9 @@ func main() {
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}
+
+	queueProcessor := queue.EnvQueueProcessor{}
+	go queueProcessor.Run()
 
 	err = extract.Watch()
 	if err != nil {
