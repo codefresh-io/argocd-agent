@@ -7,9 +7,9 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/util/comparator"
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -34,22 +34,7 @@ var (
 	}
 )
 
-func updateEnv(obj interface{}) (error, *codefresh2.Environment) {
-	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
-	err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
-	if err != nil {
-		return err, env
-	}
-
-	envComparator := comparator.EnvComparator{}
-
-	err = util.ProcessDataWithFilter("environment", &env.Name, env, envComparator.Compare, func() error {
-		_, err = codefresh2.GetInstance().SendEnvironment(*env)
-		return err
-	})
-
-	return nil, env
-}
+var itemQueue *queue.ItemQueue
 
 func updateDeletedEnv(obj interface{}) (error, *codefresh2.Environment) {
 	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
@@ -89,12 +74,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			err, _ = updateEnv(obj)
-
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
-				return
-			}
+			itemQueue.Enqueue(obj.(*unstructured.Unstructured))
 
 			applications, err := argo.GetInstance().GetApplicationsWithCredentialsFromStorage()
 
@@ -162,10 +142,7 @@ func watchApplicationChanges() error {
 
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			err, _ := updateEnv(newObj)
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
-			}
+			itemQueue.Enqueue(newObj.(*unstructured.Unstructured))
 		},
 	})
 
@@ -220,5 +197,6 @@ func watchApplicationChanges() error {
 }
 
 func Watch() error {
+	itemQueue = queue.GetInstance()
 	return watchApplicationChanges()
 }
