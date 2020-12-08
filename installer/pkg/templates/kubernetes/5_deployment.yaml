@@ -43,7 +43,10 @@ spec:
         - name: ARGO_USERNAME
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
-          value: {{ .Argo.Password }}
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: argo.password
         - name: ARGO_TOKEN
           valueFrom:
             secretKeyRef:

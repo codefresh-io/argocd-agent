@@ -157,6 +157,7 @@ var installCmd = &cobra.Command{
 
 		installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
 		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
+		installCmdOptions.Argo.Password = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Password))
 
 		installOptions := templates.InstallOptions{
 			Templates:        kubernetes.TemplatesMap(),

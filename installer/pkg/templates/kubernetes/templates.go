@@ -56,7 +56,8 @@ data:
   codefresh.token: {{ .Codefresh.Token }}
   argo.token: {{ .Argo.Token }}
   kube.bearertoken: {{ .Kube.BearerToken }}
-  git.password: {{ .Git.Password }}`
+  git.password: {{ .Git.Password }}
+  argo.password: {{ .Argo.Password }}`
 
 	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
@@ -103,7 +104,10 @@ spec:
         - name: ARGO_USERNAME
           value: {{ .Argo.Username }}
         - name: ARGO_PASSWORD
-          value: {{ .Argo.Password }}
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent
+              key: argo.password
         - name: ARGO_TOKEN
           valueFrom:
             secretKeyRef:
