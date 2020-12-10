@@ -87,6 +87,15 @@ var installCmd = &cobra.Command{
 		var err error
 		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
 
+		// should be in beg for show correct events
+		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
+
+		holder.ApiHolder = codefresh.Api{
+			Token:       installCmdOptions.Codefresh.Token,
+			Host:        installCmdOptions.Codefresh.Host,
+			Integration: installCmdOptions.Codefresh.Integration,
+		}
+
 		kubeConfigPath := installCmdOptions.Kube.ConfigPath
 		kubeOptions := installCmdOptions.Kube
 
@@ -120,8 +129,6 @@ var installCmd = &cobra.Command{
 			}
 		}
 
-		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
-
 		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
 		if err != nil {
 			return err
@@ -134,12 +141,6 @@ var installCmd = &cobra.Command{
 			msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
 			sendArgoAgentInstalledEvent(FAILED, msg)
 			return errors.New(msg)
-		}
-
-		holder.ApiHolder = codefresh.Api{
-			Token:       installCmdOptions.Codefresh.Token,
-			Host:        installCmdOptions.Codefresh.Host,
-			Integration: installCmdOptions.Codefresh.Integration,
 		}
 
 		_ = questionnaire.AskAboutGitContext(&installCmdOptions)
