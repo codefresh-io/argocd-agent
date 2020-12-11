@@ -181,7 +181,7 @@ var installCmd = &cobra.Command{
 		sendArgoAgentInstalledEvent(SUCCESS, "")
 
 		logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
-		logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", &installCmdOptions.Codefresh.Host))
+		logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))
 		logger.Success(fmt.Sprintf("Documentation: \"%s\"", "https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/"))
 
 		return nil
