@@ -125,6 +125,14 @@ func IsLoadBalancer(svc core.Service) bool {
 	return svc.Spec.Type == "LoadBalancer"
 }
 
+func (k *kube) GetArgoServerHost() (string, error) {
+	svc, err := k.GetArgoServerSvc(k.namespace)
+	if err != nil {
+		return "", err
+	}
+	return k.GetLoadBalancerHost(svc)
+}
+
 func (k *kube) GetLoadBalancerHost(svc core.Service) (string, error) {
 	if svc.Status.LoadBalancer.Ingress == nil || len(svc.Status.LoadBalancer.Ingress) == 0 {
 		return "", errors.New(fmt.Sprint("Invalid Ingress"))
