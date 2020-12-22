@@ -6,6 +6,7 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"html/template"
+	apiextv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"regexp"
 
@@ -64,6 +65,8 @@ func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) 
 	if err != nil {
 		return nil, nil, err
 	}
+
+	_ = apiextv1beta1.AddToScheme(scheme.Scheme)
 
 	// Deserializing all kube objects from parsedTemplates
 	// see https://github.com/kubernetes/client-go/issues/193 for examples
