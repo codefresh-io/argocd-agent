@@ -49,7 +49,6 @@ func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
 			return err
 		}
 
-		err = prompt.InputPassword(&installOptions.Argo.Password, "Argo password")
 		if err != nil {
 			return err
 		}
