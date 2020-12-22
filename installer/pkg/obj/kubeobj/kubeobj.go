@@ -11,6 +11,8 @@ import (
 	v1api "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
+	apiextensionv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	apixv1beta1client "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	rbacv1 "k8s.io/api/rbac/v1"
@@ -23,7 +25,7 @@ import (
 )
 
 // CreateObject - creates kubernetes object from *runtime.Object. Returns object name, kind and creation error
-func CreateObject(clientset *kubernetes.Clientset, obj runtime.Object, namespace string) (string, string, error) {
+func CreateObject(clientset *kubernetes.Clientset, apiextensionsClientSet *apixv1beta1client.ApiextensionsV1beta1Client, obj runtime.Object, namespace string) (string, string, error) {
 
 	var name, kind string
 	var err error
@@ -138,6 +140,16 @@ func CreateObject(clientset *kubernetes.Clientset, obj runtime.Object, namespace
 		name = objT.ObjectMeta.Name
 		kind = objT.TypeMeta.Kind
 		_, err = clientset.ExtensionsV1beta1().Deployments(namespace).Create(objT)
+
+	case *v1api.StatefulSet:
+		name = objT.ObjectMeta.Name
+		kind = objT.TypeMeta.Kind
+		_, err = clientset.AppsV1().StatefulSets(namespace).Create(objT)
+
+	case *apiextensionv1beta1.CustomResourceDefinition:
+		name = objT.ObjectMeta.Name
+		kind = objT.TypeMeta.Kind
+		_, err = apiextensionsClientSet.CustomResourceDefinitions().Create(objT)
 
 	default:
 		return "", "", fmt.Errorf("Unknown object type %T\n ", objT)
@@ -269,11 +281,25 @@ func CheckObject(clientset *kubernetes.Clientset, obj runtime.Object, namespace 
 }
 
 // DeleteObject - checks kubernetes object from *runtime.Object. Returns object name, kind and creation error
-func DeleteObject(clientset *kubernetes.Clientset, obj runtime.Object, namespace string) (string, string, error) {
+func DeleteObject(clientset *kubernetes.Clientset, apiextensionsClientSet *apixv1beta1client.ApiextensionsV1beta1Client, obj runtime.Object, namespace string) (string, string, error) {
 	var propagationPolicy metav1.DeletionPropagation = "Background"
 	var name, kind string
 	var err error
 	switch objT := obj.(type) {
+
+	case *apiextensionv1beta1.CustomResourceDefinition:
+		name = objT.ObjectMeta.Name
+		kind = objT.TypeMeta.Kind
+		err = apiextensionsClientSet.CustomResourceDefinitions().Delete(name, &metav1.DeleteOptions{
+			PropagationPolicy: &propagationPolicy,
+		})
+
+	case *v1api.StatefulSet:
+		name = objT.ObjectMeta.Name
+		kind = objT.TypeMeta.Kind
+		err = clientset.AppsV1().StatefulSets(namespace).Delete(name, &metav1.DeleteOptions{
+			PropagationPolicy: &propagationPolicy,
+		})
 
 	case *appsv1.DaemonSet:
 		name = objT.ObjectMeta.Name
