@@ -3,7 +3,7 @@ package questionnaire
 import (
 	"github.com/codefresh-io/argocd-listener/controller/pkg/install"
 	"github.com/codefresh-io/argocd-listener/controller/pkg/kube"
-	"github.com/codefresh-io/argocd-listener/controller/pkg/prompt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
 func AskAboutNamespace(installOptions *install.CmdOptions, kubeClient kube.Kube) error {

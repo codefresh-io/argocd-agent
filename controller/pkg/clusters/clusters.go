@@ -3,7 +3,7 @@ package clusters
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/controller/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	argo "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
