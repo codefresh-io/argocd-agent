@@ -165,6 +165,7 @@ var installCmd = &cobra.Command{
 			TemplateValues:   structs.Map(installCmdOptions),
 			Namespace:        kubeOptions.Namespace,
 			KubeClientSet:    kubeClient.GetClientSet(),
+			KubeCrdClientSet: kubeClient.GetCrdClientSet(),
 			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 		}
 		helper.ShowSummary(&installCmdOptions)

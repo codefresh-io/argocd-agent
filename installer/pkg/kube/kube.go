@@ -17,6 +17,7 @@ type (
 		buildClient() (*kubernetes.Clientset, *apixv1beta1client.ApiextensionsV1beta1Client, error)
 		GetNamespaces() ([]string, error)
 		GetClientSet() *kubernetes.Clientset
+		GetCrdClientSet() *apixv1beta1client.ApiextensionsV1beta1Client
 		GetArgoServerSvc(string) (core.Service, error)
 		GetLoadBalancerHost(svc core.Service) (string, error)
 
@@ -191,6 +192,9 @@ func (k *kube) GetNamespaces() ([]string, error) {
 
 func (k *kube) GetClientSet() *kubernetes.Clientset {
 	return k.clientSet
+}
+func (k *kube) GetCrdClientSet() *apixv1beta1client.ApiextensionsV1beta1Client {
+	return k.crdClientSet
 }
 
 func GetAllContexts(pathToKubeConfig string) ([]string, error) {
