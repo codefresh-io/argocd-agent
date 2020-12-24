@@ -1,0 +1,53 @@
+# More examples of Codefresh YAML can be found at
+# https://codefresh.io/docs/docs/yaml-examples/examples/
+
+
+version: "1.0"
+# Stages can help you organize your steps in stages
+stages:
+  - "prepare"
+  - "Release"
+
+steps:
+  main_clone:
+    title: "Cloning repository"
+    type: "git-clone"
+    repo: "codefresh-io/argocd-agent"
+    revision: "${{CF_BRANCH}}"
+    git: "cf_github"
+    stage: "prepare"
+
+  export_version:
+    title: Compare version
+    stage: prepare
+    image: codefresh/semver
+    commands:
+      - export CONTROLLER_VERSION=$(cat ./controller/VERSION)
+      - echo "Controller version -> $CONTROLLER_VERSION "
+      - cf_export VERSION=$CONTROLLER_VERSION
+    when:
+      steps:
+        - name: main_clone
+          on:
+            - success
+      branch:
+        only:
+          - master
+
+  release_installer_binary:
+    title: Create release in Github with argocd controller CLI
+    image: goreleaser/goreleaser:v0.124.1
+    stage: Release
+    fail_fast: false
+    working_directory: ${{main_clone}}
+    commands:
+      - cd installer
+      - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
+    when:
+      steps:
+        - name: export_version
+          on:
+            - finished
+      branch:
+        only:
+          - master
