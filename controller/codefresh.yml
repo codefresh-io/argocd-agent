@@ -34,6 +34,27 @@ steps:
         only:
           - master
 
+  create_git_tag:
+    title: Push tag to git
+    image: codefresh/cli
+    stage: Release
+    commands:
+      - export OLD_ORIGIN=$(git remote get-url origin)
+      - git remote rm origin
+      - git remote add origin https://${{GITHUB_TOKEN}}@github.com/codefresh-io/argocd-agent.git
+      - git tag ${{VERSION}}
+      - git push --tags
+      - git remote rm origin
+      - git remote add origin $OLD_ORIGIN
+    fail_fast: false
+    when:
+      steps:
+        - name: export_version
+        - name: main_clone
+      branch:
+        only:
+          - master
+
   release_installer_binary:
     title: Create release in Github with argocd controller CLI
     image: goreleaser/goreleaser:v0.124.1
@@ -45,9 +66,9 @@ steps:
       - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
     when:
       steps:
-        - name: export_version
+        - name: create_git_tag
           on:
-            - finished
+            - success
       branch:
         only:
           - master
