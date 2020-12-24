@@ -82,10 +82,11 @@ var uninstallCmd = &cobra.Command{
 		}
 
 		uninstallOptions := templates.DeleteOptions{
-			Templates:      kubernetes.TemplatesMap(),
-			TemplateValues: structs.Map(uninstallCmdOptions),
-			Namespace:      kubeOptions.namespace,
-			KubeClientSet:  kubeClient.GetClientSet(),
+			Templates:        kubernetes.TemplatesMap(),
+			TemplateValues:   structs.Map(uninstallCmdOptions),
+			Namespace:        kubeOptions.namespace,
+			KubeClientSet:    kubeClient.GetClientSet(),
+			KubeCrdClientSet: kubeClient.GetCrdClientSet(),
 		}
 
 		var kind, name string

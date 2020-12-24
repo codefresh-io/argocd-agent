@@ -166,13 +166,31 @@ steps:
         only:
           - master
 
-  release_binaries:
+  release_installer_binary:
     title: Create release in Github with argo-agent CLI
     image: goreleaser/goreleaser:v0.124.1
     stage: Release
     fail_fast: false
+    working_directory: ${{main_clone}}
     commands:
       - cd installer
+      - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
+    when:
+      steps:
+        - name: create_git_tag
+          on:
+            - finished
+      branch:
+        only:
+          - master
+  release_controller_binaries:
+    title: Create release in Github with argo-agent CLI
+    image: goreleaser/goreleaser:v0.124.1
+    stage: Release
+    fail_fast: false
+    working_directory: ${{main_clone}}
+    commands:
+      - cd controller
       - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
     when:
       steps:

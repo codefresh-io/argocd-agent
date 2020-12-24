@@ -5,6 +5,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	kubeobj "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
+	apixv1beta1client "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -15,6 +16,7 @@ type InstallOptions struct {
 	Templates        map[string]string
 	TemplateValues   map[string]interface{}
 	KubeClientSet    *kubernetes.Clientset
+	KubeCrdClientSet *apixv1beta1client.ApiextensionsV1beta1Client
 	Namespace        string
 	KubeManifestPath string
 	KubeBuilder      interface {
@@ -23,11 +25,12 @@ type InstallOptions struct {
 }
 
 type DeleteOptions struct {
-	Templates      map[string]string
-	TemplateValues map[string]interface{}
-	KubeClientSet  *kubernetes.Clientset
-	Namespace      string
-	KubeBuilder    interface {
+	Templates        map[string]string
+	TemplateValues   map[string]interface{}
+	KubeClientSet    *kubernetes.Clientset
+	KubeCrdClientSet *apixv1beta1client.ApiextensionsV1beta1Client
+	Namespace        string
+	KubeBuilder      interface {
 		BuildClient() (*kubernetes.Clientset, error)
 	}
 }
@@ -50,7 +53,7 @@ func Install(opt *InstallOptions) (error, string, string) {
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
 
 	for _, key := range kubeObjectKeys {
-		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, kubeObjects[key.String()], opt.Namespace)
+		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
 
 		if createErr == nil {
 			// skip, everything ok
@@ -79,7 +82,7 @@ func Delete(opt *DeleteOptions) (error, string, string) {
 	var kind, name string
 	var deleteError error
 	for _, obj := range kubeObjects {
-		kind, name, deleteError = kubeobj.DeleteObject(opt.KubeClientSet, obj, opt.Namespace)
+		kind, name, deleteError = kubeobj.DeleteObject(opt.KubeClientSet, opt.KubeCrdClientSet, obj, opt.Namespace)
 		if deleteError == nil {
 			fmt.Println(fmt.Sprintf("%s \"%s\" deleted", kind, name))
 		} else if statusError, errIsStatusError := deleteError.(*errors.StatusError); errIsStatusError {
