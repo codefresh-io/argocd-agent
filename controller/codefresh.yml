@@ -41,7 +41,7 @@ steps:
     fail_fast: false
     working_directory: ${{main_clone}}
     commands:
-      - cd installer
+      - cd controller
       - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
     when:
       steps:
