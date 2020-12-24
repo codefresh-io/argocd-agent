@@ -22,7 +22,7 @@ steps:
     stage: prepare
     image: codefresh/semver
     commands:
-      - export CONTROLLER_VERSION=$(cat ./controller/VERSION)
+      - export CONTROLLER_VERSION=$(cat ./controller/VERSION)-controller
       - echo "Controller version -> $CONTROLLER_VERSION "
       - cf_export VERSION=$CONTROLLER_VERSION
     when:
