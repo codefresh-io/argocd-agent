@@ -35,7 +35,7 @@ changelog:
 release:
   github:
     owner: codefresh-io
-    name: cf-gitops-controller
+    name: argocd-agent
 
   # If set to auto, will mark the release as not ready for production
   # in case there is an indicator for this in the tag e.g. v1.0.0-rc1
