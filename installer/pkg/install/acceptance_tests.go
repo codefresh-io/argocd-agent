@@ -1,13 +1,12 @@
-package acceptance_tests
+package install
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
 
-func Run(argoOptions *install.ArgoOptions) error {
+func RunAcceptanceTests(argoOptions *ArgoOptions) error {
 	logger.Info("\nTesting requirements")
 	logger.Info("--------------------")
 	defer logger.Info("--------------------\n")
@@ -40,7 +39,7 @@ func Run(argoOptions *install.ArgoOptions) error {
 	return nil
 }
 
-func checkArgoCredentials(argoOptions *install.ArgoOptions) error {
+func checkArgoCredentials(argoOptions *ArgoOptions) error {
 	var err error
 	token := argoOptions.Token
 	if token == "" {
