@@ -7,8 +7,6 @@ require (
 	github.com/Masterminds/goutils v1.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/codefresh-io/argocd-sdk v0.2.4
-	github.com/codefresh-io/go-sdk v0.19.5
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -17,7 +15,6 @@ require (
 	github.com/gookit/color v1.2.7
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/huandu/xstrings v1.3.2 // indirect
-	github.com/janeczku/go-spinner v0.0.0-20150530144529-cf8ef1d64394
 	github.com/jasonlvhit/gocron v0.0.1
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
