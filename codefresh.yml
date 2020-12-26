@@ -25,7 +25,7 @@ steps:
     stage: build
     image: codefresh/semver
     commands:
-      - export ARGOCTL_VERSION=$(cat ./installer/VERSION)-installer
+      - export ARGOCTL_VERSION=$(cat ./installer/VERSION)
       - echo "Argoctl version -> $ARGOCTL_VERSION "
       - cf_export VERSION=$ARGOCTL_VERSION
     when:
@@ -166,12 +166,11 @@ steps:
         only:
           - master
 
-  release_installer_binary:
+  release_binaries:
     title: Create release in Github with argo-agent CLI
     image: goreleaser/goreleaser:v0.124.1
     stage: Release
     fail_fast: false
-    working_directory: ${{main_clone}}
     commands:
       - cd installer
       - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
@@ -179,7 +178,7 @@ steps:
       steps:
         - name: create_git_tag
           on:
-            - success
+            - finished
       branch:
         only:
           - master
