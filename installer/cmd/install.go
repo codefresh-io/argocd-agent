@@ -84,109 +84,111 @@ var installCmd = &cobra.Command{
 	Short: "Install agent",
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		var err error
 		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
+		return Handler(installCmdOptions)
+	},
+}
 
-		// should be in beg for show correct events
-		_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
+func Handler(installCmdOptions install.InstallCmdOptions) error {
+	var err error
+	// should be in beg for show correct events
+	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
 
-		holder.ApiHolder = codefresh.Api{
-			Token:       installCmdOptions.Codefresh.Token,
-			Host:        installCmdOptions.Codefresh.Host,
-			Integration: installCmdOptions.Codefresh.Integration,
-		}
+	holder.ApiHolder = codefresh.Api{
+		Token:       installCmdOptions.Codefresh.Token,
+		Host:        installCmdOptions.Codefresh.Host,
+		Integration: installCmdOptions.Codefresh.Integration,
+	}
 
-		kubeConfigPath := installCmdOptions.Kube.ConfigPath
-		kubeOptions := installCmdOptions.Kube
+	kubeConfigPath := installCmdOptions.Kube.ConfigPath
+	kubeOptions := installCmdOptions.Kube
 
-		_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
+	_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
 
-		kubeClient, err := kube.New(&kube.Options{
-			ContextName:      kubeOptions.Context,
-			Namespace:        kubeOptions.Namespace,
-			PathToKubeConfig: kubeConfigPath,
-			InCluster:        kubeOptions.InCluster,
-		})
-		if err != nil {
-			return err
-		}
-		_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
+	kubeClient, err := kube.New(&kube.Options{
+		ContextName:      kubeOptions.Context,
+		Namespace:        kubeOptions.Namespace,
+		PathToKubeConfig: kubeConfigPath,
+		InCluster:        kubeOptions.InCluster,
+	})
+	if err != nil {
+		return err
+	}
+	_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
 
-		kubeOptions = installCmdOptions.Kube
+	kubeOptions = installCmdOptions.Kube
 
-		argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
+	argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
 
-		if err != nil {
-			msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
-			sendArgoAgentInstalledEvent(FAILED, msg)
-			return errors.New(msg)
-		} else {
-			if kube.IsLoadBalancer(argoServerSvc) {
-				balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
-				if balancerHost != "" {
-					installCmdOptions.Argo.Host = balancerHost
-				}
+	if err != nil {
+		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
+		sendArgoAgentInstalledEvent(FAILED, msg)
+		return errors.New(msg)
+	} else {
+		if kube.IsLoadBalancer(argoServerSvc) {
+			balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
+			if balancerHost != "" {
+				installCmdOptions.Argo.Host = balancerHost
 			}
 		}
+	}
 
-		err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
-		if err != nil {
-			return err
-		}
+	err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
+	if err != nil {
+		return err
+	}
 
-		_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
+	_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
 
-		err = acceptance_tests.Run(&installCmdOptions.Argo)
-		if err != nil {
-			msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
-			sendArgoAgentInstalledEvent(FAILED, msg)
-			return errors.New(msg)
-		}
+	err = acceptance_tests.Run(&installCmdOptions.Argo)
+	if err != nil {
+		msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
+		sendArgoAgentInstalledEvent(FAILED, msg)
+		return errors.New(msg)
+	}
 
-		_ = questionnaire.AskAboutGitContext(&installCmdOptions)
+	_ = questionnaire.AskAboutGitContext(&installCmdOptions)
 
-		err = ensureIntegration()
-		if err != nil {
-			sendArgoAgentInstalledEvent(FAILED, err.Error())
-			return err
-		}
+	err = ensureIntegration()
+	if err != nil {
+		sendArgoAgentInstalledEvent(FAILED, err.Error())
+		return err
+	}
 
-		// Need check if we want support not in cluster mode with Product owner
-		installCmdOptions.Kube.InCluster = true
+	// Need check if we want support not in cluster mode with Product owner
+	installCmdOptions.Kube.InCluster = true
 
-		questionnaire.AskAboutSyncOptions(&installCmdOptions)
+	questionnaire.AskAboutSyncOptions(&installCmdOptions)
 
-		installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
-		installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
-		installCmdOptions.Argo.Password = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Password))
+	installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
+	installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
+	installCmdOptions.Argo.Password = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Password))
 
-		installOptions := templates.InstallOptions{
-			Templates:        kubernetes.TemplatesMap(),
-			TemplateValues:   structs.Map(installCmdOptions),
-			Namespace:        kubeOptions.Namespace,
-			KubeClientSet:    kubeClient.GetClientSet(),
-			KubeCrdClientSet: kubeClient.GetCrdClientSet(),
-			KubeManifestPath: installCmdOptions.Kube.ManifestPath,
-		}
-		helper.ShowSummary(&installCmdOptions)
+	installOptions := templates.InstallOptions{
+		Templates:        kubernetes.TemplatesMap(),
+		TemplateValues:   structs.Map(installCmdOptions),
+		Namespace:        kubeOptions.Namespace,
+		KubeClientSet:    kubeClient.GetClientSet(),
+		KubeCrdClientSet: kubeClient.GetCrdClientSet(),
+		KubeManifestPath: installCmdOptions.Kube.ManifestPath,
+	}
+	helper.ShowSummary(&installCmdOptions)
 
-		var kind, name string
-		err, kind, name = templates.Install(&installOptions)
+	var kind, name string
+	err, kind, name = templates.Install(&installOptions)
 
-		if err != nil {
-			msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-			sendArgoAgentInstalledEvent(FAILED, msg)
-			return errors.New(msg)
-		}
+	if err != nil {
+		msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
+		sendArgoAgentInstalledEvent(FAILED, msg)
+		return errors.New(msg)
+	}
 
-		sendArgoAgentInstalledEvent(SUCCESS, "")
+	sendArgoAgentInstalledEvent(SUCCESS, "")
 
-		logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
-		logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))
-		logger.Success(fmt.Sprintf("Documentation: \"%s\"", "https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/"))
-
-		return nil
-	},
+	logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
+	logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))
+	logger.Success(fmt.Sprintf("Documentation: \"%s\"", "https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/"))
+	return nil
 }
 
 func init() {
