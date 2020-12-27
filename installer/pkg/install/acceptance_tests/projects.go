@@ -7,15 +7,16 @@ import (
 )
 
 type ProjectAcceptanceTest struct {
+	argoApi argo.ArgoApi
 }
 
 func (acceptanceTest *ProjectAcceptanceTest) Check(argoOptions *install.ArgoOptions) error {
-	projects, err := argo.GetProjectsWithCredentialsFromStorage()
+	projects, err := acceptanceTest.argoApi.GetProjectsWithCredentialsFromStorage()
 	if err != nil {
 		return err
 	}
 	if len(projects) == 0 {
-		return errors.New("failed to retrieve projects, check token permissions or applications existence ")
+		return errors.New("failed to retrieve projects, check token permissions or projects existence ")
 	}
 	return nil
 }

@@ -1,6 +1,7 @@
 package acceptance_tests
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
@@ -27,8 +28,12 @@ func New() IAcceptanceTestRunner {
 		// should be first in tests array because we setup token to storage , it is super not good and should be rewritten
 		tests = append(tests, &ArgoCredentialsAcceptanceTest{})
 
-		tests = append(tests, &ProjectAcceptanceTest{})
-		tests = append(tests, &ApplicationAcceptanceTest{})
+		tests = append(tests, &ProjectAcceptanceTest{
+			argoApi: argo.GetInstance(),
+		})
+		tests = append(tests, &ApplicationAcceptanceTest{
+			argoApi: argo.GetInstance(),
+		})
 
 		runner = AcceptanceTestRunner{}
 	}
