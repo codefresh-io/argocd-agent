@@ -16,6 +16,7 @@ type ArgoApi interface {
 	GetResourceTreeAll(applicationName string) (interface{}, error)
 	GetManagedResources(applicationName string) (*ManagedResource, error)
 	GetVersion() (string, error)
+	GetProjectsWithCredentialsFromStorage() ([]ProjectItem, error)
 }
 
 type Api struct {
@@ -244,7 +245,7 @@ func GetProjects(token string, host string) ([]ProjectItem, error) {
 	return result.Items, nil
 }
 
-func GetProjectsWithCredentialsFromStorage() ([]ProjectItem, error) {
+func (api *Api) GetProjectsWithCredentialsFromStorage() ([]ProjectItem, error) {
 	token := store2.GetStore().Argo.Token
 	host := store2.GetStore().Argo.Host
 
