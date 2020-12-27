@@ -12,6 +12,14 @@ func (m MockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argo.Applica
 	panic("implement me")
 }
 
+func (m MockArgoApi) GetVersion() (string, error) {
+	panic("implement me")
+}
+
+func (m MockArgoApi) GetProjectsWithCredentialsFromStorage() ([]argo.ProjectItem, error) {
+	panic("implement me")
+}
+
 func (m MockArgoApi) GetResourceTree(applicationName string) (*argo.ResourceTree, error) {
 	var nodes = make([]argo.Node, 0)
 	nodes = append(nodes, argo.Node{
