@@ -44,12 +44,8 @@ steps:
     image: golang:1.14.2
     commands:
       - go get -u github.com/mcubik/goverreport
-      - go test ./... -v -coverprofile=codefresh-test-reporting && go tool cover -html=./codefresh-test-reporting
-      - goverreport -coverprofile=codefresh-test-reporting
+      - go test ./...
     when:
-      branch:
-        ignore:
-          - master
       steps:
         - name: main_clone
           on:

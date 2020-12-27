@@ -28,7 +28,7 @@ func (api *MockArgoApi) GetVersion() (string, error) {
 	panic("implement me")
 }
 
-func (api *MockArgoApi) GetProjectsWithCredentialsFromStorage() ([]ProjectItem, error) {
+func (api *MockArgoApi) GetProjectsWithCredentialsFromStorage() ([]argo.ProjectItem, error) {
 	panic("implement me")
 }
 
