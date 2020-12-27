@@ -46,9 +46,6 @@ steps:
       - go get -u github.com/mcubik/goverreport
       - go test ./...
     when:
-      branch:
-        ignore:
-          - master
       steps:
         - name: main_clone
           on:
