@@ -24,9 +24,11 @@ var runner IAcceptanceTestRunner
 
 func New() IAcceptanceTestRunner {
 	if runner == nil {
-		tests = append(tests, &ApplicationAcceptanceTest{})
-		tests = append(tests, &ProjectAcceptanceTest{})
+		// should be first in tests array because we setup token to storage , it is super not good and should be rewritten
 		tests = append(tests, &ArgoCredentialsAcceptanceTest{})
+
+		tests = append(tests, &ProjectAcceptanceTest{})
+		tests = append(tests, &ApplicationAcceptanceTest{})
 
 		runner = AcceptanceTestRunner{}
 	}
