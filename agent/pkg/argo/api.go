@@ -285,7 +285,9 @@ func GetApplication(application string) (map[string]interface{}, error) {
 }
 
 func (api *Api) GetApplicationsWithCredentialsFromStorage() ([]ApplicationItem, error) {
-	return GetApplications(api.Token, api.Host)
+	token := store2.GetStore().Argo.Token
+	host := store2.GetStore().Argo.Host
+	return GetApplications(token, host)
 }
 
 func GetApplications(token string, host string) ([]ApplicationItem, error) {
