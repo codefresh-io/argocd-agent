@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/handler"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
@@ -24,7 +25,11 @@ var installCmd = &cobra.Command{
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
-		return handler.Run(installCmdOptions)
+		err, manifest := handler.Run(installCmdOptions)
+		if installCmdOptions.Kube.ManifestPath != "" {
+			err = fs.WriteFile(installCmdOptions.Kube.ManifestPath, manifest)
+		}
+		return err
 	},
 }
 

@@ -24,7 +24,7 @@ const (
 	FAILED  = "Failed"
 )
 
-func Run(installCmdOptions install.InstallCmdOptions) error {
+func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	var err error
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
@@ -47,7 +47,7 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 		InCluster:        kubeOptions.InCluster,
 	})
 	if err != nil {
-		return err
+		return err, ""
 	}
 	_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
 
@@ -58,7 +58,7 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 	if err != nil {
 		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
 		sendArgoAgentInstalledEvent(FAILED, msg)
-		return errors.New(msg)
+		return errors.New(msg), ""
 	} else {
 		if kube.IsLoadBalancer(argoServerSvc) {
 			balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
@@ -70,7 +70,7 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 
 	err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
 	if err != nil {
-		return err
+		return err, ""
 	}
 
 	_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
@@ -79,7 +79,7 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 	if err != nil {
 		msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
 		sendArgoAgentInstalledEvent(FAILED, msg)
-		return errors.New(msg)
+		return errors.New(msg), ""
 	}
 
 	_ = questionnaire.AskAboutGitContext(&installCmdOptions)
@@ -87,7 +87,7 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 	err = ensureIntegration(&installCmdOptions)
 	if err != nil {
 		sendArgoAgentInstalledEvent(FAILED, err.Error())
-		return err
+		return err, ""
 	}
 
 	// Need check if we want support not in cluster mode with Product owner
@@ -110,12 +110,12 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 	helper.ShowSummary(&installCmdOptions)
 
 	var kind, name string
-	err, kind, name = templates.Install(&installOptions)
+	err, kind, name, manifest := templates.Install(&installOptions)
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
 		sendArgoAgentInstalledEvent(FAILED, msg)
-		return errors.New(msg)
+		return errors.New(msg), ""
 	}
 
 	sendArgoAgentInstalledEvent(SUCCESS, "")
@@ -123,7 +123,7 @@ func Run(installCmdOptions install.InstallCmdOptions) error {
 	logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))
 	logger.Success(fmt.Sprintf("Documentation: \"%s\"", "https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/"))
-	return nil
+	return nil, manifest
 }
 
 func ensureIntegration(installCmdOptions *install.InstallCmdOptions) error {

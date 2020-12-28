@@ -2,7 +2,6 @@ package templates
 
 import (
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	kubeobj "github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	apixv1beta1client "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
@@ -35,19 +34,11 @@ type DeleteOptions struct {
 	}
 }
 
-func Install(opt *InstallOptions) (error, string, string) {
+func Install(opt *InstallOptions) (error, string, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
 	kubeObjects, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
-		return err, "", ""
-	}
-
-	if opt.KubeManifestPath != "" {
-		manifest := GenerateSingleManifest(parsedTemplates)
-		err = fs.WriteFile(opt.KubeManifestPath, manifest)
-		if err != nil {
-			return err, "", ""
-		}
+		return err, "", "", ""
 	}
 
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
@@ -62,15 +53,15 @@ func Install(opt *InstallOptions) (error, string, string) {
 				logger.Warning(fmt.Sprintf("%s \"%s\" already exists", kind, name))
 			} else {
 				logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
-				return statusError, kind, name
+				return statusError, kind, name, ""
 			}
 		} else {
 			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
-			return createErr, kind, name
+			return createErr, kind, name, ""
 		}
 	}
 
-	return nil, "", ""
+	return nil, "", "", GenerateSingleManifest(parsedTemplates)
 }
 
 func Delete(opt *DeleteOptions) (error, string, string) {
