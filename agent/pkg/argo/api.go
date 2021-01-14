@@ -97,6 +97,10 @@ func (api *Api) CheckToken() error {
 		return err
 	}
 
+	if resp.StatusCode == 401 {
+		return errors.New("cant retrieve argocd token, permission denied")
+	}
+
 	var result map[string]interface{}
 
 	defer resp.Body.Close()
