@@ -97,15 +97,15 @@ func (api *Api) CheckToken() error {
 		return err
 	}
 
-	if resp.StatusCode == 401 {
-		return errors.New("cant retrieve argocd token, permission denied")
-	}
-
 	var result map[string]interface{}
 
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(&result)
+
+	if result["error"] != nil {
+		return errors.New(fmt.Sprintf("Failed to verify argocd token, reason:  %v", result["error"]))
+	}
 
 	if err != nil {
 		return err
