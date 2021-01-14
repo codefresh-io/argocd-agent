@@ -14,9 +14,13 @@ import (
 func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
 	var syncMode interface{}
 
-	if installOptions.Codefresh.SyncMode != "" {
-		syncMode = installOptions.Codefresh.SyncMode
-	} else {
+	if !installOptions.Agent.Interactive && installOptions.Codefresh.SyncMode == "" {
+		return
+	}
+
+	syncMode = installOptions.Codefresh.SyncMode
+
+	if installOptions.Agent.Interactive {
 		syncModes := orderedmap.NewOrderedMap()
 		syncModes.Set("Import all existing Argo applications to Codefresh", "SYNC")
 		syncModes.Set("Select specific Argo applications to import", codefresh.SelectSync)

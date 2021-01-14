@@ -13,7 +13,8 @@ type (
 	}
 
 	IAcceptanceTestRunner interface {
-		Verify(argoOptions *install.ArgoOptions) error
+		VerifyAgentSetup(argoOptions *install.ArgoOptions) error
+		VerifyArgoSetup(argoOptions *install.ArgoOptions) error
 	}
 
 	AcceptanceTestRunner struct {
@@ -21,17 +22,19 @@ type (
 )
 
 var tests []acceptanceTest
+var argoCredentialsTests []acceptanceTest
+
 var runner IAcceptanceTestRunner
 
 func New() IAcceptanceTestRunner {
 	if runner == nil {
-		// should be first in tests array because we setup token to storage , it is super not good and should be rewritten
-		tests = append(tests, &ArgoCredentialsAcceptanceTest{})
 
-		tests = append(tests, &ProjectAcceptanceTest{
+		argoCredentialsTests = append(argoCredentialsTests, &ArgoCredentialsAcceptanceTest{})
+
+		argoCredentialsTests = append(argoCredentialsTests, &ProjectAcceptanceTest{
 			argoApi: argo.GetInstance(),
 		})
-		tests = append(tests, &ApplicationAcceptanceTest{
+		argoCredentialsTests = append(argoCredentialsTests, &ApplicationAcceptanceTest{
 			argoApi: argo.GetInstance(),
 		})
 
@@ -40,14 +43,14 @@ func New() IAcceptanceTestRunner {
 	return runner
 }
 
-func (runner AcceptanceTestRunner) Verify(argoOptions *install.ArgoOptions) error {
-	logger.Info("\nTesting requirements")
+func (runner AcceptanceTestRunner) verify(argoOptions *install.ArgoOptions, testsToExecute []acceptanceTest, title string) error {
+	logger.Info("\n" + title)
 	logger.Info("--------------------")
 	defer logger.Info("--------------------\n")
 
 	var err error
 
-	for _, test := range tests {
+	for _, test := range testsToExecute {
 		err = test.Check(argoOptions)
 		if err != nil {
 			logger.FailureTest(test.GetMessage())
@@ -57,4 +60,12 @@ func (runner AcceptanceTestRunner) Verify(argoOptions *install.ArgoOptions) erro
 	}
 
 	return nil
+}
+
+func (runner AcceptanceTestRunner) VerifyAgentSetup(argoOptions *install.ArgoOptions) error {
+	return runner.verify(argoOptions, tests, "Testing requirements")
+}
+
+func (runner AcceptanceTestRunner) VerifyArgoSetup(argoOptions *install.ArgoOptions) error {
+	return runner.verify(argoOptions, argoCredentialsTests, "Testing argocd credentials and permissions")
 }

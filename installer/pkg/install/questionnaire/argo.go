@@ -7,6 +7,7 @@ import (
 )
 
 func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
+
 	err := prompt.Input(&installOptions.Argo.Host, "Argo host, for example: https://example.com")
 	if err != nil {
 		return err

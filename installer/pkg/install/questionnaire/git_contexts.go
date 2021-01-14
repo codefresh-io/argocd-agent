@@ -17,6 +17,10 @@ func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 		return nil
 	}
 
+	if !installOptions.Agent.Interactive {
+		return nil
+	}
+
 	err, contexts := holder.ApiHolder.GetGitContexts()
 	if err != nil {
 		return err

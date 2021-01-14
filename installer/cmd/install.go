@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/handler"
+	handler "github.com/codefresh-io/argocd-listener/installer/pkg/install/installer"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/spf13/cobra"
@@ -25,9 +25,11 @@ var installCmd = &cobra.Command{
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
-		err, manifest := handler.Run(installCmdOptions)
+		err, manifest := handler.New().Install(installCmdOptions)
 		if installCmdOptions.Kube.ManifestPath != "" {
 			err = fs.WriteFile(installCmdOptions.Kube.ManifestPath, manifest)
+		} else if !installCmdOptions.Agent.Install {
+			logger.Info(manifest)
 		}
 		return err
 	},
@@ -39,6 +41,9 @@ func init() {
 	flags := installCmd.Flags()
 
 	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", util.ResolvePackageVersion(version), "")
+	flags.BoolVar(&installCmdOptions.Agent.Install, "install", false, "Install agent instead print yaml")
+	flags.BoolVar(&installCmdOptions.Agent.Interactive, "interactive", false, "Interactive installation (questionnaire)")
+
 	flags.StringVar(&installCmdOptions.Argo.Host, "argo-host", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Token, "argo-token", "", "")
 	flags.StringVar(&installCmdOptions.Argo.Username, "argo-username", "", "")

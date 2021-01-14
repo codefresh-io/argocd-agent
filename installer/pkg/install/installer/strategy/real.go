@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
@@ -13,7 +12,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
@@ -24,7 +22,10 @@ const (
 	FAILED  = "Failed"
 )
 
-func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
+type RealArgoCdAgentInstaller struct {
+}
+
+func (installer *RealArgoCdAgentInstaller) Install(installCmdOptions install.InstallCmdOptions) (error, string) {
 	var err error
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
@@ -37,8 +38,13 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube
+	if kubeOptions.Namespace == "" {
+		kubeOptions.Namespace = "argocd"
+	}
 
-	_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
+	if installCmdOptions.Agent.Interactive {
+		_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
+	}
 
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,
@@ -46,45 +52,52 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 		PathToKubeConfig: kubeConfigPath,
 		InCluster:        kubeOptions.InCluster,
 	})
+
 	if err != nil {
 		return err, ""
 	}
-	_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
 
-	kubeOptions = installCmdOptions.Kube
+	if installCmdOptions.Agent.Interactive {
+		_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
+	}
 
 	argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
-
 	if err != nil {
 		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
 		sendArgoAgentInstalledEvent(FAILED, msg)
 		return errors.New(msg), ""
-	} else {
-		if kube.IsLoadBalancer(argoServerSvc) {
-			balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
-			if balancerHost != "" {
-				installCmdOptions.Argo.Host = balancerHost
-			}
+	}
+	if kube.IsLoadBalancer(argoServerSvc) {
+		balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
+		if balancerHost != "" {
+			installCmdOptions.Argo.Host = balancerHost
 		}
 	}
 
-	err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
-	if err != nil {
-		return err, ""
+	kubeOptions = installCmdOptions.Kube
+
+	if installCmdOptions.Agent.Interactive {
+		err = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
+		if err != nil {
+			sendArgoAgentInstalledEvent(FAILED, err.Error())
+			return err, ""
+		}
 	}
 
-	_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
-
-	err = acceptance_tests.New().Verify(&installCmdOptions.Argo)
+	err = acceptance_tests.New().VerifyArgoSetup(&installCmdOptions.Argo)
 	if err != nil {
-		msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
+		msg := fmt.Sprintf("Testing argo requirements failed - \"%s\"", err.Error())
 		sendArgoAgentInstalledEvent(FAILED, msg)
 		return errors.New(msg), ""
 	}
 
-	_ = questionnaire.AskAboutGitContext(&installCmdOptions)
+	err = questionnaire.AskAboutCodefreshIntegration(&installCmdOptions)
+	if err != nil {
+		sendArgoAgentInstalledEvent(FAILED, err.Error())
+		return err, ""
+	}
 
-	err = ensureIntegration(&installCmdOptions)
+	err = questionnaire.AskAboutGitContext(&installCmdOptions)
 	if err != nil {
 		sendArgoAgentInstalledEvent(FAILED, err.Error())
 		return err, ""
@@ -107,7 +120,6 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 		KubeCrdClientSet: kubeClient.GetCrdClientSet(),
 		KubeManifestPath: installCmdOptions.Kube.ManifestPath,
 	}
-	helper.ShowSummary(&installCmdOptions)
 
 	var kind, name string
 	err, kind, name, manifest := templates.Install(&installOptions)
@@ -118,53 +130,15 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 		return errors.New(msg), ""
 	}
 
+	helper.ShowSummary(&installCmdOptions)
+
 	sendArgoAgentInstalledEvent(SUCCESS, "")
 
 	logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))
 	logger.Success(fmt.Sprintf("Documentation: \"%s\"", "https://codefresh.io/docs/docs/ci-cd-guides/gitops-deployments/"))
+
 	return nil, manifest
-}
-
-func ensureIntegration(installCmdOptions *install.InstallCmdOptions) error {
-	serverVersion, err := argo.GetInstance().GetVersion()
-	if err != nil {
-		return err
-	}
-
-	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion)
-	if err == nil {
-		return nil
-	}
-
-	codefreshErr, ok := err.(*codefresh.CodefreshError)
-	if !ok {
-		return err
-	}
-
-	if codefreshErr.Status != 409 {
-		return codefreshErr
-	}
-
-	needUpdate := installCmdOptions.Argo.Update
-	if !needUpdate {
-		err, needUpdate = prompt.Confirm("You already have integration with this name, do you want to update it")
-		if err != nil {
-			return err
-		}
-	}
-
-	if !needUpdate {
-		return fmt.Errorf("you should update integration")
-	}
-
-	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func sendArgoAgentInstalledEvent(status string, reason string) {

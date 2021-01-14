@@ -20,7 +20,9 @@ type InstallCmdOptions struct {
 		HttpsProxy string
 	}
 	Agent struct {
-		Version string
+		Version     string
+		Install     bool
+		Interactive bool
 	}
 }
 

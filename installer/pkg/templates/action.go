@@ -34,6 +34,12 @@ type DeleteOptions struct {
 	}
 }
 
+func GenerateManifest(opt *InstallOptions) (error, string) {
+	opt.TemplateValues["Namespace"] = opt.Namespace
+	_, templates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
+	return err, GenerateSingleManifest(templates)
+}
+
 func Install(opt *InstallOptions) (error, string, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
 	kubeObjects, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
