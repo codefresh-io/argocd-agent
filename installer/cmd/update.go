@@ -27,8 +27,8 @@ var updateCmdOptions struct {
 	}
 }
 
-func updateDeploymentWithNewVersion(clientSet *kubernetes.Clientset, namespace string) error {
-	deploymentList, err := kubeobj.GetDeployments(clientSet, namespace, "app=cf-argocd-agent")
+func updateDeploymentWithNewVersion(clientSet *kubernetes.Clientset, namespace string, suffix string) error {
+	deploymentList, err := kubeobj.GetDeployments(clientSet, namespace, "app=cf-argocd-agent"+suffix)
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
@@ -104,7 +104,7 @@ var updateCMD = &cobra.Command{
 			}
 		}
 
-		err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.namespace)
+		err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.namespace, installCmdOptions.Codefresh.Suffix)
 
 		if err != nil {
 			return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))

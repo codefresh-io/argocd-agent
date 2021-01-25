@@ -25,6 +25,10 @@ var installCmd = &cobra.Command{
 	Long:  `Install agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		logger.Success("This installer will guide you through the Codefresh ArgoCD installation agent to integrate your ArgoCD with Codefresh")
+		if installCmdOptions.Codefresh.Suffix != "" {
+			installCmdOptions.Codefresh.Suffix = "-" + installCmdOptions.Codefresh.Suffix
+		}
+
 		err, manifest := handler.Run(installCmdOptions)
 		if installCmdOptions.Kube.ManifestPath != "" {
 			err = fs.WriteFile(installCmdOptions.Kube.ManifestPath, manifest)
@@ -48,6 +52,7 @@ func init() {
 	flags.StringVar(&installCmdOptions.Codefresh.Host, "codefresh-host", "http://local.codefresh.io", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Token, "codefresh-token", "", "")
 	flags.StringVar(&installCmdOptions.Codefresh.Integration, "codefresh-integration", "", "Argocd integration in Codefresh")
+	flags.StringVar(&installCmdOptions.Codefresh.Suffix, "codefresh-agent-suffix", "", "Agent suffix")
 	flags.StringVar(&installCmdOptions.Codefresh.SyncMode, "sync-mode", "", "")
 	flags.StringArrayVar(&installCmdOptions.Codefresh.ApplicationsForSyncArr, "sync-apps", make([]string, 0), "")
 

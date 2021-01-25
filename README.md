@@ -82,6 +82,7 @@ codefresh upgrade gitops argocd-agent
 * CODEFRESH_TOKEN - [Codefresh user token](https://codefresh.io/docs/docs/integrations/codefresh-api/#authentication-instructions)
 * CODEFRESH_INTEGRATION - Codefresh gitops integration name
 * CODEFRESH_HOST - Codefresh host ( prodution https://g.codefresh.io)
+* CODEFRESH_SUFFIX - Suffix for agent application's resources. Can be used for installing multiple agents in one namespace
 * GIT_PASSWORD - Git token
 
 ## Run tests
