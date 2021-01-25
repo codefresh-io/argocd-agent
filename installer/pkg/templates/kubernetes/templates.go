@@ -9,16 +9,16 @@ func TemplatesMap() map[string]string {
 kind: ServiceAccount
 metadata:
   labels:
-    app: cf-argocd-agent
-  name: cf-argocd-agent
+    app: cf-argocd-agent{{ .Codefresh.Suffix }}
+  name: cf-argocd-agent{{ .Codefresh.Suffix }}
   namespace: {{ .Namespace }}`
 
 	templatesMap["2_cluster_role.yaml"] = `apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    app: cf-argocd-agent
-  name: cf-argocd-agent
+    app: cf-argocd-agent{{ .Codefresh.Suffix }}
+  name: cf-argocd-agent{{ .Codefresh.Suffix }}
 rules:
   - apiGroups:
       - argoproj.io
@@ -35,22 +35,22 @@ rules:
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app: cf-argocd-agent
-  name: cf-argocd-agent
+    app: cf-argocd-agent{{ .Codefresh.Suffix }}
+  name: cf-argocd-agent{{ .Codefresh.Suffix }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cf-argocd-agent
+  name: cf-argocd-agent{{ .Codefresh.Suffix }}
 subjects:
   - kind: ServiceAccount
-    name: cf-argocd-agent
+    name: cf-argocd-agent{{ .Codefresh.Suffix }}
     namespace: {{ .Namespace }}`
 
 	templatesMap["4_secret.yaml"] = `apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-  name: cf-argocd-agent
+  name: cf-argocd-agent{{ .Codefresh.Suffix }}
   namespace: {{ .Namespace }}
 data:
   codefresh.token: {{ .Codefresh.Token }}
@@ -63,13 +63,13 @@ data:
 kind: Deployment
 metadata:
   labels:
-    app: cf-argocd-agent
-  name: cf-argocd-agent
+    app: cf-argocd-agent{{ .Codefresh.Suffix }}
+  name: cf-argocd-agent{{ .Codefresh.Suffix }}
   namespace: {{ .Namespace }}
 spec:
   selector:
     matchLabels:
-      app: cf-argocd-agent
+      app: cf-argocd-agent{{ .Codefresh.Suffix }}
   replicas: 1
   revisionHistoryLimit: 5
   strategy:
@@ -80,9 +80,9 @@ spec:
   template:
     metadata:
       labels:
-        app: cf-argocd-agent
+        app: cf-argocd-agent{{ .Codefresh.Suffix }}
     spec:
-      serviceAccountName: cf-argocd-agent
+      serviceAccountName: cf-argocd-agent{{ .Codefresh.Suffix }}
       containers:
       - env:
         {{- if .Host.HttpProxy }}
@@ -106,19 +106,19 @@ spec:
         - name: ARGO_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: cf-argocd-agent
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: argo.password
         - name: ARGO_TOKEN
           valueFrom:
             secretKeyRef:
-              name: cf-argocd-agent
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: argo.token
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
           valueFrom:
             secretKeyRef:
-              name: cf-argocd-agent
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: codefresh.token
         - name: IN_CLUSTER
           value: "{{ .Kube.InCluster }}"
@@ -127,7 +127,7 @@ spec:
         - name: BEARERTOKEN
           valueFrom:
             secretKeyRef:
-              name: cf-argocd-agent
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: kube.bearertoken
         - name: SYNC_MODE
           value: "{{ .Codefresh.SyncMode }}"
@@ -138,11 +138,11 @@ spec:
         - name: GIT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: cf-argocd-agent
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: git.password
         image: codefresh/argocd-agent:stable
         imagePullPolicy: Always
-        name: cf-argocd-agent
+        name: cf-argocd-agent{{ .Codefresh.Suffix }}
         resources:
           requests:
             memory: "256Mi"

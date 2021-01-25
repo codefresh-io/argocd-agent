@@ -7,6 +7,7 @@ type InstallCmdOptions struct {
 		Host                   string
 		Token                  string
 		Integration            string
+		Suffix                 string
 		SyncMode               string
 		ApplicationsForSync    string
 		ApplicationsForSyncArr []string
