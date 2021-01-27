@@ -7,6 +7,7 @@ import (
 	apixv1beta1client "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"reflect"
 )
@@ -34,6 +35,18 @@ type DeleteOptions struct {
 	}
 }
 
+func cleanup(KubeClientSet *kubernetes.Clientset,
+	KubeCrdClientSet *apixv1beta1client.ApiextensionsV1beta1Client,
+	kubeObjects map[string]runtime.Object,
+	Namespace string) {
+
+	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
+	for _, key := range kubeObjectKeys {
+		kubeobj.DeleteObject(KubeClientSet, KubeCrdClientSet, kubeObjects[key.String()], Namespace)
+	}
+
+}
+
 func Install(opt *InstallOptions) (error, string, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
 	kubeObjects, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
@@ -41,24 +54,11 @@ func Install(opt *InstallOptions) (error, string, string, string) {
 		return err, "", "", ""
 	}
 
+	// remove existing resources before creating
+	cleanup(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects, opt.Namespace)
+
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
 
-	// delete existing resources
-	for _, key := range kubeObjectKeys {
-		kind, name, createErr := kubeobj.DeleteObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
-
-		if createErr == nil {
-			// skip, everything ok
-		} else if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
-			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
-			return statusError, kind, name, ""
-		} else {
-			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
-			return createErr, kind, name, ""
-		}
-	}
-
-	// create new resources
 	for _, key := range kubeObjectKeys {
 		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
 
