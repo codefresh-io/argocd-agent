@@ -15,6 +15,8 @@ type CachedGithub struct {
 
 var cachedGithub *CachedGithub
 
+var cacheSize = 1000
+
 func New(gitClient *git.Api) *CachedGithub {
 	if cachedGithub == nil {
 		commitBySha := make(map[string]github.RepositoryCommit)
@@ -37,6 +39,10 @@ func (cachedGithub *CachedGithub) GetCommitBySha(revision string) (error, *githu
 	err, commitBySha := cachedGithub.GitClient.GetCommitBySha(revision)
 	if err != nil {
 		return err, nil
+	}
+
+	if len(cachedGithub.commitBySha) > cacheSize {
+		cachedGithub.commitBySha = make(map[string]github.RepositoryCommit)
 	}
 
 	cachedGithub.commitBySha[key] = *commitBySha
@@ -63,6 +69,10 @@ func (cachedGithub *CachedGithub) GetCommitsBySha(revision string) (error, []*gi
 		return err, nil
 	}
 
+	if len(cachedGithub.commitsBySha) > cacheSize {
+		cachedGithub.commitsBySha = make(map[string][]github.RepositoryCommit)
+	}
+
 	result := make([]github.RepositoryCommit, 0)
 
 	for _, commit := range commits {
@@ -85,6 +95,10 @@ func (cachedGithub *CachedGithub) GetUserByUsername(username string) (error, *gi
 	err, user := cachedGithub.GitClient.GetUserByUsername(username)
 	if err != nil {
 		return err, nil
+	}
+
+	if len(cachedGithub.userByUsername) > cacheSize {
+		cachedGithub.userByUsername = make(map[string]github.User)
 	}
 
 	cachedGithub.userByUsername[key] = *user
