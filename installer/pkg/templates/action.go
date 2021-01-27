@@ -43,6 +43,22 @@ func Install(opt *InstallOptions) (error, string, string, string) {
 
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
 
+	// delete existing resources
+	for _, key := range kubeObjectKeys {
+		kind, name, createErr := kubeobj.DeleteObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
+
+		if createErr == nil {
+			// skip, everything ok
+		} else if statusError, errIsStatusError := createErr.(*errors.StatusError); errIsStatusError {
+			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, statusError))
+			return statusError, kind, name, ""
+		} else {
+			logger.Error(fmt.Sprintf("%s \"%s\" failed: %v ", kind, name, createErr))
+			return createErr, kind, name, ""
+		}
+	}
+
+	// create new resources
 	for _, key := range kubeObjectKeys {
 		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
 
