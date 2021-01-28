@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/mitchellh/mapstructure"
 	"sort"
@@ -125,6 +125,8 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		return err, nil
 	}
 
+	github := provider.NewGithubProvider()
+
 	name := app.Metadata.Name
 	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
@@ -136,7 +138,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	}
 
 	// we still need send env , even if we have problem with retrieve gitops info
-	err, gitops := getGitoptsInfo(repoUrl, revision)
+	err, gitops := github.GetManifestRepoInfo(repoUrl, revision)
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
@@ -170,7 +172,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		Date:         app.Status.OperationState.FinishedAt,
 	}
 
-	err, commit := getCommitByRevision(repoUrl, revision)
+	err, commit := github.GetCommitByRevision(repoUrl, revision)
 
 	if commit != nil {
 		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
@@ -197,65 +199,4 @@ func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision st
 		}
 	}
 	return fmt.Errorf("can`t find history id for application %s", name), 0
-}
-
-func getCommitByRevision(repoUrl string, revision string) (error, *codefresh2.Commit) {
-	err, gitClient := git.GetInstance(repoUrl)
-	if err != nil {
-		return err, nil
-	}
-	err, commit := gitClient.GetCommitBySha(revision)
-	if err != nil {
-		return err, nil
-	}
-
-	result := &codefresh2.Commit{
-		Message: commit.Commit.Message,
-	}
-
-	if commit.Author != nil {
-		result.Avatar = commit.Author.AvatarURL
-	} else {
-		err, usr := gitClient.GetUserByUsername(*commit.Commit.Author.Name)
-		if err == nil && usr.AvatarURL != nil {
-			result.Avatar = usr.AvatarURL
-		}
-	}
-
-	return nil, result
-}
-
-func getGitoptsInfo(repoUrl string, revision string) (error, *git.Gitops) {
-	defaultGitInfo := git.Gitops{
-		Comitters: []git.User{},
-		Prs:       []git.Annotation{},
-		Issues:    []git.Annotation{},
-	}
-	err, gitClient := git.GetInstance(repoUrl)
-	if err != nil {
-		return err, &defaultGitInfo
-	}
-
-	err, commits := gitClient.GetCommitsBySha(revision)
-	if err != nil {
-		return err, &defaultGitInfo
-	}
-
-	err, comitters := gitClient.GetComittersByCommits(commits)
-	if err != nil {
-		return err, &defaultGitInfo
-	}
-
-	err, _, prs := gitClient.GetIssuesAndPrsByCommits(commits)
-	if err != nil {
-		return err, &defaultGitInfo
-	}
-
-	gitInfo := git.Gitops{
-		Comitters: comitters,
-		Prs:       prs,
-		Issues:    []git.Annotation{},
-	}
-
-	return nil, &gitInfo
 }
