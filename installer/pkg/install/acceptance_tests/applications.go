@@ -20,7 +20,7 @@ func (acceptanceTest *ApplicationAcceptanceTest) Check(argoOptions *install.Argo
 		return err
 	}
 	if len(applications) == 0 {
-		return errors.New("failed to retrieve applications, check token permissions or applications existence ")
+		return errors.New("could not access your application in argocd, check credentials and whether you have an application set-up")
 	}
 	return err
 }

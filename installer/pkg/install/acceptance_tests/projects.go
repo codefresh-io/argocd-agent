@@ -20,7 +20,7 @@ func (acceptanceTest *ProjectAcceptanceTest) Check(argoOptions *install.ArgoOpti
 		return err
 	}
 	if len(projects) == 0 {
-		return errors.New("failed to retrieve projects, check token permissions or projects existence ")
+		return errors.New("could not access your project in argocd, check credentials and whether you have an project set-up")
 	}
 	return nil
 }
