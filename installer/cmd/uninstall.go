@@ -18,7 +18,7 @@ var uninstallCmd = &cobra.Command{
 	Short: "Uninstall agent",
 	Long:  `Uninstall agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := handler.Run(uninstallCmdOptions, uninstallCmdOptions)
+		err := handler.Run(uninstallCmdOptions, installCmdOptions)
 		return err
 	},
 }

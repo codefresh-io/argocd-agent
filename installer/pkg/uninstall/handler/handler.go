@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -18,7 +19,7 @@ const (
 	FAILED  = "Failed"
 )
 
-func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions uninstall.UninstallCmdOptions) error {
+func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions install.InstallCmdOptions) error {
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := uninstallCmdOptions.Kube
 
