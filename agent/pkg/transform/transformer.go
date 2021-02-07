@@ -27,9 +27,12 @@ func GetEnvTransformerInstance(argoApi argo.ArgoApi) *EnvTransformer {
 	return envTransformer
 }
 
-func (envTransformer *EnvTransformer) initDeploymentsStatuses(applicationName string) map[string]string {
+func (envTransformer *EnvTransformer) initDeploymentsStatuses(applicationName string) (map[string]string, error) {
 	statuses := make(map[string]string)
-	resourceTree, _ := envTransformer.argoApi.GetResourceTree(applicationName)
+	resourceTree, err := envTransformer.argoApi.GetResourceTree(applicationName)
+	if err != nil {
+		return nil, err
+	}
 	for _, node := range resourceTree.Nodes {
 		if node.Health.Status == "" {
 			statuses[node.Uid] = "Missing"
@@ -37,7 +40,7 @@ func (envTransformer *EnvTransformer) initDeploymentsStatuses(applicationName st
 			statuses[node.Uid] = node.Health.Status
 		}
 	}
-	return statuses
+	return statuses, nil
 }
 
 func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName string) ([]codefresh2.EnvironmentActivity, error) {
@@ -47,7 +50,11 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 		return nil, err
 	}
 
-	statuses := envTransformer.initDeploymentsStatuses(applicationName)
+	statuses, err := envTransformer.initDeploymentsStatuses(applicationName)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var services = make(map[string]codefresh2.EnvironmentActivity)
 
