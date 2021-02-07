@@ -20,6 +20,20 @@ steps:
     git: "cf_github"
     stage: "prepare"
 
+#  unit_test:
+#    stage: "prepare"
+#    title: 'Running unit tests'
+#    working_directory: ${{main_clone}}
+#    image: golang:1.14.2
+#    commands:
+#      - go get -u github.com/mcubik/goverreport
+#      - go test ./...
+#    when:
+#      steps:
+#        - name: main_clone
+#          on:
+#            - success
+
   export_version:
     title: Compare version
     stage: build
@@ -36,20 +50,6 @@ steps:
       branch:
         only:
           - master
-
-  unit_test:
-    stage: "prepare"
-    title: 'Running unit tests'
-    working_directory: ${{main_clone}}
-    image: golang:1.14.2
-    commands:
-      - go get -u github.com/mcubik/goverreport
-      - go test ./...
-    when:
-      steps:
-        - name: main_clone
-          on:
-            - success
 
   build:
     title: "Building Docker image"
