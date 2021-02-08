@@ -4,11 +4,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	SUCCESS = "Success"
-	FAILED  = "Failed"
-)
-
 var rootCmd = &cobra.Command{
 	Use:   "argo-agent",
 	Short: "Codefresh argocd agent",

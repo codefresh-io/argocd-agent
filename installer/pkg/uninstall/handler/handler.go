@@ -8,15 +8,11 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/statuses"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/uninstall"
 	"github.com/fatih/structs"
-)
-
-const (
-	SUCCESS = "Success"
-	FAILED  = "Failed"
 )
 
 func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions install.InstallCmdOptions) error {
@@ -74,11 +70,11 @@ func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions in
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-		sendArgoAgentUninstalledEvent(FAILED, msg)
+		sendArgoAgentUninstalledEvent(statuses.FAILED, msg)
 		return errors.New(msg)
 	}
 
-	sendArgoAgentUninstalledEvent(SUCCESS, "")
+	sendArgoAgentUninstalledEvent(statuses.SUCCESS, "")
 
 	logger.Success(fmt.Sprintf("Argo agent uninstallation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	return nil
