@@ -18,7 +18,7 @@ var uninstallCmd = &cobra.Command{
 	Short: "Uninstall agent",
 	Long:  `Uninstall agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		uninstallHandler := handler.New(uninstallCmdOptions, installCmdOptions.Kube.ConfigPath)
+		uninstallHandler := handler.New(uninstallCmdOptions)
 		err := uninstallHandler.Run()
 		return err
 	},
@@ -40,5 +40,5 @@ func init() {
 		}
 	}
 
-	uninstallCmd.Flags().StringVar(&installCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
+	uninstallCmd.Flags().StringVar(&uninstallCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 }

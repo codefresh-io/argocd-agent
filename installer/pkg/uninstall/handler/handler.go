@@ -15,15 +15,14 @@ import (
 )
 
 type UninstallHandler struct {
-	cmdOptions     uninstall.CmdOptions
-	kubeConfigPath string
+	cmdOptions uninstall.CmdOptions
 }
 
 var uninstallHandler *UninstallHandler
 
-func New(cmdOptions uninstall.CmdOptions, kubeConfigPath string) *UninstallHandler {
+func New(cmdOptions uninstall.CmdOptions) *UninstallHandler {
 	if uninstallHandler == nil {
-		uninstallHandler = &UninstallHandler{cmdOptions, kubeConfigPath}
+		uninstallHandler = &UninstallHandler{cmdOptions}
 	}
 	return uninstallHandler
 }
@@ -32,7 +31,7 @@ func (uninstallHandler *UninstallHandler) Run() error {
 	kubeOptions := uninstallHandler.cmdOptions.Kube
 
 	if uninstallHandler.cmdOptions.Kube.Context == "" {
-		contexts, err := kube.GetAllContexts(uninstallHandler.kubeConfigPath)
+		contexts, err := kube.GetAllContexts(uninstallHandler.cmdOptions.Kube.ConfigPath)
 		if err != nil {
 			return err
 		}
@@ -47,7 +46,7 @@ func (uninstallHandler *UninstallHandler) Run() error {
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,
 		Namespace:        kubeOptions.Namespace,
-		PathToKubeConfig: uninstallHandler.kubeConfigPath,
+		PathToKubeConfig: uninstallHandler.cmdOptions.Kube.ConfigPath,
 		InCluster:        kubeOptions.InCluster,
 	})
 
