@@ -11,14 +11,15 @@ import (
 	"path"
 )
 
-var uninstallCmdOptions = uninstall.UninstallCmdOptions{}
+var uninstallCmdOptions = uninstall.CmdOptions{}
 
 var uninstallCmd = &cobra.Command{
 	Use:   "uninstall",
 	Short: "Uninstall agent",
 	Long:  `Uninstall agent`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		err := handler.Run(uninstallCmdOptions, installCmdOptions)
+		uninstallHandler := handler.New(uninstallCmdOptions, installCmdOptions.Kube.ConfigPath)
+		err := uninstallHandler.Run()
 		return err
 	},
 }

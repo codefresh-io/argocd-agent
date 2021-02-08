@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -15,12 +14,25 @@ import (
 	"github.com/fatih/structs"
 )
 
-func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions install.InstallCmdOptions) error {
-	kubeConfigPath := installCmdOptions.Kube.ConfigPath
-	kubeOptions := uninstallCmdOptions.Kube
+type UninstallHandler struct {
+	cmdOptions     uninstall.CmdOptions
+	kubeConfigPath string
+}
 
-	if uninstallCmdOptions.Kube.Context == "" {
-		contexts, err := kube.GetAllContexts(kubeConfigPath)
+var uninstallHandler *UninstallHandler
+
+func New(cmdOptions uninstall.CmdOptions, kubeConfigPath string) *UninstallHandler {
+	if uninstallHandler == nil {
+		uninstallHandler = &UninstallHandler{cmdOptions, kubeConfigPath}
+	}
+	return uninstallHandler
+}
+
+func (uninstallHandler *UninstallHandler) Run() error {
+	kubeOptions := uninstallHandler.cmdOptions.Kube
+
+	if uninstallHandler.cmdOptions.Kube.Context == "" {
+		contexts, err := kube.GetAllContexts(uninstallHandler.kubeConfigPath)
 		if err != nil {
 			return err
 		}
@@ -35,7 +47,7 @@ func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions in
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,
 		Namespace:        kubeOptions.Namespace,
-		PathToKubeConfig: kubeConfigPath,
+		PathToKubeConfig: uninstallHandler.kubeConfigPath,
 		InCluster:        kubeOptions.InCluster,
 	})
 
@@ -59,7 +71,7 @@ func Run(uninstallCmdOptions uninstall.UninstallCmdOptions, installCmdOptions in
 
 	uninstallOptions := templates.DeleteOptions{
 		Templates:        kubernetes.TemplatesMap(),
-		TemplateValues:   structs.Map(uninstallCmdOptions),
+		TemplateValues:   structs.Map(uninstallHandler.cmdOptions),
 		Namespace:        kubeOptions.Namespace,
 		KubeClientSet:    kubeClient.GetClientSet(),
 		KubeCrdClientSet: kubeClient.GetCrdClientSet(),

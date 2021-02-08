@@ -1,6 +1,6 @@
 package uninstall
 
-type UninstallCmdOptions struct {
+type CmdOptions struct {
 	Kube struct {
 		Namespace  string
 		InCluster  bool
