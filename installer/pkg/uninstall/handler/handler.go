@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
-	argoEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/argo_event_sender"
+	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -15,14 +15,14 @@ import (
 
 type UninstallHandler struct {
 	cmdOptions  uninstall.CmdOptions
-	eventSender *argoEventSender.ArgoEventSender
+	eventSender *cfEventSender.CfEventSender
 }
 
 var uninstallHandler *UninstallHandler
 
 func New(cmdOptions uninstall.CmdOptions) *UninstallHandler {
 	if uninstallHandler == nil {
-		eventSender := argoEventSender.New(argoEventSender.EVENT_UNINSTALL)
+		eventSender := cfEventSender.New(cfEventSender.EVENT_UNINSTALL)
 		uninstallHandler = &UninstallHandler{cmdOptions, eventSender}
 	}
 	return uninstallHandler
@@ -82,11 +82,11 @@ func (uninstallHandler *UninstallHandler) Run() error {
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-		uninstallHandler.eventSender.Send(argoEventSender.STATUS_FAILED, msg)
+		uninstallHandler.eventSender.Send(cfEventSender.STATUS_FAILED, msg)
 		return errors.New(msg)
 	}
 
-	uninstallHandler.eventSender.Send(argoEventSender.STATUS_SUCCESS, "")
+	uninstallHandler.eventSender.Send(cfEventSender.STATUS_SUCCESS, "")
 
 	logger.Success(fmt.Sprintf("Argo agent uninstallation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	return nil
