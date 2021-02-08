@@ -27,7 +27,7 @@ func BuildConfig() (*rest.Config, error) {
 	kubeconfig := os.Getenv("KUBECONFIG")
 	if kubeconfig == "" {
 		kubeconfig = filepath.Join(
-			os.Getenv("HOME"), ".kube", "config",
+			os.Getenv("HOME"), ".kube", "kubectx",
 		)
 	}
 
