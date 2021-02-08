@@ -3,11 +3,10 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
+	argoEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/argo_event_sender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/statuses"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/uninstall"
@@ -15,14 +14,16 @@ import (
 )
 
 type UninstallHandler struct {
-	cmdOptions uninstall.CmdOptions
+	cmdOptions  uninstall.CmdOptions
+	eventSender *argoEventSender.ArgoEventSender
 }
 
 var uninstallHandler *UninstallHandler
 
 func New(cmdOptions uninstall.CmdOptions) *UninstallHandler {
 	if uninstallHandler == nil {
-		uninstallHandler = &UninstallHandler{cmdOptions}
+		eventSender := argoEventSender.New(argoEventSender.EVENT_UNINSTALL)
+		uninstallHandler = &UninstallHandler{cmdOptions, eventSender}
 	}
 	return uninstallHandler
 }
@@ -81,19 +82,12 @@ func (uninstallHandler *UninstallHandler) Run() error {
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-		sendArgoAgentUninstalledEvent(statuses.FAILED, msg)
+		uninstallHandler.eventSender.Send(argoEventSender.STATUS_FAILED, msg)
 		return errors.New(msg)
 	}
 
-	sendArgoAgentUninstalledEvent(statuses.SUCCESS, "")
+	uninstallHandler.eventSender.Send(argoEventSender.STATUS_SUCCESS, "")
 
 	logger.Success(fmt.Sprintf("Argo agent uninstallation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	return nil
-}
-
-func sendArgoAgentUninstalledEvent(status string, reason string) {
-	props := make(map[string]string)
-	props["status"] = status
-	props["reason"] = reason
-	_ = holder.ApiHolder.SendEvent("agent.uninstalled", props)
 }
