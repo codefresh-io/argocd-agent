@@ -54,7 +54,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	if err != nil {
 		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
-		eventSender.Send(cfEventSender.STATUS_FAILED, msg)
+		eventSender.Fail(msg)
 		return errors.New(msg), ""
 	} else {
 		if kube.IsLoadBalancer(argoServerSvc) {
@@ -75,7 +75,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	err = acceptance_tests.New().Verify(&installCmdOptions.Argo)
 	if err != nil {
 		msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
-		eventSender.Send(cfEventSender.STATUS_FAILED, msg)
+		eventSender.Fail(msg)
 		return errors.New(msg), ""
 	}
 
@@ -83,7 +83,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	err = ensureIntegration(&installCmdOptions)
 	if err != nil {
-		eventSender.Send(cfEventSender.STATUS_FAILED, err.Error())
+		eventSender.Fail(err.Error())
 		return err, ""
 	}
 
@@ -111,11 +111,11 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-		eventSender.Send(cfEventSender.STATUS_FAILED, err.Error())
+		eventSender.Fail(err.Error())
 		return errors.New(msg), ""
 	}
 
-	eventSender.Send(cfEventSender.STATUS_SUCCESS, "")
+	eventSender.Success("")
 
 	logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))

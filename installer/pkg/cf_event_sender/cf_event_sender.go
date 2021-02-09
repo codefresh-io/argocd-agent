@@ -22,9 +22,16 @@ func New(eventName string) *CfEventSender {
 	return cfEventSender
 }
 
-func (cfEventSender *CfEventSender) Send(status string, reason string) {
+func (cfEventSender *CfEventSender) Success(reason string) {
 	props := make(map[string]string)
-	props["status"] = status
+	props["status"] = STATUS_SUCCESS
+	props["reason"] = reason
+	_ = holder.ApiHolder.SendEvent(cfEventSender.eventName, props)
+}
+
+func (cfEventSender *CfEventSender) Fail(reason string) {
+	props := make(map[string]string)
+	props["status"] = STATUS_FAILED
 	props["reason"] = reason
 	_ = holder.ApiHolder.SendEvent(cfEventSender.eventName, props)
 }

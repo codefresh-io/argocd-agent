@@ -82,11 +82,11 @@ func (uninstallHandler *UninstallHandler) Run() error {
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent uninstallation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-		uninstallHandler.eventSender.Send(cfEventSender.STATUS_FAILED, msg)
+		uninstallHandler.eventSender.Fail(msg)
 		return errors.New(msg)
 	}
 
-	uninstallHandler.eventSender.Send(cfEventSender.STATUS_SUCCESS, "")
+	uninstallHandler.eventSender.Success("")
 
 	logger.Success(fmt.Sprintf("Argo agent uninstallation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	return nil
