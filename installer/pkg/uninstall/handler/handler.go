@@ -55,18 +55,20 @@ func (uninstallHandler *UninstallHandler) Run() error {
 		panic(err)
 	}
 
-	namespaces, err := kubeClient.GetNamespaces()
-	if err != nil {
-		err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to uninstall", "default")
+	if uninstallHandler.cmdOptions.Kube.Namespace == "" {
+		namespaces, err := kubeClient.GetNamespaces()
 		if err != nil {
-			return err
+			err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to uninstall", "default")
+			if err != nil {
+				return err
+			}
+		} else {
+			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace to uninstall")
+			if err != nil {
+				return err
+			}
+			kubeOptions.Namespace = selectedNamespace
 		}
-	} else {
-		err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace to uninstall")
-		if err != nil {
-			return err
-		}
-		kubeOptions.Namespace = selectedNamespace
 	}
 
 	uninstallOptions := templates.DeleteOptions{
