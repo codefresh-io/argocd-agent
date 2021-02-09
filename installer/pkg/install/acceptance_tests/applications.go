@@ -11,7 +11,6 @@ type ApplicationAcceptanceTest struct {
 }
 
 func (acceptanceTest *ApplicationAcceptanceTest) Check(argoOptions *install.ArgoOptions) error {
-	return nil
 	if acceptanceTest.argoApi == nil {
 		acceptanceTest.argoApi = argo.GetInstance()
 	}
