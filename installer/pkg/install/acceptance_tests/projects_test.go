@@ -44,7 +44,7 @@ func TestEmptyResultOfProjects(t *testing.T) {
 		return
 	}
 
-	if result.Error() != "failed to retrieve projects, check token permissions or projects existence " {
+	if result.Error() != "could not access your project in argocd, check credentials and whether you have an project set-up" {
 		t.Errorf("Acceptance test should be fail with error \"failed to retrieve projects, check token permissions or projects existence\", actual: %s", result.Error())
 	}
 }

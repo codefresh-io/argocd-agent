@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
@@ -19,13 +20,9 @@ import (
 	"github.com/fatih/structs"
 )
 
-const (
-	SUCCESS = "Success"
-	FAILED  = "Failed"
-)
-
 func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	var err error
+	eventSender := cfEventSender.New(cfEventSender.EVENT_INSTALL)
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
 
@@ -57,7 +54,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	if err != nil {
 		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
-		sendArgoAgentInstalledEvent(FAILED, msg)
+		eventSender.Fail(msg)
 		return errors.New(msg), ""
 	} else {
 		if kube.IsLoadBalancer(argoServerSvc) {
@@ -78,7 +75,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	err = acceptance_tests.New().Verify(&installCmdOptions.Argo)
 	if err != nil {
 		msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
-		sendArgoAgentInstalledEvent(FAILED, msg)
+		eventSender.Fail(msg)
 		return errors.New(msg), ""
 	}
 
@@ -86,7 +83,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	err = ensureIntegration(&installCmdOptions)
 	if err != nil {
-		sendArgoAgentInstalledEvent(FAILED, err.Error())
+		eventSender.Fail(err.Error())
 		return err, ""
 	}
 
@@ -114,11 +111,11 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
-		sendArgoAgentInstalledEvent(FAILED, msg)
+		eventSender.Fail(err.Error())
 		return errors.New(msg), ""
 	}
 
-	sendArgoAgentInstalledEvent(SUCCESS, "")
+	eventSender.Success("")
 
 	logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))
@@ -165,11 +162,4 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions) error {
 	}
 
 	return nil
-}
-
-func sendArgoAgentInstalledEvent(status string, reason string) {
-	props := make(map[string]string)
-	props["status"] = status
-	props["reason"] = reason
-	_ = holder.ApiHolder.SendEvent("agent.installed", props)
 }
