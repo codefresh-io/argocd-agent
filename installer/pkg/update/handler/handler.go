@@ -70,7 +70,7 @@ func (updateHandler *UpdateHandler) Run() error {
 	}
 
 	// @todo  - install options
-	err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.Namespace, "" /*installCmdOptions.Codefresh.Suffix*/, updateHandler.version)
+	err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.Namespace, updateHandler.cmdOptions.Codefresh.Suffix, updateHandler.version)
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))

@@ -31,6 +31,7 @@ func init() {
 	flags.StringVar(&updateCmdOptions.Kube.Namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be updated [$KUBE_NAMESPACE]")
 	flags.StringVar(&updateCmdOptions.Kube.Context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be updated (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&updateCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been updated from inside a cluster")
+	flags.StringVar(&updateCmdOptions.Codefresh.Suffix, "codefresh-agent-suffix", "", "Agent suffix")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
@@ -41,5 +42,5 @@ func init() {
 		}
 	}
 
-	flags.StringVar(&installCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
+	flags.StringVar(&updateCmdOptions.Kube.ConfigPath, "kubeconfig", kubeConfigPath, "Path to kubeconfig for retrieve contexts")
 }
