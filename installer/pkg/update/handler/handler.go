@@ -3,11 +3,11 @@ package handler
 import (
 	"errors"
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/update"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	v1 "k8s.io/api/core/v1"
