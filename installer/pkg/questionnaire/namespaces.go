@@ -8,29 +8,31 @@ import (
 
 func AskAboutNamespace(kubeOptions *install.Kube, kubeClient kube.Kube, setDefaultNamespace bool) error {
 	const defaultNamespace = "argocd"
-	if kubeOptions.Namespace == "" {
-		namespaces, err := kubeClient.GetNamespaces()
+	if kubeOptions.Namespace != "" {
+		return nil
+	}
+
+	namespaces, err := kubeClient.GetNamespaces()
+	if err != nil {
+		err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to update", "default")
 		if err != nil {
-			err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to update", "default")
-			if err != nil {
-				return err
-			}
-		} else {
-			if setDefaultNamespace {
-				for _, namespace := range namespaces {
-					if namespace == defaultNamespace {
-						kubeOptions.Namespace = defaultNamespace
-						return nil
-					}
+			return err
+		}
+	} else {
+		if setDefaultNamespace {
+			for _, namespace := range namespaces {
+				if namespace == defaultNamespace {
+					kubeOptions.Namespace = defaultNamespace
+					return nil
 				}
 			}
-
-			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
-			if err != nil {
-				return err
-			}
-			kubeOptions.Namespace = selectedNamespace
 		}
+
+		err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
+		if err != nil {
+			return err
+		}
+		kubeOptions.Namespace = selectedNamespace
 	}
 	return nil
 }
