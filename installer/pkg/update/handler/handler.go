@@ -3,6 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
@@ -53,23 +54,7 @@ func (updateHandler *UpdateHandler) Run() error {
 		return err
 	}
 
-	if kubeOptions.Namespace == "" {
-		namespaces, err := kubeClient.GetNamespaces()
-		if err != nil {
-			err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to update", "default")
-			if err != nil {
-				return err
-			}
-		} else {
-			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
-			if err != nil {
-				return err
-			}
-			kubeOptions.Namespace = selectedNamespace
-		}
-	}
-
-	// @todo  - install options
+	_ = questionnaire.AskAboutNamespace(&kubeOptions, kubeClient, false)
 	err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.Namespace, updateHandler.cmdOptions.Codefresh.Suffix, updateHandler.version)
 
 	if err != nil {

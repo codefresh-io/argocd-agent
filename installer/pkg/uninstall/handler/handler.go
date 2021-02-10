@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -55,21 +56,7 @@ func (uninstallHandler *UninstallHandler) Run() error {
 		panic(err)
 	}
 
-	if uninstallHandler.cmdOptions.Kube.Namespace == "" {
-		namespaces, err := kubeClient.GetNamespaces()
-		if err != nil {
-			err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to uninstall", "default")
-			if err != nil {
-				return err
-			}
-		} else {
-			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace to uninstall")
-			if err != nil {
-				return err
-			}
-			kubeOptions.Namespace = selectedNamespace
-		}
-	}
+	_ = questionnaire.AskAboutNamespace(&kubeOptions, kubeClient, false)
 
 	uninstallOptions := templates.DeleteOptions{
 		Templates:        kubernetes.TemplatesMap(),

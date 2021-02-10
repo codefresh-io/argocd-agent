@@ -6,27 +6,30 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
-func AskAboutNamespace(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
+func AskAboutNamespace(kubeOptions *install.Kube, kubeClient kube.Kube, setDefaultNamespace bool) error {
 	const defaultNamespace = "argocd"
-	if installOptions.Kube.Namespace == "" {
+	if kubeOptions.Namespace == "" {
 		namespaces, err := kubeClient.GetNamespaces()
 		if err != nil {
-			err = prompt.InputWithDefault(&installOptions.Kube.Namespace, "Kubernetes namespace to install", "default")
+			err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to update", "default")
 			if err != nil {
 				return err
 			}
 		} else {
-			for _, namespace := range namespaces {
-				if namespace == defaultNamespace {
-					installOptions.Kube.Namespace = defaultNamespace
-					return nil
+			if setDefaultNamespace {
+				for _, namespace := range namespaces {
+					if namespace == defaultNamespace {
+						kubeOptions.Namespace = defaultNamespace
+						return nil
+					}
 				}
 			}
-			err, selectedNamespace := prompt.Select(namespaces, "We didn't find ArgoCD in the \"argocd\" namespace, please select the namespace where it installed")
+
+			err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
 			if err != nil {
 				return err
 			}
-			installOptions.Kube.Namespace = selectedNamespace
+			kubeOptions.Namespace = selectedNamespace
 		}
 	}
 	return nil

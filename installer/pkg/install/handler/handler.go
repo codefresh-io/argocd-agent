@@ -46,7 +46,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	if err != nil {
 		return err, ""
 	}
-	_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
+	_ = questionnaire.AskAboutNamespace(&installCmdOptions.Kube, kubeClient, true)
 
 	kubeOptions = installCmdOptions.Kube
 
