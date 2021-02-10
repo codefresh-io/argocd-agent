@@ -6,9 +6,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
-func AskAboutKubeContext(installOptions *install.InstallCmdOptions) error {
-	kubeOptions := installOptions.Kube
-	kubeConfigPath := installOptions.Kube.ConfigPath
+func AskAboutKubeContext(kubeOptions *install.Kube) error {
+	kubeConfigPath := kubeOptions.ConfigPath
 	if kubeOptions.Context == "" {
 		contexts, err := kube.GetAllContexts(kubeConfigPath)
 		if err != nil {
@@ -23,6 +22,6 @@ func AskAboutKubeContext(installOptions *install.InstallCmdOptions) error {
 		}
 
 	}
-	installOptions.Kube.ClusterName = kubeOptions.Context
+	kubeOptions.ClusterName = kubeOptions.Context
 	return nil
 }

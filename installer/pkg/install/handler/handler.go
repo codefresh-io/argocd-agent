@@ -35,7 +35,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube
 
-	_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
+	_ = questionnaire.AskAboutKubeContext(&kubeOptions)
 
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,

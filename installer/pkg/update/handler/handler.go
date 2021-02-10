@@ -6,7 +6,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/obj/kubeobj"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/update"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
@@ -34,15 +33,7 @@ func (updateHandler *UpdateHandler) Run() error {
 	kubeConfigPath := updateHandler.cmdOptions.Kube.ConfigPath
 	kubeOptions := updateHandler.cmdOptions.Kube
 
-	if kubeOptions.Context == "" {
-		contexts, err := kube.GetAllContexts(kubeConfigPath)
-		if err != nil {
-			return err
-		}
-
-		err, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
-		kubeOptions.Context = selectedContext
-	}
+	_ = questionnaire.AskAboutKubeContext(&kubeOptions)
 
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,

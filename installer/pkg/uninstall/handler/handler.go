@@ -6,7 +6,6 @@ import (
 	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
@@ -32,18 +31,7 @@ func New(cmdOptions uninstall.CmdOptions) *UninstallHandler {
 func (uninstallHandler *UninstallHandler) Run() error {
 	kubeOptions := uninstallHandler.cmdOptions.Kube
 
-	if uninstallHandler.cmdOptions.Kube.Context == "" {
-		contexts, err := kube.GetAllContexts(uninstallHandler.cmdOptions.Kube.ConfigPath)
-		if err != nil {
-			return err
-		}
-
-		err, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
-		if err != nil {
-			return err
-		}
-		kubeOptions.Context = selectedContext
-	}
+	_ = questionnaire.AskAboutKubeContext(&kubeOptions)
 
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,
