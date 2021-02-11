@@ -11,10 +11,10 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/questionnaire"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"github.com/fatih/structs"
@@ -35,7 +35,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube
 
-	_ = questionnaire.AskAboutKubeContext(&installCmdOptions)
+	_ = questionnaire.AskAboutKubeContext(&kubeOptions)
 
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,
@@ -46,7 +46,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	if err != nil {
 		return err, ""
 	}
-	_ = questionnaire.AskAboutNamespace(&installCmdOptions, kubeClient)
+	_ = questionnaire.AskAboutNamespace(&installCmdOptions.Kube, kubeClient, true)
 
 	kubeOptions = installCmdOptions.Kube
 

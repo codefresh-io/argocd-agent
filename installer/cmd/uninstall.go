@@ -29,7 +29,7 @@ func init() {
 
 	uninstallCmd.Flags().StringVar(&uninstallCmdOptions.Kube.Namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which venona should be installed [$KUBE_NAMESPACE]")
 	uninstallCmd.Flags().StringVar(&uninstallCmdOptions.Kube.Context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which venona should be installed (default is current-context) [$KUBE_CONTEXT]")
-	uninstallCmd.Flags().BoolVar(&uninstallCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if venona is been installed from inside a cluster")
+	uninstallCmd.Flags().BoolVar(&uninstallCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been installed from inside a cluster")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
