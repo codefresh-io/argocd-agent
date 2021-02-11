@@ -3,6 +3,7 @@ package cmd
 import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/update"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/update/handler"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
@@ -32,6 +33,7 @@ func init() {
 	flags.StringVar(&updateCmdOptions.Kube.Context, "kube-context-name", viper.GetString("kube-context"), "Name of the kubernetes context on which Argo agent should be updated (default is current-context) [$KUBE_CONTEXT]")
 	flags.BoolVar(&updateCmdOptions.Kube.InCluster, "in-cluster", false, "Set flag if Argo agent is been updated from inside a cluster")
 	flags.StringVar(&updateCmdOptions.Codefresh.Suffix, "codefresh-agent-suffix", "", "Agent suffix")
+	flags.StringVar(&installCmdOptions.Agent.Version, "agent-version", util.ResolvePackageVersion(version), "")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
