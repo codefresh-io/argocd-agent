@@ -2,6 +2,7 @@ package transform
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
@@ -138,6 +139,10 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
 	repoUrl := app.Spec.Source.RepoURL
+
+	if revision == "" {
+		return errors.New("revision is empty"), nil
+	}
 
 	resources, err := envTransformer.argoApi.GetResourceTreeAll(name)
 	if err != nil {
