@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 )
 
@@ -30,5 +31,8 @@ func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application a
 	if err != nil {
 		return err
 	}
+
+	scheduler.HandleNewApplications([]string{application.Metadata.Name})
+
 	return nil
 }

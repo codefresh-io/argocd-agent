@@ -47,6 +47,15 @@ func cleanup(KubeClientSet *kubernetes.Clientset,
 
 }
 
+func DryRunInstall(opt *InstallOptions) (error, string, string, string) {
+	opt.TemplateValues["Namespace"] = opt.Namespace
+	_, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
+	if err != nil {
+		return err, "", "", ""
+	}
+	return nil, "", "", GenerateSingleManifest(parsedTemplates)
+}
+
 func Install(opt *InstallOptions) (error, string, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
 	kubeObjects, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)

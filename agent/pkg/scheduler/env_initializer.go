@@ -1,10 +1,11 @@
 package scheduler
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/jasonlvhit/gocron"
 )
 
@@ -20,9 +21,24 @@ func isNewEnv(existingEnvs []store.Environment, newEnv codefresh.CFEnvironment) 
 	return true
 }
 
-func handleNewApplications(applications []string) {
+func extractNewApplication(application string) (*codefresh.Environment, error) {
+	applicationObj, err := argo.GetApplication(application)
+	if err != nil {
+		return nil, err
+	}
+
+	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+
+	err, env := envTransformer.PrepareEnvironment(applicationObj)
+	if err != nil {
+		return nil, err
+	}
+	return env, nil
+}
+
+func HandleNewApplications(applications []string) {
 	for _, application := range applications {
-		newApp, err := extract.ExtractNewApplication(application)
+		newApp, err := extractNewApplication(application)
 		if err != nil {
 			logger.GetLogger().Errorf("Failed to handle new gitops application %v, reason: %v", application, err)
 			continue
@@ -57,7 +73,7 @@ func handleEnvDifference() {
 
 	store.SetEnvironments(newEnvs)
 
-	handleNewApplications(applications)
+	HandleNewApplications(applications)
 
 }
 

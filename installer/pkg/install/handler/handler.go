@@ -106,8 +106,13 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	}
 	helper.ShowSummary(&installCmdOptions)
 
-	var kind, name string
-	err, kind, name, manifest := templates.Install(&installOptions)
+	var kind, name, manifest string
+
+	if installOptions.KubeManifestPath != "" {
+		err, kind, name, manifest = templates.DryRunInstall(&installOptions)
+	} else {
+		err, kind, name, manifest = templates.Install(&installOptions)
+	}
 
 	if err != nil {
 		msg := fmt.Sprintf("Argo agent installation resource \"%s\" with name \"%s\" finished with error , reason: %v ", kind, name, err)
