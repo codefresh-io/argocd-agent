@@ -22,7 +22,7 @@ import (
 
 func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	var err error
-	eventSender := cfEventSender.New(cfEventSender.EVENT_INSTALL)
+	eventSender := cfEventSender.New(cfEventSender.EVENT_AGENT_INSTALL)
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
 
