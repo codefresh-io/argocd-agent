@@ -3,10 +3,14 @@ package cf_event_sender
 import "github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 
 const (
-	STATUS_SUCCESS  = "Success"
-	STATUS_FAILED   = "Failed"
-	EVENT_UNINSTALL = "agent.uninstalled"
-	EVENT_INSTALL   = "agent.installed"
+	STATUS_SUCCESS = "Success"
+	STATUS_FAILED  = "Failed"
+
+	EVENT_AGENT_INSTALL   = "agent.installed"
+	EVENT_AGENT_UNINSTALL = "agent.uninstalled"
+
+	EVENT_CONTROLLER_INSTALL   = "controller.installed"
+	EVENT_CONTROLLER_UNINSTALL = "controller.uninstalled"
 )
 
 type CfEventSender struct {

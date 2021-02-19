@@ -22,7 +22,7 @@ var uninstallHandler *UninstallHandler
 
 func New(cmdOptions uninstall.CmdOptions) *UninstallHandler {
 	if uninstallHandler == nil {
-		eventSender := cfEventSender.New(cfEventSender.EVENT_UNINSTALL)
+		eventSender := cfEventSender.New(cfEventSender.EVENT_AGENT_UNINSTALL)
 		uninstallHandler = &UninstallHandler{cmdOptions, eventSender}
 	}
 	return uninstallHandler
