@@ -30,6 +30,10 @@ var installCmd = &cobra.Command{
 		}
 
 		err, manifest := handler.Run(installCmdOptions)
+		if err != nil {
+			return err
+		}
+
 		if installCmdOptions.Kube.ManifestPath != "" {
 			err = fs.WriteFile(installCmdOptions.Kube.ManifestPath, manifest)
 		}

@@ -33,7 +33,7 @@ func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 	if len(list) == 1 {
 		installOptions.Git.Integration = list[0]
 	} else {
-		err, installOptions.Git.Integration = prompt.Select(list, "Select Git context")
+		err, installOptions.Git.Integration = prompt.Select(list, "Select Git context (Please create a dedicated context for the agent to  avoid hitting the Github rate limits)")
 	}
 
 	installOptions.Git.Password = base64.StdEncoding.EncodeToString([]byte(values[installOptions.Git.Integration]))
