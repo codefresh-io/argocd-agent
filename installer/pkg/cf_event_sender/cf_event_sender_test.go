@@ -11,7 +11,7 @@ func TestNew(t *testing.T) {
 	}
 
 	client = New(EVENT_AGENT_INSTALL)
-	if client.eventName != EVENT_AGENT_UNINSTALL {
-		t.Errorf("'TestNew' failed, must return existing state, expected '%v', got '%v'", EVENT_AGENT_UNINSTALL, client.eventName)
+	if client.eventName != EVENT_AGENT_INSTALL {
+		t.Errorf("'TestNew' failed, must return existing state, expected '%v', got '%v'", EVENT_AGENT_INSTALL, client.eventName)
 	}
 }

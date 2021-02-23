@@ -120,7 +120,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 		return errors.New(msg), ""
 	}
 
-	eventSender.Success("")
+	eventSender.Success("Successfully install argocd agent")
 
 	logger.Success(fmt.Sprintf("Argo agent installation finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 	logger.Success(fmt.Sprintf("Gitops view: \"%s/gitops\"", installCmdOptions.Codefresh.Host))

@@ -17,13 +17,8 @@ type CfEventSender struct {
 	eventName string
 }
 
-var cfEventSender *CfEventSender
-
 func New(eventName string) *CfEventSender {
-	if cfEventSender == nil {
-		cfEventSender = &CfEventSender{eventName}
-	}
-	return cfEventSender
+	return &CfEventSender{eventName}
 }
 
 func (cfEventSender *CfEventSender) Success(reason string) {
