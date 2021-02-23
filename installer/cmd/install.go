@@ -59,6 +59,7 @@ func init() {
 	flags.StringVar(&installCmdOptions.Codefresh.Suffix, "codefresh-agent-suffix", "", "Agent suffix")
 	flags.StringVar(&installCmdOptions.Codefresh.SyncMode, "sync-mode", "", "")
 	flags.StringArrayVar(&installCmdOptions.Codefresh.ApplicationsForSyncArr, "sync-apps", make([]string, 0), "")
+	flags.StringVar(&installCmdOptions.Codefresh.Provider, "Provider", "argocd", "")
 
 	flags.StringVar(&installCmdOptions.Kube.ManifestPath, "output", "", "Path to k8s manifest output file, example: /home/user/out.yaml")
 	flags.StringVar(&installCmdOptions.Kube.Namespace, "kube-namespace", viper.GetString("kube-namespace"), "Name of the namespace on which Argo agent should be installed [$KUBE_NAMESPACE]")
