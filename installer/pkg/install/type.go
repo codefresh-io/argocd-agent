@@ -11,6 +11,7 @@ type InstallCmdOptions struct {
 		SyncMode               string
 		ApplicationsForSync    string
 		ApplicationsForSyncArr []string
+		Provider               string
 	}
 	Git struct {
 		Integration string

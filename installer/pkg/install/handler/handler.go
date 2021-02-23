@@ -134,7 +134,7 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions) error {
 		return err
 	}
 
-	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion)
+	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion, installCmdOptions.Codefresh.Provider)
 	if err == nil {
 		return nil
 	}

@@ -103,6 +103,7 @@ type IntegrationPayloadData struct {
 	Name          string      `json:"name"`
 	Url           string      `json:"url"`
 	ServerVersion string      `json:"serverVersion"`
+	Provider      null.String `json:"provider"`
 	Username      null.String `json:"username"`
 	Password      null.String `json:"password"`
 	Token         null.String `json:"token"`
