@@ -80,9 +80,30 @@ type Application struct {
 	Items []ApplicationItem
 }
 
+type Cluster struct {
+	Items []ClusterItem
+}
+
+type Repository struct {
+	Items []RepositoryItem
+}
+
 type ApplicationItem struct {
 	Metadata ApplicationMetadata `json:"metadata"`
 	Spec     ApplicationSpec     `json:"spec"`
+}
+
+type RepositoryItem struct {
+	Insecure bool   `json:"insecure"`
+	Name     string `json:"name"`
+	Repo     string `json:"repo"`
+	Type     string `json:"type"`
+	Username string `json:"username"`
+}
+
+type ClusterItem struct {
+	Name   string `json:"name"`
+	Server string `json:"server"`
 }
 
 type ApplicationMetadata struct {

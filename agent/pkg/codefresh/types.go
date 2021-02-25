@@ -99,14 +99,22 @@ type AgentState struct {
 	Items interface{} `json:"items"`
 }
 
+type IntegrationItem struct {
+	Amount int `json:"amount"`
+}
+
 type IntegrationPayloadData struct {
-	Name          string      `json:"name"`
-	Url           string      `json:"url"`
-	ServerVersion string      `json:"serverVersion"`
-	Provider      null.String `json:"provider"`
-	Username      null.String `json:"username"`
-	Password      null.String `json:"password"`
-	Token         null.String `json:"token"`
+	Name          string          `json:"name"`
+	Url           string          `json:"url"`
+	ServerVersion string          `json:"serverVersion"`
+	Clusters      IntegrationItem `json:"clusters"`
+	Applications  IntegrationItem `json:"applications"`
+	Repositories  IntegrationItem `json:"repositories"`
+	Provider      null.String     `json:"provider"`
+	Username      null.String     `json:"username"`
+	Password      null.String     `json:"password"`
+	Token         null.String     `json:"token"`
+	ClusterName   null.String     `json:"clusterName"`
 }
 
 type IntegrationPayload struct {
