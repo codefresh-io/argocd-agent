@@ -14,7 +14,8 @@ type (
 			Version string
 		}
 		Git struct {
-			Token string
+			Token       string
+			Integration string
 		}
 		Argo struct {
 			Token string
@@ -78,6 +79,12 @@ func SetEnvironments(environments []Environment) *Values {
 func SetGit(Token string) *Values {
 	values := GetStore()
 	values.Git.Token = Token
+	return values
+}
+
+func SetGitIntegration(integration string) *Values {
+	values := GetStore()
+	values.Git.Integration = integration
 	return values
 }
 

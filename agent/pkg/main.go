@@ -85,11 +85,23 @@ func main() {
 		store.SetAgent(agentVersion)
 	}
 
+	gitIntegration, gitIntegrationExistence := os.LookupEnv("CODEFRESH_GIT_INTEGRATION")
+
 	password, passwordExistence := os.LookupEnv("GIT_PASSWORD")
-	if !passwordExistence {
+
+	if !passwordExistence && !gitIntegrationExistence {
 		logger.GetLogger().Errorf("No git context")
-	} else {
+	}
+
+	if passwordExistence {
 		store.SetGit(password)
+	}
+
+	if gitIntegrationExistence {
+		err, gitContext := codefresh2.GetInstance().GetGitContextByName(gitIntegration)
+		if err == nil {
+			store.SetGit(gitContext.Spec.Data.Auth.Password)
+		}
 	}
 
 	scheduler.StartHeartBeat()
