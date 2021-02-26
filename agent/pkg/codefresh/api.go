@@ -175,11 +175,10 @@ func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
 	return result.Docs, nil
 }
 
-func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, lenClusters int, lenApplications int, lenRepositories int) IntegrationPayloadData {
+func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string, lenClusters int, lenApplications int, lenRepositories int) IntegrationPayloadData {
 	payloadData := IntegrationPayloadData{
-		Name:          name,
-		Url:           host,
-		ServerVersion: serverVersion,
+		Name: name,
+		Url:  host,
 	}
 
 	if username != "" {
@@ -194,6 +193,18 @@ func prepareIntegration(name string, host string, username string, password stri
 		payloadData.Token = null.NewString(token, true)
 	}
 
+	if serverVersion != "" {
+		payloadData.ServerVersion = null.NewString(serverVersion, true)
+	}
+
+	if clusterName != "" {
+		payloadData.ClusterName = null.NewString(clusterName, true)
+	}
+
+	if provider != "" {
+		payloadData.Provider = null.NewString(provider, true)
+	}
+
 	payloadData.Clusters = IntegrationItem{Amount: lenClusters}
 	payloadData.Applications = IntegrationItem{Amount: lenApplications}
 	payloadData.Repositories = IntegrationItem{Amount: lenRepositories}
@@ -202,13 +213,7 @@ func prepareIntegration(name string, host string, username string, password stri
 }
 
 func (a *Api) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string, lenClusters int, lenApplications int, lenRepositories int) error {
-	payloadData := prepareIntegration(name, host, username, password, token, serverVersion, lenClusters, lenApplications, lenRepositories)
-	if provider != "" {
-		payloadData.Provider = null.NewString(provider, true)
-	}
-	if clusterName != "" {
-		payloadData.ClusterName = null.NewString(clusterName, true)
-	}
+	payloadData := prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName, lenClusters, lenApplications, lenRepositories)
 
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
@@ -225,13 +230,13 @@ func (a *Api) CreateIntegration(name string, host string, username string, passw
 	return nil
 }
 
-func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, lenClusters int, lenApplications int, lenRepositories int) error {
+func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string, lenClusters int, lenApplications int, lenRepositories int) error {
 	err := a.requestAPI(&requestOptions{
 		method: "PUT",
 		path:   fmt.Sprintf("/argo/%s", name),
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: prepareIntegration(name, host, username, password, token, serverVersion, lenClusters, lenApplications, lenRepositories),
+			Data: prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName, lenClusters, lenApplications, lenRepositories),
 		},
 	}, nil)
 	if err != nil {

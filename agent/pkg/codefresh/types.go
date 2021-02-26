@@ -106,15 +106,15 @@ type IntegrationItem struct {
 type IntegrationPayloadData struct {
 	Name          string          `json:"name"`
 	Url           string          `json:"url"`
-	ServerVersion string          `json:"serverVersion"`
 	Clusters      IntegrationItem `json:"clusters"`
 	Applications  IntegrationItem `json:"applications"`
 	Repositories  IntegrationItem `json:"repositories"`
-	Provider      null.String     `json:"provider"`
 	Username      null.String     `json:"username"`
 	Password      null.String     `json:"password"`
 	Token         null.String     `json:"token"`
 	ClusterName   null.String     `json:"clusterName"`
+	ServerVersion null.String     `json:"serverVersion"`
+	Provider      null.String     `json:"provider"`
 }
 
 type IntegrationPayload struct {

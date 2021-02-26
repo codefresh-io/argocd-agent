@@ -141,7 +141,9 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName
 	applications, _ := argo.GetApplications(argoToken, installCmdOptions.Argo.Host)
 	repositories, _ := argo.GetRepositories(argoToken, installCmdOptions.Argo.Host)
 
-	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion, installCmdOptions.Codefresh.Provider, clusterName, len(clusters), len(applications), len(repositories))
+	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
+		installCmdOptions.Codefresh.Provider, clusterName, len(clusters), len(applications), len(repositories))
 	if err == nil {
 		return nil
 	}
@@ -169,7 +171,7 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName
 
 	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
-		len(clusters), len(applications), len(repositories))
+		installCmdOptions.Codefresh.Provider, clusterName, len(clusters), len(applications), len(repositories))
 
 	if err != nil {
 		return err
