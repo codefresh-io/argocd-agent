@@ -36,7 +36,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	kubeOptions := installCmdOptions.Kube
 
 	_ = questionnaire.AskAboutKubeContext(&kubeOptions)
-
+	clusterName := kubeOptions.Context
 	kubeClient, err := kube.New(&kube.Options{
 		ContextName:      kubeOptions.Context,
 		Namespace:        kubeOptions.Namespace,
@@ -81,16 +81,16 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	_ = questionnaire.AskAboutGitContext(&installCmdOptions)
 
-	err = ensureIntegration(&installCmdOptions)
-	if err != nil {
-		eventSender.Fail(err.Error())
-		return err, ""
-	}
-
 	// Need check if we want support not in cluster mode with Product owner
 	installCmdOptions.Kube.InCluster = true
 
 	questionnaire.AskAboutSyncOptions(&installCmdOptions)
+
+	err = ensureIntegration(&installCmdOptions, clusterName)
+	if err != nil {
+		eventSender.Fail(err.Error())
+		return err, ""
+	}
 
 	installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
 	installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
@@ -128,13 +128,14 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	return nil, manifest
 }
 
-func ensureIntegration(installCmdOptions *install.InstallCmdOptions) error {
+func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName string) error {
 	serverVersion, err := argo.GetInstance().GetVersion()
 	if err != nil {
 		return err
 	}
-
-	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion, installCmdOptions.Codefresh.Provider)
+	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
+		installCmdOptions.Codefresh.Provider, clusterName)
 	if err == nil {
 		return nil
 	}
@@ -160,7 +161,9 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions) error {
 		return fmt.Errorf("you should update integration")
 	}
 
-	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host, installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion)
+	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
+		installCmdOptions.Codefresh.Provider, clusterName)
 
 	if err != nil {
 		return err

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/guregu/null"
 	"net/http"
 	"strings"
@@ -175,12 +176,26 @@ func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
 	return result.Docs, nil
 }
 
-func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string) IntegrationPayloadData {
+func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) IntegrationPayloadData {
 	payloadData := IntegrationPayloadData{
-		Name:          name,
-		Url:           host,
-		ServerVersion: serverVersion,
+		Name: name,
+		Url:  host,
 	}
+
+	if token == "" && username != "" && password != "" {
+		token, _ = argoSdk.GetToken(username, password, host)
+	}
+
+	argoClientOptions := argoSdk.ClientOptions{Auth: argoSdk.AuthOptions{Token: token}, Host: host}
+	argoApi := argoSdk.New(&argoClientOptions)
+
+	applications, _ := argoApi.Application().GetApplications()
+	clusters, _ := argoApi.Clusters().GetClusters()
+	repositories, _ := argoApi.Repository().GetRepositories()
+
+	payloadData.Clusters = IntegrationItem{Amount: len(clusters)}
+	payloadData.Applications = IntegrationItem{Amount: len(applications)}
+	payloadData.Repositories = IntegrationItem{Amount: len(repositories)}
 
 	if username != "" {
 		payloadData.Username = null.NewString(username, true)
@@ -194,6 +209,14 @@ func prepareIntegration(name string, host string, username string, password stri
 		payloadData.Token = null.NewString(token, true)
 	}
 
+	if serverVersion != "" {
+		payloadData.ServerVersion = null.NewString(serverVersion, true)
+	}
+
+	if clusterName != "" {
+		payloadData.ClusterName = null.NewString(clusterName, true)
+	}
+
 	if provider != "" {
 		payloadData.Provider = null.NewString(provider, true)
 	}
@@ -201,14 +224,15 @@ func prepareIntegration(name string, host string, username string, password stri
 	return payloadData
 }
 
-func (a *Api) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string) error {
+func (a *Api) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
+	payloadData := prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName)
 
 	err := a.requestAPI(&requestOptions{
 		method: "POST",
 		path:   "/argo",
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: prepareIntegration(name, host, username, password, token, serverVersion, provider),
+			Data: payloadData,
 		},
 	}, nil)
 	if err != nil {
@@ -218,13 +242,13 @@ func (a *Api) CreateIntegration(name string, host string, username string, passw
 	return nil
 }
 
-func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string) error {
+func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
 	err := a.requestAPI(&requestOptions{
 		method: "PUT",
 		path:   fmt.Sprintf("/argo/%s", name),
 		body: &IntegrationPayload{
 			Type: "argo-cd",
-			Data: prepareIntegration(name, host, username, password, token, serverVersion, ""),
+			Data: prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName),
 		},
 	}, nil)
 	if err != nil {

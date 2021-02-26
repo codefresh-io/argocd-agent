@@ -106,6 +106,7 @@ func main() {
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
+	scheduler.StartUpdateIntegration()
 
 	err := handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
