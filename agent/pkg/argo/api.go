@@ -21,7 +21,11 @@ type Api struct {
 	sdk argoSdk.Argo
 }
 
+type UnauthorizedApi struct {
+}
+
 var api *Api
+var unauthorizedApi *UnauthorizedApi
 
 func GetInstance() *Api {
 	if api != nil {
@@ -30,12 +34,21 @@ func GetInstance() *Api {
 
 	argoConfig := store.GetStore().Argo
 	api = &Api{
-		sdk: buildArgoSdk(argoConfig.Token, argoConfig.Host),
+		sdk: BuildArgoSdk(argoConfig.Token, argoConfig.Host),
 	}
 	return api
 }
 
-func buildArgoSdk(token string, host string) argoSdk.Argo {
+func GetUnauthorizedApiInstance() *UnauthorizedApi {
+	if unauthorizedApi != nil {
+		return unauthorizedApi
+	}
+
+	unauthorizedApi = &UnauthorizedApi{}
+	return unauthorizedApi
+}
+
+func BuildArgoSdk(token string, host string) argoSdk.Argo {
 	return argoSdk.New(&argoSdk.ClientOptions{
 		Auth: argoSdk.AuthOptions{
 			Token: token,
@@ -80,7 +93,7 @@ func (api *Api) GetManagedResources(applicationName string) (*argoSdk.ManagedRes
 func (api *Api) GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error) {
 	token := store.GetStore().Argo.Token
 	host := store.GetStore().Argo.Host
-	sdk := buildArgoSdk(token, host)
+	sdk := BuildArgoSdk(token, host)
 	return sdk.Project().GetProjects()
 }
 
@@ -91,6 +104,11 @@ func (api *Api) GetApplication(application string) (map[string]interface{}, erro
 func (api *Api) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
 	token := store.GetStore().Argo.Token
 	host := store.GetStore().Argo.Host
-	sdk := buildArgoSdk(token, host)
+	sdk := BuildArgoSdk(token, host)
+	return sdk.Application().GetApplications()
+}
+
+func (api *UnauthorizedApi) GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error) {
+	sdk := BuildArgoSdk(token, host)
 	return sdk.Application().GetApplications()
 }

@@ -1,15 +1,15 @@
 package acceptance_tests
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"testing"
 )
 
 type PrjMockArgoApi struct {
 }
 
-func (api *PrjMockArgoApi) GetResourceTree(applicationName string) (*argo.ResourceTree, error) {
+func (api *PrjMockArgoApi) GetResourceTree(applicationName string) (*argoSdk.ResourceTree, error) {
 	panic("implement me")
 }
 
@@ -17,7 +17,7 @@ func (api *PrjMockArgoApi) GetResourceTreeAll(applicationName string) (interface
 	panic("implement me")
 }
 
-func (api *PrjMockArgoApi) GetManagedResources(applicationName string) (*argo.ManagedResource, error) {
+func (api *PrjMockArgoApi) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
 	panic("implement me")
 }
 
@@ -25,12 +25,16 @@ func (api *PrjMockArgoApi) GetVersion() (string, error) {
 	panic("implement me")
 }
 
-func (api *PrjMockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argo.ApplicationItem, error) {
+func (api *PrjMockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
 	panic("implement me")
 }
 
-func (api *PrjMockArgoApi) GetProjectsWithCredentialsFromStorage() ([]argo.ProjectItem, error) {
-	return []argo.ProjectItem{}, nil
+func (api *PrjMockArgoApi) GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error) {
+	return []argoSdk.ProjectItem{}, nil
+}
+
+func (api *PrjMockArgoApi) GetApplication(application string) (map[string]interface{}, error) {
+	panic("implement me")
 }
 
 func TestEmptyResultOfProjects(t *testing.T) {
