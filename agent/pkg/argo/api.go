@@ -66,7 +66,7 @@ func (api *Api) GetResourceTree(applicationName string) (*argoSdk.ResourceTree, 
 }
 
 func (api *Api) GetResourceTreeAll(applicationName string) (interface{}, error) {
-	return api.sdk.Application().GetResourceTree(applicationName)
+	return api.sdk.Application().GetResourceTreeAll(applicationName)
 }
 
 func (api *Api) GetVersion() (string, error) {
