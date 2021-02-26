@@ -10,6 +10,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -66,7 +67,7 @@ func watchApplicationChanges() error {
 
 	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			var app argo.ArgoApplication
+			var app argoSdk.ArgoApplication
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 
 			if err != nil {
@@ -105,7 +106,7 @@ func watchApplicationChanges() error {
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
-			var app argo.ArgoApplication
+			var app argoSdk.ArgoApplication
 			err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to decode argo application, reason: %v", err)

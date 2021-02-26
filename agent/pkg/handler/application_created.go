@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
 
 type ApplicationCreatedHandler struct {
@@ -20,7 +20,7 @@ func GetApplicationCreatedHandlerInstance() *ApplicationCreatedHandler {
 	return applicationCreatedHandler
 }
 
-func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application argo.ArgoApplication) error {
+func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application argoSdk.ArgoApplication) error {
 	if store.GetStore().Codefresh.SyncMode != codefresh.ContinueSync {
 		// ignore handling if autosync disabled
 		return nil
