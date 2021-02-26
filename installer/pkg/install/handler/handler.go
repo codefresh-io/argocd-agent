@@ -133,17 +133,9 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName
 	if err != nil {
 		return err
 	}
-	argoToken := installCmdOptions.Argo.Token
-	if argoToken == "" && installCmdOptions.Argo.Username != "" {
-		argoToken, _ = argo.GetToken(installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Host)
-	}
-	clusters, _ := argo.GetClusters(argoToken, installCmdOptions.Argo.Host)
-	applications, _ := argo.GetApplications(argoToken, installCmdOptions.Argo.Host)
-	repositories, _ := argo.GetRepositories(argoToken, installCmdOptions.Argo.Host)
-
 	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
-		installCmdOptions.Codefresh.Provider, clusterName, len(clusters), len(applications), len(repositories))
+		installCmdOptions.Codefresh.Provider, clusterName)
 	if err == nil {
 		return nil
 	}
@@ -171,7 +163,7 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName
 
 	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
-		installCmdOptions.Codefresh.Provider, clusterName, len(clusters), len(applications), len(repositories))
+		installCmdOptions.Codefresh.Provider, clusterName)
 
 	if err != nil {
 		return err

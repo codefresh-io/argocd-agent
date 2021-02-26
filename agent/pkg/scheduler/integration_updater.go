@@ -7,6 +7,6 @@ import (
 
 func StartUpdateIntegration() {
 	c := cron.New()
-	_, _ = c.AddFunc("@every 1m", integration_updater.UpdateIntegrationTask) // time???
+	_, _ = c.AddFunc("@every 10s", integration_updater.UpdateIntegrationTask) // time???
 	c.Start()
 }
