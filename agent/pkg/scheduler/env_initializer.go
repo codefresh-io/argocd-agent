@@ -22,7 +22,7 @@ func isNewEnv(existingEnvs []store.Environment, newEnv codefresh.CFEnvironment) 
 }
 
 func extractNewApplication(application string) (*codefresh.Environment, error) {
-	applicationObj, err := argo.GetApplication(application)
+	applicationObj, err := argo.GetInstance().GetApplication(application)
 	if err != nil {
 		return nil, err
 	}

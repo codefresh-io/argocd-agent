@@ -8,6 +8,7 @@ import (
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/mitchellh/mapstructure"
 	"sort"
 )
@@ -127,7 +128,7 @@ func filterResources(resources interface{}) []interface{} {
 
 func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
 
-	var app argo.ArgoApplication
+	var app argoSdk.ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
 	if err != nil {
 		return err, nil
@@ -195,7 +196,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 
 }
 
-func resolveHistoryId(historyList []argo.ArgoApplicationHistoryItem, revision string, name string) (error, int64) {
+func resolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64) {
 	if historyList == nil {
 		logger.GetLogger().Errorf("can`t find history id for application %s, because history list is empty", name)
 		return nil, -1

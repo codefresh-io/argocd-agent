@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
 
 type ApplicationRemovedHandler struct {
@@ -17,6 +17,6 @@ func GetApplicationRemovedHandlerInstance() *ApplicationRemovedHandler {
 	return applicationRemovedHandler
 }
 
-func (applicationRemovedHandler *ApplicationRemovedHandler) Handle(application argo.ArgoApplication) error {
+func (applicationRemovedHandler *ApplicationRemovedHandler) Handle(application argoSdk.ArgoApplication) error {
 	return nil
 }

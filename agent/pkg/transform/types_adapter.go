@@ -1,11 +1,11 @@
 package transform
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
 
-func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh2.AgentApplication {
+func AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh2.AgentApplication {
 	var result = make([]codefresh2.AgentApplication, 0)
 
 	for _, item := range applications {
@@ -33,7 +33,7 @@ func AdaptArgoApplications(applications []argo.ApplicationItem) []codefresh2.Age
 	return result
 }
 
-func AdaptArgoProjects(projects []argo.ProjectItem) []codefresh2.AgentProject {
+func AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh2.AgentProject {
 	var result = make([]codefresh2.AgentProject, 0)
 
 	for _, item := range projects {
