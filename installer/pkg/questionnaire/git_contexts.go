@@ -1,21 +1,21 @@
 package questionnaire
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
 func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 	if installOptions.Git.Integration != "" { // Integration is passed
-		err, _ := holder.ApiHolder.GetGitContextByName(installOptions.Git.Integration)
+		err, _ := codefresh.GetInstance().GetGitContextByName(installOptions.Git.Integration)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	err, contexts := holder.ApiHolder.GetGitContexts()
+	err, contexts := codefresh.GetInstance().GetGitContexts()
 	if err != nil {
 		return err
 	}

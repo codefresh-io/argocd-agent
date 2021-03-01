@@ -1,8 +1,7 @@
 package comparator
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"testing"
 )
 
@@ -10,8 +9,8 @@ func TestEnvironmentComparatorWithSameEnv(t *testing.T) {
 
 	envComparator := EnvComparator{}
 
-	env1 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env1 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -23,8 +22,8 @@ func TestEnvironmentComparatorWithSameEnv(t *testing.T) {
 		RepoUrl:      "https://google.com",
 	}
 
-	env2 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env2 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -46,23 +45,23 @@ func TestEnvironmentComparatorWithSameEnvAndActivities(t *testing.T) {
 
 	envComparator := EnvComparator{}
 
-	act1 := codefresh.EnvironmentActivity{
+	act1 := codefreshSdk.EnvironmentActivity{
 		Name:         "test",
 		TargetImages: nil,
 		Status:       "test",
 		LiveImages:   nil,
 	}
 
-	act2 := codefresh.EnvironmentActivity{
+	act2 := codefreshSdk.EnvironmentActivity{
 		Name:         "test2",
 		TargetImages: nil,
 		Status:       "test2",
 		LiveImages:   nil,
 	}
 
-	activities1 := make([]codefresh.EnvironmentActivity, 0)
+	activities1 := make([]codefreshSdk.EnvironmentActivity, 0)
 
-	activities2 := make([]codefresh.EnvironmentActivity, 0)
+	activities2 := make([]codefreshSdk.EnvironmentActivity, 0)
 
 	activities1 = append(activities1, act1)
 	activities1 = append(activities1, act2)
@@ -70,8 +69,8 @@ func TestEnvironmentComparatorWithSameEnvAndActivities(t *testing.T) {
 	activities2 = append(activities2, act2)
 	activities2 = append(activities2, act1)
 
-	env1 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env1 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -83,8 +82,8 @@ func TestEnvironmentComparatorWithSameEnvAndActivities(t *testing.T) {
 		RepoUrl:      "https://google.com",
 	}
 
-	env2 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env2 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -106,31 +105,31 @@ func TestEnvironmentComparatorWithSameEnvAndDifferentActivities(t *testing.T) {
 
 	envComparator := EnvComparator{}
 
-	act1 := codefresh.EnvironmentActivity{
+	act1 := codefreshSdk.EnvironmentActivity{
 		Name:         "test",
 		TargetImages: nil,
 		Status:       "test",
 		LiveImages:   nil,
 	}
 
-	act2 := codefresh.EnvironmentActivity{
+	act2 := codefreshSdk.EnvironmentActivity{
 		Name:         "test",
 		TargetImages: nil,
 		Status:       "test4",
 		LiveImages:   nil,
 	}
 
-	activities1 := make([]codefresh.EnvironmentActivity, 0)
+	activities1 := make([]codefreshSdk.EnvironmentActivity, 0)
 
-	activities2 := make([]codefresh.EnvironmentActivity, 0)
+	activities2 := make([]codefreshSdk.EnvironmentActivity, 0)
 
 	activities1 = append(activities1, act1)
 	activities1 = append(activities1, act2)
 
 	activities2 = append(activities2, act1)
 
-	env1 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env1 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -142,8 +141,8 @@ func TestEnvironmentComparatorWithSameEnvAndDifferentActivities(t *testing.T) {
 		RepoUrl:      "https://google.com",
 	}
 
-	env2 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env2 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -165,8 +164,8 @@ func TestEnvironmentComparatorWithDiffEnv(t *testing.T) {
 
 	envComparator := EnvComparator{}
 
-	env1 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env1 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",
@@ -178,8 +177,8 @@ func TestEnvironmentComparatorWithDiffEnv(t *testing.T) {
 		RepoUrl:      "https://google.com",
 	}
 
-	env2 := codefresh.Environment{
-		Gitops:       git.Gitops{},
+	env2 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
 		FinishedAt:   "",
 		HealthStatus: "HEALTH",
 		SyncStatus:   "OUT_OF_SYNC",

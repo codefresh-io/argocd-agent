@@ -11,6 +11,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -37,7 +38,7 @@ var (
 
 var itemQueue *queue.ItemQueue
 
-func updateDeletedEnv(obj interface{}) (error, *codefresh2.Environment) {
+func updateDeletedEnv(obj interface{}) (error, *codefreshSdk.Environment) {
 	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
 	err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
 	if err != nil {

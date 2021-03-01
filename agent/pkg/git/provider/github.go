@@ -1,9 +1,9 @@
 package provider
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git/client"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
 type (
@@ -20,7 +20,7 @@ func NewGithubProvider() GitProvider {
 	return github
 }
 
-func (github *Github) GetCommitByRevision(repoUrl string, revision string) (error, *codefresh.Commit) {
+func (github *Github) GetCommitByRevision(repoUrl string, revision string) (error, *codefreshSdk.Commit) {
 	err, gitClient := git.GetInstance(repoUrl)
 	cachedGithub := client.New(gitClient)
 	if err != nil {
@@ -31,7 +31,7 @@ func (github *Github) GetCommitByRevision(repoUrl string, revision string) (erro
 		return err, nil
 	}
 
-	result := &codefresh.Commit{
+	result := &codefreshSdk.Commit{
 		Message: commit.Commit.Message,
 	}
 
@@ -47,11 +47,11 @@ func (github *Github) GetCommitByRevision(repoUrl string, revision string) (erro
 	return nil, result
 }
 
-func (github *Github) GetManifestRepoInfo(repoUrl string, revision string) (error, *git.Gitops) {
-	defaultGitInfo := git.Gitops{
-		Comitters: []git.User{},
-		Prs:       []git.Annotation{},
-		Issues:    []git.Annotation{},
+func (github *Github) GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops) {
+	defaultGitInfo := codefreshSdk.Gitops{
+		Comitters: []codefreshSdk.User{},
+		Prs:       []codefreshSdk.Annotation{},
+		Issues:    []codefreshSdk.Annotation{},
 	}
 	err, gitClient := git.GetInstance(repoUrl)
 	cachedGithub := client.New(gitClient)
@@ -74,10 +74,10 @@ func (github *Github) GetManifestRepoInfo(repoUrl string, revision string) (erro
 		return err, &defaultGitInfo
 	}
 
-	gitInfo := git.Gitops{
+	gitInfo := codefreshSdk.Gitops{
 		Comitters: committers,
 		Prs:       prs,
-		Issues:    []git.Annotation{},
+		Issues:    []codefreshSdk.Annotation{},
 	}
 
 	return nil, &gitInfo
