@@ -7,7 +7,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/holder"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
@@ -25,8 +24,6 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	eventSender := cfEventSender.New(cfEventSender.EVENT_AGENT_INSTALL)
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
-
-	holder.ApiHolder = *codefresh.GetInstance()
 
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube
@@ -129,7 +126,7 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName
 	if err != nil {
 		return err
 	}
-	err = holder.ApiHolder.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+	err = codefresh.GetInstance().CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
 		installCmdOptions.Codefresh.Provider, clusterName)
 	if err == nil {
@@ -157,7 +154,7 @@ func ensureIntegration(installCmdOptions *install.InstallCmdOptions, clusterName
 		return fmt.Errorf("you should update integration")
 	}
 
-	err = holder.ApiHolder.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+	err = codefresh.GetInstance().UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
 		installCmdOptions.Codefresh.Provider, clusterName)
 
