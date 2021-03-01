@@ -26,11 +26,7 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
 
-	holder.ApiHolder = codefresh.Api{
-		Token:       installCmdOptions.Codefresh.Token,
-		Host:        installCmdOptions.Codefresh.Host,
-		Integration: installCmdOptions.Codefresh.Integration,
-	}
+	holder.ApiHolder = *codefresh.GetInstance()
 
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube

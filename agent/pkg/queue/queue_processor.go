@@ -7,6 +7,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util/comparator"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"time"
 )
@@ -27,7 +28,7 @@ func (processor *EnvQueueProcessor) New() QueueProcessor {
 	return envQueueProcessor
 }
 
-func updateEnv(obj *unstructured.Unstructured) (error, *codefresh.Environment) {
+func updateEnv(obj *unstructured.Unstructured) (error, *codefreshSdk.Environment) {
 	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
 	err, env := envTransformer.PrepareEnvironment(obj.Object)
 	if err != nil {

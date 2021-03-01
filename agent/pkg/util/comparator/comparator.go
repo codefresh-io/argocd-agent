@@ -1,7 +1,7 @@
 package comparator
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/ulule/deepcopier"
 	"reflect"
 )
@@ -13,7 +13,7 @@ type Comparator interface {
 type EnvComparator struct {
 }
 
-func compareServices(services1 []codefresh.EnvironmentActivity, services2 []codefresh.EnvironmentActivity) bool {
+func compareServices(services1 []codefreshSdk.EnvironmentActivity, services2 []codefreshSdk.EnvironmentActivity) bool {
 
 	for _, svc := range services1 {
 
@@ -39,11 +39,11 @@ func (comparator EnvComparator) Compare(obj1 interface{}, obj2 interface{}) bool
 		return false
 	}
 
-	env1 := obj1.(*codefresh.Environment)
-	env2 := obj2.(*codefresh.Environment)
+	env1 := obj1.(*codefreshSdk.Environment)
+	env2 := obj2.(*codefreshSdk.Environment)
 
-	newEnv1 := &codefresh.Environment{}
-	newEnv2 := &codefresh.Environment{}
+	newEnv1 := &codefreshSdk.Environment{}
+	newEnv2 := &codefreshSdk.Environment{}
 
 	_ = deepcopier.Copy(env1).To(newEnv1)
 	_ = deepcopier.Copy(env2).To(newEnv2)

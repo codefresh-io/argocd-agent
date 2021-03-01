@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/mitchellh/mapstructure"
 	"sort"
 )
@@ -45,7 +45,7 @@ func (envTransformer *EnvTransformer) initDeploymentsStatuses(applicationName st
 	return statuses, nil
 }
 
-func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName string) ([]codefresh2.EnvironmentActivity, error) {
+func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName string) ([]codefreshSdk.EnvironmentActivity, error) {
 
 	resource, err := envTransformer.argoApi.GetManagedResources(applicationName)
 	if err != nil {
@@ -58,7 +58,7 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 		return nil, err
 	}
 
-	var services = make(map[string]codefresh2.EnvironmentActivity)
+	var services = make(map[string]codefreshSdk.EnvironmentActivity)
 
 	for _, item := range resource.Items {
 		var liveState argo.ManagedResourceState
@@ -80,20 +80,20 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 
 			replicasStatus := liveState.Status
 
-			fromReplicaState := codefresh2.ReplicaState{
+			fromReplicaState := codefreshSdk.ReplicaState{
 				Current: replicasStatus.ReadyReplicas - (replicasStatus.UpdatedReplicas - replicasStatus.UnavaiableReplicas),
 			}
 
-			toReplicasState := codefresh2.ReplicaState{
+			toReplicasState := codefreshSdk.ReplicaState{
 				Current: replicasStatus.UpdatedReplicas,
 				Desired: liveState.Spec.Replicas,
 			}
 
-			services[item.Name] = codefresh2.EnvironmentActivity{
+			services[item.Name] = codefreshSdk.EnvironmentActivity{
 				Name:       item.Name,
 				Status:     status,
 				LiveImages: liveImages,
-				ReplicaSet: codefresh2.EnvironmentActivityRS{
+				ReplicaSet: codefreshSdk.EnvironmentActivityRS{
 					From: fromReplicaState,
 					To:   toReplicasState,
 				},
@@ -102,7 +102,7 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 
 	}
 
-	var result = make([]codefresh2.EnvironmentActivity, 0, len(services))
+	var result = make([]codefreshSdk.EnvironmentActivity, 0, len(services))
 
 	for _, svc := range services {
 		result = append(result, svc)
@@ -126,7 +126,7 @@ func filterResources(resources interface{}) []interface{} {
 	return result
 }
 
-func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]interface{}) (error, *codefresh2.Environment) {
+func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]interface{}) (error, *codefreshSdk.Environment) {
 
 	var app argoSdk.ArgoApplication
 	err := mapstructure.Decode(envItem, &app)
@@ -168,9 +168,9 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		return err, nil
 	}
 
-	syncPolicy := codefresh2.SyncPolicy{AutoSync: &app.Spec.SyncPolicy != nil && app.Spec.SyncPolicy.Automated != nil}
+	syncPolicy := codefreshSdk.SyncPolicy{AutoSync: &app.Spec.SyncPolicy != nil && app.Spec.SyncPolicy.Automated != nil}
 
-	env := codefresh2.Environment{
+	env := codefreshSdk.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
 		SyncRevision: revision,

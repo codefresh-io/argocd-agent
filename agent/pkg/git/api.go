@@ -3,6 +3,7 @@ package git
 import (
 	"context"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
 	"github.com/whilp/git-urls"
 	"golang.org/x/oauth2"
@@ -105,8 +106,8 @@ func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	return nil, []*github.RepositoryCommit{revisionCommit}
 }
 
-func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []User) {
-	comitters := []User{}
+func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
+	comitters := []codefreshSdk.User{}
 	comittersSet := make(map[string]bool)
 	for _, commit := range commits {
 		author := commit.Author
@@ -116,7 +117,7 @@ func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, 
 		_, exists := comittersSet[*author.Login]
 		if exists != true {
 			comittersSet[*author.Login] = true
-			comitters = append(comitters, User{
+			comitters = append(comitters, codefreshSdk.User{
 				Name:   *author.Login,
 				Avatar: *author.AvatarURL,
 			})
@@ -126,14 +127,14 @@ func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, 
 	return nil, comitters
 }
 
-func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []Annotation, []Annotation) {
+func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
 	allPullRequests, _, err := api.Client.PullRequests.List(api.Ctx, api.Owner, api.Repo, &github.PullRequestListOptions{State: "all"})
 	if err != nil {
 		return err, nil, nil
 	}
 
-	issues := []Annotation{}
-	pullRequests := []Annotation{}
+	issues := []codefreshSdk.Annotation{}
+	pullRequests := []codefreshSdk.Annotation{}
 
 	for _, pr := range allPullRequests {
 		mergeCommitSHA := pr.MergeCommitSHA
@@ -150,11 +151,11 @@ func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 					return err, nil, nil
 				}
 
-				pullRequests = append(pullRequests, Annotation{
+				pullRequests = append(pullRequests, codefreshSdk.Annotation{
 					Key:   *pr.Title,
 					Value: *pr.HTMLURL,
 				})
-				issues = append(issues, Annotation{
+				issues = append(issues, codefreshSdk.Annotation{
 					Key:   *issue.Title,
 					Value: *issue.HTMLURL,
 				})

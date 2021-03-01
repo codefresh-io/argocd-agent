@@ -6,12 +6,13 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/jasonlvhit/gocron"
 )
 
 var EnvInitializer uint64 = 5
 
-func isNewEnv(existingEnvs []store.Environment, newEnv codefresh.CFEnvironment) bool {
+func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironment) bool {
 	for _, env := range existingEnvs {
 		if env.Name == newEnv.Metadata.Name {
 			return false
@@ -21,7 +22,7 @@ func isNewEnv(existingEnvs []store.Environment, newEnv codefresh.CFEnvironment) 
 	return true
 }
 
-func extractNewApplication(application string) (*codefresh.Environment, error) {
+func extractNewApplication(application string) (*codefreshSdk.Environment, error) {
 	applicationObj, err := argo.GetInstance().GetApplication(application)
 	if err != nil {
 		return nil, err

@@ -9,11 +9,7 @@ import (
 
 func UpdateIntegrationTask() {
 	storeData := store.GetStore()
-	holder.ApiHolder = codefresh.Api{
-		Token:       storeData.Codefresh.Token,       // +
-		Host:        storeData.Codefresh.Host,        // +
-		Integration: storeData.Codefresh.Integration, // +
-	}
+	holder.ApiHolder = *codefresh.GetInstance()
 
 	err := holder.ApiHolder.UpdateIntegration(storeData.Codefresh.Integration, storeData.Argo.Host,
 		"", "", storeData.Argo.Token, "", "", "")

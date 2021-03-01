@@ -1,26 +1,22 @@
 package codefresh
 
 import (
-	"bytes"
 	"crypto/tls"
-	"encoding/json"
-	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	"github.com/guregu/null"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"net/http"
-	"strings"
 )
 
 type Api struct {
-	Token       string
-	Host        string
-	Integration string
+	codefreshApi codefreshSdk.Codefresh
+	Integration  string
 }
 
 type CodefreshApi interface {
 	CreateEnvironment(name string, project string, application string) error
+	GetDefaultGitContext() (error, *codefreshSdk.ContextPayload)
 }
 
 var api *Api
@@ -32,89 +28,49 @@ func GetInstance() *Api {
 
 	codefreshConfig := store.GetStore().Codefresh
 	api = &Api{
-		Token:       codefreshConfig.Token,
-		Host:        codefreshConfig.Host,
-		Integration: codefreshConfig.Integration,
+		codefreshApi: BuildCodefreshSdk(codefreshConfig.Token, codefreshConfig.Host),
+		Integration:  codefreshConfig.Integration,
 	}
+
 	return api
 }
 
-func (a *Api) GetDefaultGitContext() (error, *ContextPayload) {
-	var result ContextPayload
-
-	err := a.requestAPI(&requestOptions{
-		method: "GET",
-		path:   "/contexts/git/default",
-	}, &result)
-	if err != nil {
-		return err, nil
-	}
-	// todo - add logs
-	return nil, &result
+func BuildCodefreshSdk(token string, host string) codefreshSdk.Codefresh {
+	return codefreshSdk.New(&codefreshSdk.ClientOptions{
+		Auth: codefreshSdk.AuthOptions{
+			Token: token,
+		},
+		Debug:  false,
+		Host:   host,
+		Client: buildHttpClient(),
+	})
 }
 
-func (a *Api) GetGitContexts() (error, *[]ContextPayload) {
-	var result []ContextPayload
-	var qs = map[string]string{
-		"type":    "git.github",
-		"decrypt": "true",
+func buildHttpClient() *http.Client {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-
-	err := a.requestAPI(&requestOptions{
-		method: "GET",
-		path:   "/contexts",
-		qs:     qs,
-	}, &result)
-	if err != nil {
-		return err, nil
-	}
-	// todo - add logs
-	return nil, &result
+	return &http.Client{Transport: tr}
 }
 
-func (a *Api) GetGitContextByName(name string) (error, *ContextPayload) {
-	var result ContextPayload
-	var qs = map[string]string{
-		"decrypt": "true",
-	}
-
-	err := a.requestAPI(&requestOptions{
-		method: "GET",
-		path:   "/contexts/" + name,
-		qs:     qs,
-	}, &result)
-	if err != nil {
-		return err, nil
-	}
-	// todo - add logs
-	return nil, &result
+func (a *Api) GetDefaultGitContext() (error, *codefreshSdk.ContextPayload) {
+	return a.codefreshApi.Contexts().GetDefaultGitContext()
 }
 
-func (a *Api) SendEnvironment(environment Environment) (map[string]interface{}, error) {
+func (a *Api) GetGitContexts() (error, *[]codefreshSdk.ContextPayload) {
+	return a.codefreshApi.Contexts().GetGitContexts()
+}
 
-	logger.GetLogger().Infof("Successfully sent environment \"%v\" update to codefresh, services count %v", environment.Name, len(environment.Activities))
-
-	var result map[string]interface{}
-	err := a.requestAPI(&requestOptions{method: "POST", path: "/environments-v2/argo/events", body: environment}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
+func (a *Api) GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload) {
+	return a.codefreshApi.Contexts().GetGitContextByName(name)
 }
 
 func (a *Api) SendResources(kind string, items interface{}, amount int) error {
-	if items == nil {
-		return nil
-	}
 
 	logger.GetLogger().Infof("Trying sent resources with type: \"%s\" to codefresh, amount: \"%v\"", kind, amount)
 
-	err := a.requestAPI(&requestOptions{
-		method: "POST",
-		path:   fmt.Sprintf("/argo-agent/%s", a.Integration),
-		body:   &AgentState{Kind: kind, Items: items},
-	}, nil)
+	err := a.codefreshApi.Argo().SendResources(kind, items, amount, a.Integration)
+
 	if err != nil {
 		return err
 	}
@@ -125,59 +81,52 @@ func (a *Api) SendResources(kind string, items interface{}, amount int) error {
 }
 
 func (a *Api) SendEvent(name string, props map[string]string) error {
-	event := CodefreshEvent{Event: name, Props: props}
-
-	err := a.requestAPI(&requestOptions{
-		method: "POST",
-		path:   "/gitops/system/events",
-		body:   event,
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return a.codefreshApi.Gitops().SendEvent(name, props)
 }
 
 func (a *Api) HeartBeat(error string) error {
 	agentConfig := store.GetStore().Agent
-	var body = Heartbeat{}
+	return a.codefreshApi.Argo().HeartBeat(error, agentConfig.Version, a.Integration)
+}
 
-	if error != "" {
-		body.Error = error
-	}
+func (a *Api) GetEnvironments() ([]codefreshSdk.CFEnvironment, error) {
+	return a.codefreshApi.Gitops().GetEnvironments()
+}
 
-	if agentConfig.Version != "" {
-		body.AgentVersion = agentConfig.Version
-	}
+func (a *Api) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
+	payloadData := prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName)
 
-	err := a.requestAPI(&requestOptions{
-		method: "POST",
-		path:   fmt.Sprintf("/argo-agent/%s/heartbeat", a.Integration),
-		body:   body,
-	}, nil)
+	return a.codefreshApi.Argo().CreateIntegration(payloadData)
+}
+
+func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
+	return a.codefreshApi.Argo().UpdateIntegration(name, prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName))
+}
+
+func (a *Api) SendEnvironment(environment codefreshSdk.Environment) (map[string]interface{}, error) {
+
+	logger.GetLogger().Infof("Successfully sent environment \"%v\" update to codefresh, services count %v", environment.Name, len(environment.Activities))
+
+	return a.codefreshApi.Gitops().SendEnvironment(environment)
+}
+
+func (a *Api) CreateEnvironment(name string, project string, application string) error {
+	err := a.codefreshApi.Gitops().CreateEnvironment(name, project, application, a.Integration)
 	if err != nil {
 		return err
 	}
 
+	logger.GetLogger().Infof("Successfully create gitops application with name %s and application %s", name, application)
+
 	return nil
 }
 
-func (a *Api) GetEnvironments() ([]CFEnvironment, error) {
-	var result MongoCFEnvWrapper
-	err := a.requestAPI(&requestOptions{
-		method: "GET",
-		path:   "/environments-v2?plain=true&isEnvironment=false",
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result.Docs, nil
+func (a *Api) DeleteEnvironment(name string) error {
+	return a.codefreshApi.Gitops().DeleteEnvironment(name)
 }
 
-func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) IntegrationPayloadData {
-	payloadData := IntegrationPayloadData{
+func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) codefreshSdk.IntegrationPayloadData {
+	payloadData := codefreshSdk.IntegrationPayloadData{
 		Name: name,
 		Url:  host,
 	}
@@ -193,215 +142,33 @@ func prepareIntegration(name string, host string, username string, password stri
 	clusters, _ := argoApi.Clusters().GetClusters()
 	repositories, _ := argoApi.Repository().GetRepositories()
 
-	payloadData.Clusters = IntegrationItem{Amount: len(clusters)}
-	payloadData.Applications = IntegrationItem{Amount: len(applications)}
-	payloadData.Repositories = IntegrationItem{Amount: len(repositories)}
+	payloadData.Clusters = codefreshSdk.IntegrationItem{Amount: len(clusters)}
+	payloadData.Applications = codefreshSdk.IntegrationItem{Amount: len(applications)}
+	payloadData.Repositories = codefreshSdk.IntegrationItem{Amount: len(repositories)}
 
 	if username != "" {
-		payloadData.Username = null.NewString(username, true)
+		payloadData.Username = &username
 	}
 
 	if password != "" {
-		payloadData.Password = null.NewString(password, true)
+		payloadData.Password = &password
 	}
 
 	if token != "" {
-		payloadData.Token = null.NewString(token, true)
+		payloadData.Token = &token
 	}
 
 	if serverVersion != "" {
-		payloadData.ServerVersion = null.NewString(serverVersion, true)
+		payloadData.ServerVersion = &serverVersion
 	}
 
 	if clusterName != "" {
-		payloadData.ClusterName = null.NewString(clusterName, true)
+		payloadData.ClusterName = &clusterName
 	}
 
 	if provider != "" {
-		payloadData.Provider = null.NewString(provider, true)
+		payloadData.Provider = &provider
 	}
 
 	return payloadData
-}
-
-func (a *Api) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
-	payloadData := prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName)
-
-	err := a.requestAPI(&requestOptions{
-		method: "POST",
-		path:   "/argo",
-		body: &IntegrationPayload{
-			Type: "argo-cd",
-			Data: payloadData,
-		},
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *Api) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
-	err := a.requestAPI(&requestOptions{
-		method: "PUT",
-		path:   fmt.Sprintf("/argo/%s", name),
-		body: &IntegrationPayload{
-			Type: "argo-cd",
-			Data: prepareIntegration(name, host, username, password, token, serverVersion, provider, clusterName),
-		},
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *Api) GetIntegrations() ([]*IntegrationPayload, error) {
-	var result []*IntegrationPayload
-
-	err := a.requestAPI(&requestOptions{
-		method: "GET",
-		path:   "/argo",
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
-func (a *Api) GetIntegrationByName(name string) (*IntegrationPayload, error) {
-	var result IntegrationPayload
-
-	err := a.requestAPI(&requestOptions{
-		method: "GET",
-		path:   fmt.Sprintf("/argo/%s", name),
-	}, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
-}
-
-func (a *Api) DeleteIntegrationByName(name string) error {
-	err := a.requestAPI(&requestOptions{
-		method: "DELETE",
-		path:   fmt.Sprintf("/argo/%s", name),
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *Api) requestAPI(opt *requestOptions, target interface{}) error {
-
-	var body []byte
-	finalURL := fmt.Sprintf("%s%s", a.Host+"/api", opt.path)
-	if opt.qs != nil {
-		finalURL += a.getQs(opt.qs)
-	}
-
-	if opt.body != nil {
-		body, _ = json.Marshal(opt.body)
-	}
-
-	request, err := http.NewRequest(opt.method, finalURL, bytes.NewBuffer(body))
-
-	if err != nil {
-		return err
-	}
-
-	request.Header.Set("Authorization", "Bearer "+a.Token)
-	request.Header.Set("Content-Type", "application/json")
-
-	response, err := a.buildHttpClient().Do(request)
-
-	if err != nil {
-		return err
-	}
-
-	defer response.Body.Close()
-
-	if response.StatusCode < 200 || response.StatusCode > 299 {
-		cfError := &CodefreshError{}
-		err = json.NewDecoder(response.Body).Decode(cfError)
-
-		if err != nil {
-			return err
-		}
-
-		cfError.URL = finalURL
-
-		return cfError
-	}
-
-	if target == nil {
-		return nil
-	}
-
-	err = json.NewDecoder(response.Body).Decode(target)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *Api) getQs(qs map[string]string) string {
-	var arr []string
-	for k, v := range qs {
-		arr = append(arr, fmt.Sprintf("%s=%s", k, v))
-	}
-	return "?" + strings.Join(arr, "&")
-}
-
-func (a *Api) CreateEnvironment(name string, project string, application string) error {
-	err := a.requestAPI(&requestOptions{
-		method: "POST",
-		path:   "/environments-v2",
-		body: &EnvironmentPayload{
-			Version: "1.0",
-			Metadata: EnvironmentMetadata{
-				Name: name,
-			},
-			Spec: EnvironmentSpec{
-				Type:        "argo",
-				Context:     a.Integration,
-				Project:     project,
-				Application: application,
-			},
-		},
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	logger.GetLogger().Infof("Successfully create gitops application with name %s and application %s", name, application)
-
-	return nil
-}
-
-func (a *Api) DeleteEnvironment(name string) error {
-	err := a.requestAPI(&requestOptions{
-		method: "DELETE",
-		path:   fmt.Sprintf("/environments-v2/%s", name),
-	}, nil)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *Api) buildHttpClient() *http.Client {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	return &http.Client{Transport: tr}
 }

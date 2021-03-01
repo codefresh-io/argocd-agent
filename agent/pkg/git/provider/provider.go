@@ -1,11 +1,10 @@
 package provider
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/git"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
 type GitProvider interface {
-	GetManifestRepoInfo(repoUrl string, revision string) (error, *git.Gitops)
-	GetCommitByRevision(repoUrl string, revision string) (error, *codefresh.Commit)
+	GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops)
+	GetCommitByRevision(repoUrl string, revision string) (error, *codefreshSdk.Commit)
 }
