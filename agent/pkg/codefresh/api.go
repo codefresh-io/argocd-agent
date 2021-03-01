@@ -17,6 +17,14 @@ type Api struct {
 type CodefreshApi interface {
 	CreateEnvironment(name string, project string, application string) error
 	GetDefaultGitContext() (error, *codefreshSdk.ContextPayload)
+	DeleteEnvironment(name string) error
+	SendResources(kind string, items interface{}, amount int) error
+	SendEvent(name string, props map[string]string) error
+	HeartBeat(error string) error
+	GetEnvironments() ([]codefreshSdk.CFEnvironment, error)
+	CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error
+	UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error
+	SendEnvironment(environment codefreshSdk.Environment) (map[string]interface{}, error)
 }
 
 var api *Api
