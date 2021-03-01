@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
@@ -24,6 +25,8 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 	eventSender := cfEventSender.New(cfEventSender.EVENT_AGENT_INSTALL)
 	// should be in beg for show correct events
 	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
+
+	store.SetCodefresh(installCmdOptions.Codefresh.Host, installCmdOptions.Codefresh.Token, installCmdOptions.Codefresh.Integration)
 
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube

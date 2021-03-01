@@ -26,8 +26,7 @@ func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application a
 		return nil
 	}
 
-	api := codefresh.GetInstance()
-	err := api.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
+	err := codefresh.GetInstance().CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
 	if err != nil {
 		return err
 	}
