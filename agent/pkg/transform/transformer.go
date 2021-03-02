@@ -119,7 +119,7 @@ func filterResources(resources interface{}) []interface{} {
 	for _, resource := range resources.([]interface{}) {
 		resourceItem := resource.(map[string]interface{})
 		resourceKind := resourceItem["kind"]
-		if resourceKind == "Service" || resourceKind == "Pod" {
+		if resourceKind == "Service" || resourceKind == "Pod" || resourceKind == "Application" {
 			result = append(result, resourceItem)
 		}
 	}
