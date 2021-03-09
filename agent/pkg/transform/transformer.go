@@ -140,6 +140,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
 	repoUrl := app.Spec.Source.RepoURL
+	parentApp, _ := app.Metadata.Labels["app.kubernetes.io/instance"]
 
 	if revision == "" {
 		return errors.New("revision is empty"), nil
@@ -173,6 +174,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	env := codefreshSdk.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
+		ParentApp:    parentApp,
 		SyncRevision: revision,
 		Gitops:       *gitops,
 		HistoryId:    historyId,
