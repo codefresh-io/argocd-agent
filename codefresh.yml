@@ -43,7 +43,7 @@ steps:
       - "ci_env=`curl -s https://codecov.io/env`"
       - "npm install codecov -g"
       - "codecov -t ${{CODECOV_TOKEN}} -f ./coverage/clover.xml"
-    stage: "upload"
+    stage: "prepare"
 
   export_version:
     title: Compare version
