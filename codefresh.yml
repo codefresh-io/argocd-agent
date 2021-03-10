@@ -42,7 +42,7 @@ steps:
     commands:
       - "ci_env=`curl -s https://codecov.io/env`"
       - "npm install codecov -g"
-      - "codecov -t ${{CODECOV_TOKEN}} -f ./coverage/clover.xml"
+      - "codecov -t ${{CODECOV_TOKEN}}"
     stage: "prepare"
 
   export_version:
