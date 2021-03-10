@@ -27,12 +27,23 @@ steps:
     image: golang:1.14.2
     commands:
       - go get -u github.com/mcubik/goverreport
-      - go test ./...
+      - go test ./... -race -coverprofile=coverage.out -covermode=atomic
     when:
       steps:
         - name: main_clone
           on:
             - success
+
+  upload:
+    title: "Running test"
+    type: "freestyle" # Run any command
+    image: "node:15.2" # The image in which command will be executed
+    working_directory: "${{clone}}" # Running command where code cloned
+    commands:
+      - "ci_env=`curl -s https://codecov.io/env`"
+      - "npm install codecov -g"
+      - "codecov -t ${{CODECOV_TOKEN}} -f ./coverage/clover.xml"
+    stage: "upload"
 
   export_version:
     title: Compare version
