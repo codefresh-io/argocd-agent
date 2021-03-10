@@ -38,7 +38,7 @@ steps:
     title: "Running test"
     type: "freestyle" # Run any command
     image: "node:15.2" # The image in which command will be executed
-    working_directory: "${{clone}}" # Running command where code cloned
+    working_directory: "${{main_clone}}" # Running command where code cloned
     commands:
       - "ci_env=`curl -s https://codecov.io/env`"
       - "npm install codecov -g"
