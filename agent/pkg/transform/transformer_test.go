@@ -74,6 +74,13 @@ func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.Manag
 	}, nil
 }
 
+func TestGetEnvTransformerInstance(t *testing.T) {
+	envTransformer := GetEnvTransformerInstance(MockArgoApi{})
+	if envTransformer.argoApi == nil {
+		t.Errorf("Should export argoApi in struct")
+	}
+}
+
 func TestPrepareEnvironment(t *testing.T) {
 
 	envTransformer := GetEnvTransformerInstance(MockArgoApi{})
