@@ -48,7 +48,13 @@ func (m MockArgoApi) GetResourceTree(applicationName string) (*argoSdk.ResourceT
 }
 
 func (m MockArgoApi) GetResourceTreeAll(applicationName string) (interface{}, error) {
-	panic("implement me")
+	var result []interface{}
+	item := map[string]interface{}{
+		"kind": "Application",
+		"name": "app-name",
+	}
+	result = append(result, item)
+	return result, nil
 }
 
 func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
@@ -94,18 +100,23 @@ func TestPrepareEnvironment(t *testing.T) {
 		t.Errorf("We should prepare 2 services for send to codefresh")
 	}
 	labels := map[string]interface{}{"app.kubernetes.io/instance": "apps-root"}
+	status := map[string]interface{}{
+		"operationState": map[string]interface{}{
+			"syncResult": map[string]interface{}{"revision": "some revision"},
+		},
+	}
 	envItem := map[string]interface{}{
+		"status": status,
 		"metadata": struct {
+			name   string
 			labels map[string]interface{}
-		}{labels: labels},
+		}{
+			labels: labels,
+		},
 	}
 
 	err, _ = envTransformer.PrepareEnvironment(envItem)
-	if err.Error() != "revision is empty" {
-		t.Errorf("Should be error fo empty revision")
+	if err != nil {
+		t.Errorf("Should successfull finish PrepareEnvironment")
 	}
-	//
-	//if env != nil {
-	//
-	//}
 }

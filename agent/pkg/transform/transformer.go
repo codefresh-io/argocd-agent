@@ -150,6 +150,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	if err != nil {
 		return err, nil
 	}
+	filteredResources := filterResources(resources)
 
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := github.GetManifestRepoInfo(repoUrl, revision)
@@ -180,7 +181,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   activities,
-		Resources:    filterResources(resources),
+		Resources:    filteredResources,
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,
