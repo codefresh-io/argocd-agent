@@ -93,5 +93,19 @@ func TestPrepareEnvironment(t *testing.T) {
 	if len(services) != 2 {
 		t.Errorf("We should prepare 2 services for send to codefresh")
 	}
+	labels := map[string]interface{}{"app.kubernetes.io/instance": "apps-root"}
+	envItem := map[string]interface{}{
+		"metadata": struct {
+			labels map[string]interface{}
+		}{labels: labels},
+	}
 
+	err, _ = envTransformer.PrepareEnvironment(envItem)
+	if err.Error() != "revision is empty" {
+		t.Errorf("Should be error fo empty revision")
+	}
+	//
+	//if env != nil {
+	//
+	//}
 }
