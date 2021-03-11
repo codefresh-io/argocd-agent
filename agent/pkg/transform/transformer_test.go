@@ -62,6 +62,13 @@ func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.Manag
 		Name:        "Test",
 	})
 
+	resourceItems = append(resourceItems, argoSdk.ManagedResourceItem{
+		Kind:        "Application",
+		TargetState: "",
+		LiveState:   liveState,
+		Name:        "RootApp",
+	})
+
 	return &argoSdk.ManagedResource{
 		Items: resourceItems,
 	}, nil
@@ -76,8 +83,8 @@ func TestPrepareEnvironment(t *testing.T) {
 		t.Error(err)
 	}
 
-	if len(services) != 1 {
-		t.Errorf("We should prepare 1 services for send to codefresh")
+	if len(services) != 2 {
+		t.Errorf("We should prepare 2 services for send to codefresh")
 	}
 
 }
