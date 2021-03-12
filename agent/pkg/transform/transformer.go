@@ -119,7 +119,7 @@ func filterResources(resources interface{}) []interface{} {
 	for _, resource := range resources.([]interface{}) {
 		resourceItem := resource.(map[string]interface{})
 		resourceKind := resourceItem["kind"]
-		if resourceKind == "Service" || resourceKind == "Pod" {
+		if resourceKind == "Service" || resourceKind == "Pod" || resourceKind == "Application" {
 			result = append(result, resourceItem)
 		}
 	}
@@ -140,6 +140,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
 	repoUrl := app.Spec.Source.RepoURL
+	parentApp, _ := app.Metadata.Labels["app.kubernetes.io/instance"]
 
 	if revision == "" {
 		return errors.New("revision is empty"), nil
@@ -149,6 +150,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	if err != nil {
 		return err, nil
 	}
+	filteredResources := filterResources(resources)
 
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := github.GetManifestRepoInfo(repoUrl, revision)
@@ -173,12 +175,13 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	env := codefreshSdk.Environment{
 		HealthStatus: app.Status.Health.Status,
 		SyncStatus:   app.Status.Sync.Status,
+		ParentApp:    parentApp,
 		SyncRevision: revision,
 		Gitops:       *gitops,
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   activities,
-		Resources:    filterResources(resources),
+		Resources:    filteredResources,
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,

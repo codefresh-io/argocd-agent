@@ -48,7 +48,13 @@ func (m MockArgoApi) GetResourceTree(applicationName string) (*argoSdk.ResourceT
 }
 
 func (m MockArgoApi) GetResourceTreeAll(applicationName string) (interface{}, error) {
-	panic("implement me")
+	var result []interface{}
+	item := map[string]interface{}{
+		"kind": "Application",
+		"name": "app-name",
+	}
+	result = append(result, item)
+	return result, nil
 }
 
 func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
@@ -62,9 +68,23 @@ func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.Manag
 		Name:        "Test",
 	})
 
+	resourceItems = append(resourceItems, argoSdk.ManagedResourceItem{
+		Kind:        "Application",
+		TargetState: "",
+		LiveState:   liveState,
+		Name:        "RootApp",
+	})
+
 	return &argoSdk.ManagedResource{
 		Items: resourceItems,
 	}, nil
+}
+
+func TestGetEnvTransformerInstance(t *testing.T) {
+	envTransformer := GetEnvTransformerInstance(MockArgoApi{})
+	if envTransformer.argoApi == nil {
+		t.Errorf("Should export argoApi in struct")
+	}
 }
 
 func TestPrepareEnvironment(t *testing.T) {
@@ -76,8 +96,27 @@ func TestPrepareEnvironment(t *testing.T) {
 		t.Error(err)
 	}
 
-	if len(services) != 1 {
-		t.Errorf("We should prepare 1 services for send to codefresh")
+	if len(services) != 2 {
+		t.Errorf("We should prepare 2 services for send to codefresh")
+	}
+	labels := map[string]interface{}{"app.kubernetes.io/instance": "apps-root"}
+	status := map[string]interface{}{
+		"operationState": map[string]interface{}{
+			"syncResult": map[string]interface{}{"revision": "some revision"},
+		},
+	}
+	envItem := map[string]interface{}{
+		"status": status,
+		"metadata": struct {
+			name   string
+			labels map[string]interface{}
+		}{
+			labels: labels,
+		},
 	}
 
+	err, _ = envTransformer.PrepareEnvironment(envItem)
+	if err != nil {
+		t.Errorf("Should successfull finish PrepareEnvironment")
+	}
 }
