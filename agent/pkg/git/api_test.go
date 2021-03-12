@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func TestExtractRepoAndOwnerFromUrl(t *testing.T) {
 	urls := []string{
 		"ssh://user@host.xz/path/owner/repo.git/",
@@ -33,7 +38,7 @@ func TestExtractRepoAndOwnerFromUrl(t *testing.T) {
 func TestGetInstance(t *testing.T) {
 	err, api := GetInstance("https://github.com/owner/repo")
 	_ = api
-	if err !=nil {
+	if err != nil {
 		t.Errorf("'GetInstance' check error failed, error: %v", err.Error())
 	}
 }

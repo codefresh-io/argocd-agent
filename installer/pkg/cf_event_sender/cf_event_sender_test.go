@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func TestNew(t *testing.T) {
 	client := New(EVENT_AGENT_UNINSTALL)
 	if client.eventName != EVENT_AGENT_UNINSTALL {

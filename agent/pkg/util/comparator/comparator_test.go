@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func TestEnvironmentComparatorWithSameEnv(t *testing.T) {
 
 	envComparator := EnvComparator{}

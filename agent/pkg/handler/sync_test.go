@@ -8,6 +8,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 var createdEnv []string
 
 type MockArgoApi struct {
