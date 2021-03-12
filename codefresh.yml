@@ -27,7 +27,7 @@ steps:
     image: golang:1.14.2
     commands:
       - go get -u github.com/mcubik/goverreport
-      - go test ./... -race -coverprofile=coverage.out -covermode=atomic
+      - go test ./... -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic
     when:
       steps:
         - name: main_clone
