@@ -1,4 +1,4 @@
-package handler
+package event_handler
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"

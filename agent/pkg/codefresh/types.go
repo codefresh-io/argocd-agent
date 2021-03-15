@@ -29,10 +29,3 @@ type AgentProject struct {
 	Name string `json:"name"`
 	UID  string `json:"uid"`
 }
-
-type requestOptions struct {
-	path   string
-	method string
-	body   interface{}
-	qs     map[string]string
-}
