@@ -2,7 +2,6 @@ package event_handler
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	//"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
@@ -31,6 +30,7 @@ func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application a
 		return err
 	}
 
+	// TODO : we do need it , but here circular reference that require rewrite scheduler, nothing critical for platform for now
 	//scheduler.HandleNewApplications([]string{application.Metadata.Name})
 
 	return nil

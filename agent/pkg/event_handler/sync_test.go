@@ -90,6 +90,10 @@ func (api *MockCodefreshApi) CreateEnvironment(name string, project string, appl
 	return nil
 }
 
+func (api *MockCodefreshApi) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
+	panic("implement me")
+}
+
 func (api *MockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
 	applications := make([]argoSdk.ApplicationItem, 0)
 	applications = append(applications, argoSdk.ApplicationItem{
