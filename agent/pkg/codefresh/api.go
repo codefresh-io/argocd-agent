@@ -135,7 +135,6 @@ func (a *Api) DeleteEnvironment(name string) error {
 }
 
 func (a *Api) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
-	logger.GetLogger().Infof("Send application resources %v", resources)
 	return a.codefreshApi.Gitops().SendApplicationResources(resources)
 }
 

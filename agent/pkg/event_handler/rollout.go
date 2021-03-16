@@ -3,6 +3,7 @@ package event_handler
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
@@ -31,12 +32,14 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 		return err
 	}
 
-	err = codefresh.GetInstance().SendApplicationResources(&codefreshSdk.ApplicationResources{
+	applicationResources := &codefreshSdk.ApplicationResources{
 		Name:      env.Name,
 		HistoryId: env.HistoryId,
 		Revision:  env.SyncRevision,
-		Resources: resources,
-	})
+		Resources: transform.GetApplicationResourcesTransformer().Transform(resources),
+	}
+
+	err = codefresh.GetInstance().SendApplicationResources(applicationResources)
 
 	return err
 }
