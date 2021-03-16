@@ -8,7 +8,6 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 	item0 := make(map[string]interface{})
 	item0["group"] = "group"
 	item0["resourceVersion"] = "resourceVersion"
-	item0["uid"] = "uid"
 	item0["version"] = "version"
 	item0["namespace"] = "namespace"
 	item0["networkingInfo"] = "networkingInfo"

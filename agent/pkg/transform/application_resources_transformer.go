@@ -17,7 +17,6 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 		item := elem.(map[string]interface{})
 		delete(item, "group")
 		delete(item, "resourceVersion")
-		delete(item, "uid")
 		delete(item, "version")
 		delete(item, "namespace")
 		delete(item, "networkingInfo")
