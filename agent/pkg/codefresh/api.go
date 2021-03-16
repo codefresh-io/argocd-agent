@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
+	"golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
 	"net/http"
 )
 
@@ -135,6 +136,7 @@ func (a *Api) DeleteEnvironment(name string) error {
 }
 
 func (a *Api) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
+	logger.GetLogger().Info(fmt.Sprintf("Send application resources %v", resources))
 	return a.codefreshApi.Gitops().SendApplicationResources(resources)
 }
 
