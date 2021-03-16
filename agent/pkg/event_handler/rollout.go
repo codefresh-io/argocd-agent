@@ -20,8 +20,8 @@ func GetRolloutEventHandlerInstance() EventHandler {
 }
 
 func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
-	env := rollout.(codefreshSdk.Environment)
-	_, err := codefresh.GetInstance().SendEnvironment(env)
+	env := rollout.(*codefreshSdk.Environment)
+	_, err := codefresh.GetInstance().SendEnvironment(*env)
 	if err != nil {
 		return err
 	}

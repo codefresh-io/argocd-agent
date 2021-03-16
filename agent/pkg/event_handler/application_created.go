@@ -2,7 +2,7 @@ package event_handler
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
+	//"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
@@ -31,7 +31,7 @@ func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application a
 		return err
 	}
 
-	scheduler.HandleNewApplications([]string{application.Metadata.Name})
+	//scheduler.HandleNewApplications([]string{application.Metadata.Name})
 
 	return nil
 }
