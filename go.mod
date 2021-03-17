@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/codefresh-io/argocd-sdk v0.3.7
-	github.com/codefresh-io/go-sdk v0.21.4
+	github.com/codefresh-io/go-sdk v0.24.0
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
@@ -30,6 +30,7 @@ require (
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	github.com/whilp/git-urls v1.0.0
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
+	golang.org/x/tools v0.0.0-20191112195655-aa38f8e97acc
 	gopkg.in/ini.v1 v1.57.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 	k8s.io/api v0.17.0

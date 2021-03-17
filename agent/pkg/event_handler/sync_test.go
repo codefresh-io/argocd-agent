@@ -1,4 +1,4 @@
-package handler
+package event_handler
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
@@ -88,6 +88,10 @@ func (api *MockCodefreshApi) SendEnvironment(environment codefreshSdk.Environmen
 func (api *MockCodefreshApi) CreateEnvironment(name string, project string, application string) error {
 	createdEnv = append(createdEnv, name)
 	return nil
+}
+
+func (api *MockCodefreshApi) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
+	panic("implement me")
 }
 
 func (api *MockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {

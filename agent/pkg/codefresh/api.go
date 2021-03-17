@@ -25,6 +25,7 @@ type CodefreshApi interface {
 	CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error
 	UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error
 	SendEnvironment(environment codefreshSdk.Environment) (map[string]interface{}, error)
+	SendApplicationResources(resources *codefreshSdk.ApplicationResources) error
 }
 
 var api *Api
@@ -131,6 +132,10 @@ func (a *Api) CreateEnvironment(name string, project string, application string)
 
 func (a *Api) DeleteEnvironment(name string) error {
 	return a.codefreshApi.Gitops().DeleteEnvironment(name)
+}
+
+func (a *Api) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
+	return a.codefreshApi.Gitops().SendApplicationResources(resources)
 }
 
 func prepareIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) codefreshSdk.IntegrationPayloadData {

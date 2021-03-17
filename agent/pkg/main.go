@@ -6,13 +6,13 @@ import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/extract"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
 	"os"
 )
 
@@ -108,7 +108,7 @@ func main() {
 	scheduler.StartEnvInitializer()
 	scheduler.StartUpdateIntegration()
 
-	err := handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
+	err := event_handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}
@@ -116,7 +116,7 @@ func main() {
 	queueProcessor := queue.EnvQueueProcessor{}
 	go queueProcessor.Run()
 
-	err = extract.Watch()
+	err = watch.Watch()
 	if err != nil {
 		logger.GetLogger().Errorf("Cant run agent because %v", err.Error())
 		store.SetHeartbeatError(err.Error())
