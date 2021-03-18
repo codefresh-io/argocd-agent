@@ -13,7 +13,14 @@ func GetApplicationResourcesTransformer() Transformer {
 }
 
 func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transform(data interface{}) interface{} {
-	for _, elem := range data.([]interface{}) {
+	if data == nil {
+		return nil
+	}
+	resources, ok := data.([]interface{})
+	if !ok {
+		return nil
+	}
+	for _, elem := range resources {
 		item := elem.(map[string]interface{})
 		delete(item, "group")
 		delete(item, "resourceVersion")

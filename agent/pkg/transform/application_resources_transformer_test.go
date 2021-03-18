@@ -38,3 +38,12 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 		t.Errorf("Should export argoApi in struct")
 	}
 }
+
+func TestApplicationResourcesTransformerInCaseNilInput(t *testing.T) {
+
+	result := GetApplicationResourcesTransformer().Transform(nil)
+
+	if result != nil {
+		t.Errorf("Result should be nil")
+	}
+}
