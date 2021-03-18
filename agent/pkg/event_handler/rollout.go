@@ -32,14 +32,17 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 		return err
 	}
 
-	applicationResources := &codefreshSdk.ApplicationResources{
-		Name:      env.Name,
-		HistoryId: env.HistoryId,
-		Revision:  env.SyncRevision,
-		Resources: transform.GetApplicationResourcesTransformer().Transform(resources),
-	}
+	appResources := transform.GetApplicationResourcesTransformer().Transform(resources)
+	if appResources != nil {
+		applicationResources := &codefreshSdk.ApplicationResources{
+			Name:      env.Name,
+			HistoryId: env.HistoryId,
+			Revision:  env.SyncRevision,
+			Resources: appResources,
+		}
 
-	err = codefresh.GetInstance().SendApplicationResources(applicationResources)
+		err = codefresh.GetInstance().SendApplicationResources(applicationResources)
+	}
 
 	return err
 }
