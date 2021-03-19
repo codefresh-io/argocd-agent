@@ -3,6 +3,7 @@ package event_handler
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
@@ -40,8 +41,10 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 			Revision:  env.SyncRevision,
 			Resources: appResources,
 		}
-
+		logger.GetLogger().Infof("Send application resources for app %s with history %v", env.Name, env.HistoryId)
 		err = codefresh.GetInstance().SendApplicationResources(applicationResources)
+	} else {
+		logger.GetLogger().Infof("Skip send application resources for app %s with history %v, because resources not exists", env.Name, env.HistoryId)
 	}
 
 	return err
