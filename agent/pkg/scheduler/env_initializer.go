@@ -11,7 +11,7 @@ import (
 	"github.com/jasonlvhit/gocron"
 )
 
-var EnvInitializer uint64 = 5
+var EnvInitializer uint64 = 25
 
 func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironment) bool {
 	for _, env := range existingEnvs {
@@ -80,7 +80,7 @@ func handleEnvDifference() {
 }
 
 func StartEnvInitializer() {
-	job := gocron.Every(EnvInitializer).Second().Do(handleEnvDifference)
+	job := gocron.Every(EnvInitializer).Seconds().Do(handleEnvDifference)
 
 	if job != nil {
 		err := job.Error()
