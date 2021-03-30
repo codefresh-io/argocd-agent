@@ -25,7 +25,6 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 		delete(item, "group")
 		delete(item, "resourceVersion")
 		delete(item, "version")
-		delete(item, "namespace")
 		delete(item, "networkingInfo")
 	}
 	return data
