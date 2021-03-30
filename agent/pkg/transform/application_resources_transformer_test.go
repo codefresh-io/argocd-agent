@@ -9,7 +9,6 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 	item0["group"] = "group"
 	item0["resourceVersion"] = "resourceVersion"
 	item0["version"] = "version"
-	item0["namespace"] = "namespace"
 	item0["networkingInfo"] = "networkingInfo"
 	item0["important"] = "important"
 
