@@ -46,27 +46,16 @@ func Run(installCmdOptions install.InstallCmdOptions) (error, string) {
 
 	kubeOptions = installCmdOptions.Kube
 
-	argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
-
-	if err != nil {
-		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installCmdOptions.Kube.ClusterName, kubeOptions.Namespace)
-		eventSender.Fail(msg)
-		return errors.New(msg), ""
-	} else {
-		if kube.IsLoadBalancer(argoServerSvc) {
-			balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
-			if balancerHost != "" {
-				installCmdOptions.Argo.Host = balancerHost
-			}
-		}
-	}
-
 	err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
 	if err != nil {
 		return err, ""
 	}
 
-	_ = questionnaire.AskAboutArgoCredentials(&installCmdOptions)
+	err = questionnaire.AskAboutArgoCredentials(&installCmdOptions, kubeClient)
+	if err != nil {
+		eventSender.Fail(err.Error())
+		return errors.New(err.Error()), ""
+	}
 
 	err = acceptance_tests.New().Verify(&installCmdOptions.Argo)
 	if err != nil {
