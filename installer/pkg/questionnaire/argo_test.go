@@ -22,7 +22,7 @@ func TestAskAboutArgoCredentials(t *testing.T) {
 		}{Host: "https://localhost", Username: "test", Password: "test", Token: "test", Update: false},
 	}
 
-	_ = AskAboutArgoCredentials(installCmdOptions)
+	_ = AskAboutArgoCredentials(installCmdOptions, nil)
 
 	if installCmdOptions.Argo.Host != "https://localhost" {
 		t.Errorf("Argocd host shouldnt be changed in case if it is passed from cli")
