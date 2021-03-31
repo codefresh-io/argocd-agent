@@ -7,19 +7,21 @@ import (
 )
 
 func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
-	err := prompt.Input(&installOptions.Argo.Host, "Argo host, for example: https://example.com")
-	if err != nil {
-		return err
-	}
+	if installOptions.Argo.Host == "" {
+		err := prompt.Input(&installOptions.Argo.Host, "Argo host, for example: https://example.com")
+		if err != nil {
+			return err
+		}
 
-	withProtocol, err := regexp.MatchString("^https?://", installOptions.Argo.Host)
-	if err != nil {
-		return err
-	}
+		withProtocol, err := regexp.MatchString("^https?://", installOptions.Argo.Host)
+		if err != nil {
+			return err
+		}
 
-	// customer not put protocol during installation
-	if !withProtocol {
-		installOptions.Argo.Host = "https://" + installOptions.Argo.Host
+		// customer not put protocol during installation
+		if !withProtocol {
+			installOptions.Argo.Host = "https://" + installOptions.Argo.Host
+		}
 	}
 
 	// removing / in the end
