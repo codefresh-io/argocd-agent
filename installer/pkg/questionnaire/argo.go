@@ -1,15 +1,39 @@
 package questionnaire
 
 import (
+	"errors"
+	"fmt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"regexp"
 )
 
-func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions) error {
-	err := prompt.Input(&installOptions.Argo.Host, "Argo host, for example: https://example.com")
+func retrieveHostFromLB(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
+	kubeOptions := installOptions.Kube
+	argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
+
 	if err != nil {
-		return err
+		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installOptions.Kube.ClusterName, kubeOptions.Namespace)
+		return errors.New(msg)
+	} else {
+		if kube.IsLoadBalancer(argoServerSvc) {
+			balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
+			if balancerHost != "" {
+				installOptions.Argo.Host = balancerHost
+			}
+		}
+	}
+	return nil
+}
+
+func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
+
+	if installOptions.Argo.Host == "" {
+		err := retrieveHostFromLB(installOptions, kubeClient)
+		if err != nil {
+			return err
+		}
 	}
 
 	withProtocol, err := regexp.MatchString("^https?://", installOptions.Argo.Host)

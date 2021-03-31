@@ -24,7 +24,6 @@ import (
 
 type (
 	Kube interface {
-		buildClient() (*kubernetes.Clientset, *apixv1beta1client.ApiextensionsV1beta1Client, error)
 		GetNamespaces() ([]string, error)
 		GetClientSet() *kubernetes.Clientset
 		GetCrdClientSet() *apixv1beta1client.ApiextensionsV1beta1Client
