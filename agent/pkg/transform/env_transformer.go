@@ -134,7 +134,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		return err, nil
 	}
 
-	github := provider.NewGithubProvider()
+	gitProvider := provider.Get()
 
 	name := app.Metadata.Name
 	historyList := app.Status.History
@@ -153,7 +153,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 	filteredResources := filterResources(resources)
 
 	// we still need send env , even if we have problem with retrieve gitops info
-	err, gitops := github.GetManifestRepoInfo(repoUrl, revision)
+	err, gitops := gitProvider.GetManifestRepoInfo(repoUrl, revision)
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
@@ -188,7 +188,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]inte
 		Date:         app.Status.OperationState.FinishedAt,
 	}
 
-	err, commit := github.GetCommitByRevision(repoUrl, revision)
+	err, commit := gitProvider.GetCommitByRevision(repoUrl, revision)
 
 	if commit != nil {
 		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)

@@ -17,6 +17,7 @@ require (
 	github.com/gookit/color v1.2.7
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/jasonlvhit/gocron v0.0.1
+	github.com/ktrysmt/go-bitbucket v0.9.10
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/mitchellh/copystructure v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.3.3

@@ -93,14 +93,15 @@ func main() {
 		logger.GetLogger().Errorf("No git context")
 	}
 
+	// Deprecated: we remove password as part of env variable
 	if passwordExistence {
-		store.SetGit(password)
+		store.SetGit(password, "")
 	}
 
 	if gitIntegrationExistence {
 		err, gitContext := codefresh2.GetInstance().GetGitContextByName(gitIntegration)
 		if err == nil {
-			store.SetGit(gitContext.Spec.Data.Auth.Password)
+			store.SetGit(gitContext.Spec.Data.Auth.Password, gitContext.Spec.Type)
 		}
 	}
 
