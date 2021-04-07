@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/base64"
-	"encoding/json"
-	"errors"
+	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
@@ -11,104 +9,50 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/startup"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
-	"os"
 )
+
+func ensureIntegration(integration, host, username, password, token, provider, clusterName string) {
+	serverVersion, err := argo.GetInstance().GetVersion()
+	if err != nil {
+		return
+	}
+	err = codefresh2.GetInstance().CreateIntegration(integration, host,
+		username, password, token, serverVersion,
+		provider, clusterName)
+	fmt.Println(err)
+}
+
+func handleError(err error) {
+	store.SetHeartbeatError(err.Error())
+	heartbeat.HeartBeatTask()
+	// send heartbeat to codefresh before die
+	panic(err)
+}
 
 func main() {
 
-	argoHost, argoHostExistence := os.LookupEnv("ARGO_HOST")
-	if !argoHostExistence {
-		panic(errors.New("ARGO_HOST variable doesnt exist"))
+	input := startup.NewInputFactory().Create()
+
+	err := startup.NewInputValidator(input).Validate()
+	if err != nil {
+		handleError(err)
 	}
 
-	argoToken, argoTokenExistence := os.LookupEnv("ARGO_TOKEN")
-	if !argoTokenExistence || argoToken == "" {
-
-		argoUsername, argoUsernameExistence := os.LookupEnv("ARGO_USERNAME")
-		if !argoUsernameExistence {
-			panic(errors.New("ARGO_USERNAME variable doesnt exist"))
-		}
-
-		argoPassword, argoPasswordExistence := os.LookupEnv("ARGO_PASSWORD")
-		if !argoPasswordExistence {
-			panic(errors.New("ARGO_PASSWORD variable doesnt exist"))
-		}
-
-		token, err := argo.GetToken(argoUsername, argoPassword, argoHost)
-
-		if err != nil {
-			store.SetHeartbeatError(err.Error())
-			heartbeat.HeartBeatTask()
-			// send heartbeat to codefresh before die
-			panic(err)
-		}
-
-		store.SetArgo(token, argoHost)
-
-	} else {
-		store.SetArgo(argoToken, argoHost)
+	err = startup.NewInputStore(input).Store()
+	if err != nil {
+		handleError(err)
 	}
 
-	codefreshToken, codefreshTokenExistence := os.LookupEnv("CODEFRESH_TOKEN")
-	if !codefreshTokenExistence {
-		panic(errors.New("CODEFRESH_TOKEN variable doesnt exist"))
-	}
-
-	codefreshHost, codefreshHostExistance := os.LookupEnv("CODEFRESH_HOST")
-	if !codefreshHostExistance {
-		codefreshHost = "https://g.codefresh.io"
-	}
-
-	codefreshIntegrationName, codefreshIntegrationNameExistence := os.LookupEnv("CODEFRESH_INTEGRATION")
-	if !codefreshIntegrationNameExistence {
-		panic(errors.New("CODEFRESH_INTEGRATION variable doesnt exist"))
-	}
-
-	var applications []string
-	syncMode, _ := os.LookupEnv("SYNC_MODE")
-	if syncMode == codefresh2.SelectSync {
-		applicationsToSyncEncodedJson, _ := os.LookupEnv("APPLICATIONS_FOR_SYNC")
-		applicationsToSyncJson, _ := base64.StdEncoding.DecodeString(applicationsToSyncEncodedJson)
-		_ = json.Unmarshal(applicationsToSyncJson, &applications)
-	}
-
-	store.SetSyncOptions(syncMode, applications)
-
-	store.SetCodefresh(codefreshHost, codefreshToken, codefreshIntegrationName)
-
-	agentVersion, agentVersionExistence := os.LookupEnv("AGENT_VERSION")
-	if !agentVersionExistence {
-		logger.GetLogger().Errorf("No agent version!")
-	} else {
-		store.SetAgent(agentVersion)
-	}
-
-	gitIntegration, gitIntegrationExistence := os.LookupEnv("CODEFRESH_GIT_INTEGRATION")
-
-	password, passwordExistence := os.LookupEnv("GIT_PASSWORD")
-
-	if !passwordExistence && !gitIntegrationExistence {
-		logger.GetLogger().Errorf("No git context")
-	}
-
-	if passwordExistence {
-		store.SetGit(password)
-	}
-
-	if gitIntegrationExistence {
-		err, gitContext := codefresh2.GetInstance().GetGitContextByName(gitIntegration)
-		if err == nil {
-			store.SetGit(gitContext.Spec.Data.Auth.Password)
-		}
-	}
+	//	ensureIntegration(codefreshIntegrationName, argoHost, argoUsername, argoPassword, argoToken, "argocd", "");
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
 	scheduler.StartUpdateIntegration()
 
-	err := event_handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
+	err = event_handler.GetSyncHandlerInstance(codefresh2.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}
