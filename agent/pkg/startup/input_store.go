@@ -45,4 +45,6 @@ func (inputStore *InputStore) Store() error {
 		}
 	}
 
+	return nil
+
 }
