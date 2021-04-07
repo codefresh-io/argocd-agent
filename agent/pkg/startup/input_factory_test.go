@@ -29,6 +29,7 @@ func TestInputFactory(t *testing.T) {
 	os.Setenv("AGENT_VERSION", agentVersion)
 	os.Setenv("CODEFRESH_GIT_INTEGRATION", gitIntegration)
 	os.Setenv("GIT_PASSWORD", gitPassword)
+	os.Setenv("CREATE_INTEGRATION_IF_NOT_EXIST", "something-wrong")
 
 	input := NewInputFactory().Create()
 
@@ -70,6 +71,10 @@ func TestInputFactory(t *testing.T) {
 
 	if input.password != gitPassword {
 		t.Error("GIT_PASSWORD env variables not parsed to structure")
+	}
+
+	if input.createIntegrationIfNotExist != false {
+		t.Error("CREATE_INTEGRATION_IF_NOT_EXIST env variables not parsed to structure")
 	}
 
 }

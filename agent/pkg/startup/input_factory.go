@@ -5,21 +5,23 @@ import (
 	"encoding/json"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"os"
+	"strconv"
 )
 
 type Input struct {
-	argoHost                 string
-	argoToken                string
-	argoUsername             string
-	argoPassword             string
-	codefreshToken           string
-	codefreshHost            string
-	codefreshIntegrationName string
-	applications             []string
-	agentVersion             string
-	gitIntegration           string
-	password                 string
-	syncMode                 string
+	argoHost                    string
+	argoToken                   string
+	argoUsername                string
+	argoPassword                string
+	codefreshToken              string
+	codefreshHost               string
+	codefreshIntegrationName    string
+	applications                []string
+	agentVersion                string
+	gitIntegration              string
+	password                    string
+	syncMode                    string
+	createIntegrationIfNotExist bool
 }
 
 type InputFactory struct {
@@ -30,6 +32,12 @@ func NewInputFactory() *InputFactory {
 }
 
 func (inputFactory *InputFactory) Create() *Input {
+
+	createIntegrationIfNotExist, createIntegrationIfNotExistExistance := os.LookupEnv("CREATE_INTEGRATION_IF_NOT_EXIST")
+
+	if !createIntegrationIfNotExistExistance {
+		createIntegrationIfNotExist = "false"
+	}
 
 	argoHost, _ := os.LookupEnv("ARGO_HOST")
 	argoToken, _ := os.LookupEnv("ARGO_TOKEN")
@@ -56,7 +64,7 @@ func (inputFactory *InputFactory) Create() *Input {
 
 	password, _ := os.LookupEnv("GIT_PASSWORD")
 
-	return &Input{
+	input := &Input{
 		argoHost:                 argoHost,
 		argoToken:                argoToken,
 		argoUsername:             argoUsername,
@@ -70,4 +78,13 @@ func (inputFactory *InputFactory) Create() *Input {
 		password:                 password,
 		syncMode:                 syncMode,
 	}
+
+	createIntegrationIfNotExistBool, err := strconv.ParseBool(createIntegrationIfNotExist)
+	if err != nil {
+		input.createIntegrationIfNotExist = false
+	} else {
+		input.createIntegrationIfNotExist = createIntegrationIfNotExistBool
+	}
+
+	return input
 }
