@@ -4,6 +4,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func TestValidInput(t *testing.T) {
 	input := &Input{
 		argoHost:                 "http://argo-host",
