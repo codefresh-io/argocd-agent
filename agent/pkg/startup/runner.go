@@ -1,7 +1,6 @@
 package startup
 
 import (
-	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
@@ -12,23 +11,27 @@ import (
 )
 
 type Runner struct {
-	input *Input
+	input        *Input
+	codefreshApi codefresh.CodefreshApi
 }
 
-func NewRunner(input *Input) *Runner {
-	return &Runner{input}
+func NewRunner(input *Input, codefreshApi codefresh.CodefreshApi) *Runner {
+	return &Runner{input, codefreshApi}
 }
 
 func (runner *Runner) ensureIntegration() {
 	input := runner.input
+	codefreshApi := runner.codefreshApi
 	serverVersion, err := argo.GetInstance().GetVersion()
 	if err != nil {
+		_ = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
+			input.argoUsername, input.argoPassword, input.argoToken, "",
+			"argocd", "")
 		return
 	}
-	err = codefresh.GetInstance().CreateIntegration(input.codefreshIntegrationName, input.argoHost,
+	_ = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
 		input.argoUsername, input.argoPassword, input.argoToken, serverVersion,
 		"argocd", "")
-	fmt.Println(err)
 }
 
 func (runner *Runner) Run() error {
