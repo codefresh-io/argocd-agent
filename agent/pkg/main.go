@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/heartbeat"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/startup"
@@ -29,7 +30,7 @@ func main() {
 		handleError(err)
 	}
 
-	err = startup.NewRunner(input).Run()
+	err = startup.NewRunner(input, codefresh.GetInstance()).Run()
 	if err != nil {
 		handleError(err)
 	}
