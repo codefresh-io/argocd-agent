@@ -7,7 +7,8 @@ import (
 	"net/http"
 )
 
-type ArgoApi interface {
+// ArgoAPI responsible for proxy calls for argosdk that implement argo api
+type ArgoAPI interface {
 	GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error)
 	GetResourceTree(applicationName string) (*argoSdk.ResourceTree, error)
 	GetResourceTreeAll(applicationName string) (interface{}, error)
@@ -17,28 +18,30 @@ type ArgoApi interface {
 	GetApplication(application string) (map[string]interface{}, error)
 }
 
-type Api struct {
+type argoAPI struct {
 	sdk argoSdk.Argo
 }
 
 type UnauthorizedApi struct {
 }
 
-var api *Api
+var api *argoAPI
 var unauthorizedApi *UnauthorizedApi
 
-func GetInstance() *Api {
+// GetInstance build and provide as singleton new instance of ArgoAPI interface
+func GetInstance() ArgoAPI {
 	if api != nil {
 		return api
 	}
 
 	argoConfig := store.GetStore().Argo
-	api = &Api{
-		sdk: BuildArgoSdk(argoConfig.Token, argoConfig.Host),
+	api = &argoAPI{
+		sdk: buildArgoSdk(argoConfig.Token, argoConfig.Host),
 	}
 	return api
 }
 
+// GetUnauthorizedApiInstance build and provide singleton for unathorized argo api
 func GetUnauthorizedApiInstance() *UnauthorizedApi {
 	if unauthorizedApi != nil {
 		return unauthorizedApi
@@ -48,7 +51,7 @@ func GetUnauthorizedApiInstance() *UnauthorizedApi {
 	return unauthorizedApi
 }
 
-func BuildArgoSdk(token string, host string) argoSdk.Argo {
+func buildArgoSdk(token string, host string) argoSdk.Argo {
 	return argoSdk.New(&argoSdk.ClientOptions{
 		Auth: argoSdk.AuthOptions{
 			Token: token,
@@ -66,49 +69,59 @@ func buildHttpClient() *http.Client {
 	return &http.Client{Transport: tr}
 }
 
+// GetToken retrieve argocd token use basic auth in before use ArgoAPI interface
 func GetToken(username string, password string, host string) (string, error) {
 	return argoSdk.GetToken(username, password, host)
 }
 
-func (api *Api) CheckToken() error {
+// CheckToken validate argocd token
+func (api *argoAPI) CheckToken() error {
 	return api.sdk.Auth().CheckToken()
 }
 
-func (api *Api) GetResourceTree(applicationName string) (*argoSdk.ResourceTree, error) {
+// GetResourceTree retrieve argo application resources tree, include deployment, services and so on
+func (api *argoAPI) GetResourceTree(applicationName string) (*argoSdk.ResourceTree, error) {
 	return api.sdk.Application().GetResourceTree(applicationName)
 }
 
-func (api *Api) GetResourceTreeAll(applicationName string) (interface{}, error) {
+// GetResourceTreeAll deprecated , should be user GetResourceTree instead with retrieval only nodes field
+func (api *argoAPI) GetResourceTreeAll(applicationName string) (interface{}, error) {
 	return api.sdk.Application().GetResourceTreeAll(applicationName)
 }
 
-func (api *Api) GetVersion() (string, error) {
+// GetVersion get argocd server version
+func (api *argoAPI) GetVersion() (string, error) {
 	return api.sdk.Version().GetVersion()
 }
 
-func (api *Api) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
+// GetManagedResources
+func (api *argoAPI) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
 	return api.sdk.Application().GetManagedResources(applicationName)
 }
 
-func (api *Api) GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error) {
+// GetProjectsWithCredentialsFromStorage retrieve projects use credentials from storage that we init during startup
+func (api *argoAPI) GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error) {
 	token := store.GetStore().Argo.Token
 	host := store.GetStore().Argo.Host
-	sdk := BuildArgoSdk(token, host)
+	sdk := buildArgoSdk(token, host)
 	return sdk.Project().GetProjects()
 }
 
-func (api *Api) GetApplication(application string) (map[string]interface{}, error) {
+// GetApplication get detailed application information
+func (api *argoAPI) GetApplication(application string) (map[string]interface{}, error) {
 	return api.sdk.Application().GetApplication(application)
 }
 
-func (api *Api) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
+// GetApplicationsWithCredentialsFromStorage get detailed application information use credentials from storage that we init during startup
+func (api *argoAPI) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
 	token := store.GetStore().Argo.Token
 	host := store.GetStore().Argo.Host
-	sdk := BuildArgoSdk(token, host)
+	sdk := buildArgoSdk(token, host)
 	return sdk.Application().GetApplications()
 }
 
+// GetApplications get applications with token as param, without init API interface
 func (api *UnauthorizedApi) GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error) {
-	sdk := BuildArgoSdk(token, host)
+	sdk := buildArgoSdk(token, host)
 	return sdk.Application().GetApplications()
 }

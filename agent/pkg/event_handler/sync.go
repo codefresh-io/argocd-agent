@@ -12,12 +12,12 @@ import (
 type SyncHandler struct {
 	codefreshApi codefresh.CodefreshApi
 
-	argoApi argo.ArgoApi
+	argoApi argo.ArgoAPI
 }
 
 var syncHandler *SyncHandler
 
-func GetSyncHandlerInstance(codefreshApi codefresh.CodefreshApi, argoApi argo.ArgoApi) *SyncHandler {
+func GetSyncHandlerInstance(codefreshApi codefresh.CodefreshApi, argoApi argo.ArgoAPI) *SyncHandler {
 	if syncHandler != nil {
 		return syncHandler
 	}
