@@ -2,6 +2,11 @@ package kubernetes
 
 import "testing"
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func TestTemplatesMap(t *testing.T) {
 	templates := TemplatesMap()
 	secrets := templates["4_secret.yaml"]
