@@ -3,7 +3,7 @@ package startup
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
@@ -44,7 +44,7 @@ func (runner *Runner) Run() error {
 	scheduler.StartEnvInitializer()
 	scheduler.StartUpdateIntegration()
 
-	err := event_handler.GetSyncHandlerInstance(codefresh.GetInstance(), argo.GetInstance()).Handle()
+	err := events.GetSyncHandlerInstance(codefresh.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}

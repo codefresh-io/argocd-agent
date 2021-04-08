@@ -3,7 +3,7 @@ package handler
 import (
 	"errors"
 	"fmt"
-	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
+	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cfeventsender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/questionnaire"

@@ -1,4 +1,4 @@
-package event_handler
+package events
 
 import (
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"

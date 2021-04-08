@@ -50,7 +50,7 @@ func TemplatesMap() map[string]string {
 }
 `))
 
-type packageTempateData struct {
+type packageTemplateData struct {
 	PackageName      string
 	FolderName       string
 	TemplateFilesMap map[string]string
@@ -83,7 +83,7 @@ func main() {
 	}
 	defer outfile.Close()
 
-	err = packageTemplate.Execute(outfile, packageTempateData{
+	err = packageTemplate.Execute(outfile, packageTemplateData{
 		PackageName:      path.Base(folderName),
 		FolderName:       templatesDirParam,
 		TemplateFilesMap: templateFilesMap,

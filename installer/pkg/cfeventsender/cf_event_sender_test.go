@@ -1,4 +1,4 @@
-package cf_event_sender
+package cfeventsender
 
 import (
 	"testing"

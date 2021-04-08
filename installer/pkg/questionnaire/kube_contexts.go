@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
+// AskAboutKubeContext provide ability select specific context if here few declared in one kubeconfig
 func AskAboutKubeContext(kubeOptions *install.Kube) error {
 	kubeConfigPath := kubeOptions.ConfigPath
 	if kubeOptions.Context == "" {

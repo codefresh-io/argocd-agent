@@ -51,7 +51,7 @@ func (cachedGithub *CachedGithub) GetCommitBySha(revision string) (error, *githu
 }
 
 func (cachedGithub *CachedGithub) GetCommitsBySha(revision string) (error, []*github.RepositoryCommit) {
-	key := fmt.Sprintf("revision-committs-%s", revision)
+	key := fmt.Sprintf("revision-commits-%s", revision)
 
 	cachedCommits, exist := cachedGithub.commitsBySha[key]
 	if exist {

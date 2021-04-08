@@ -126,6 +126,6 @@ func TestPrepareEnvironment(t *testing.T) {
 
 	err, _ = envTransformer.PrepareEnvironment(envItem)
 	if err != nil {
-		t.Errorf("Should successfull finish PrepareEnvironment")
+		t.Errorf("Should successful finish PrepareEnvironment")
 	}
 }

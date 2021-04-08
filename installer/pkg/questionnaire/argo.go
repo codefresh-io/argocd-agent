@@ -27,6 +27,7 @@ func retrieveHostFromLB(installOptions *install.InstallCmdOptions, kubeClient ku
 	return nil
 }
 
+// AskAboutArgoCredentials request argocd credentials if it wasnt passed in cli during installation
 func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
 
 	if installOptions.Argo.Host == "" {

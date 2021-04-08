@@ -4,7 +4,7 @@ import (
 	//"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
@@ -47,7 +47,7 @@ func updateDeletedEnv(obj interface{}) (error, *codefreshSdk.Environment) {
 
 	env.HealthStatus = "Deleted"
 
-	err = event_handler.GetRolloutEventHandlerInstance().Handle(env)
+	err = events.GetRolloutEventHandlerInstance().Handle(env)
 
 	if err != nil {
 		return err, nil
@@ -102,7 +102,7 @@ func watchApplicationChanges() error {
 
 			logger.GetLogger().Info("Successfully sent applications to codefresh")
 
-			applicationCreatedHandler := event_handler.GetApplicationCreatedHandlerInstance()
+			applicationCreatedHandler := events.GetApplicationCreatedHandlerInstance()
 			err = applicationCreatedHandler.Handle(app)
 
 			if err != nil {
@@ -135,7 +135,7 @@ func watchApplicationChanges() error {
 				return
 			}
 
-			applicationRemovedHandler := event_handler.GetApplicationRemovedHandlerInstance()
+			applicationRemovedHandler := events.GetApplicationRemovedHandlerInstance()
 			err = applicationRemovedHandler.Handle(app)
 
 			if err != nil {
