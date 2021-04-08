@@ -1,4 +1,4 @@
-package cf_event_sender
+package cfeventsender
 
 import "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 

@@ -2,7 +2,7 @@ package queue
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
@@ -38,7 +38,7 @@ func updateEnv(obj *unstructured.Unstructured) (error, *codefreshSdk.Environment
 	envComparator := comparator.EnvComparator{}
 
 	err = util.ProcessDataWithFilter("environment", &env.Name, env, envComparator.Compare, func() error {
-		return event_handler.GetRolloutEventHandlerInstance().Handle(env)
+		return events.GetRolloutEventHandlerInstance().Handle(env)
 	})
 
 	return nil, env

@@ -7,7 +7,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cf_event_sender"
+	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cfeventsender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance_tests"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"

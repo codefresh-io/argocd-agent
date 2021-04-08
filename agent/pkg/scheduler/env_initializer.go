@@ -3,7 +3,7 @@ package scheduler
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/event_handler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
@@ -46,7 +46,7 @@ func HandleNewApplications(applications []string) {
 			continue
 		}
 		logger.GetLogger().Infof("Detect new gitops application %s, initiate initialization", application)
-		err = event_handler.GetRolloutEventHandlerInstance().Handle(newApp)
+		err = events.GetRolloutEventHandlerInstance().Handle(newApp)
 		if err != nil {
 			logger.GetLogger().Errorf("Failed to send environment, reason %v", err)
 		}
