@@ -32,7 +32,7 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 		t.Errorf("We lost important key")
 	}
 
-	envTransformer := GetEnvTransformerInstance(MockArgoApi{})
+	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
 	if envTransformer.argoApi == nil {
 		t.Errorf("Should export argoApi in struct")
 	}

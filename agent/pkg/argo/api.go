@@ -16,6 +16,7 @@ type ArgoAPI interface {
 	GetVersion() (string, error)
 	GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error)
 	GetApplication(application string) (map[string]interface{}, error)
+	CheckToken() error
 }
 
 type argoAPI struct {

@@ -13,6 +13,10 @@ var _ = func() bool {
 type MockArgoApi struct {
 }
 
+func (api *MockArgoApi) CheckToken() error {
+	panic("implement me")
+}
+
 func (m MockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
 	panic("implement me")
 }
@@ -86,7 +90,7 @@ func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.Manag
 }
 
 func TestGetEnvTransformerInstance(t *testing.T) {
-	envTransformer := GetEnvTransformerInstance(MockArgoApi{})
+	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
 	if envTransformer.argoApi == nil {
 		t.Errorf("Should export argoApi in struct")
 	}
@@ -94,7 +98,7 @@ func TestGetEnvTransformerInstance(t *testing.T) {
 
 func TestPrepareEnvironment(t *testing.T) {
 
-	envTransformer := GetEnvTransformerInstance(MockArgoApi{})
+	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
 
 	services, err := envTransformer.prepareEnvironmentActivity("test")
 	if err != nil {
