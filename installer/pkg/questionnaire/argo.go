@@ -3,13 +3,13 @@ package questionnaire
 import (
 	"errors"
 	"fmt"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"regexp"
 )
 
-func retrieveHostFromLB(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
+func retrieveHostFromLB(installOptions *_type.InstallCmdOptions, kubeClient kube.Kube) error {
 	kubeOptions := installOptions.Kube
 	argoServerSvc, err := kubeClient.GetArgoServerSvc(kubeOptions.Namespace)
 
@@ -28,7 +28,7 @@ func retrieveHostFromLB(installOptions *install.InstallCmdOptions, kubeClient ku
 }
 
 // AskAboutArgoCredentials request argocd credentials if it wasnt passed in cli during installation
-func AskAboutArgoCredentials(installOptions *install.InstallCmdOptions, kubeClient kube.Kube) error {
+func AskAboutArgoCredentials(installOptions *_type.InstallCmdOptions, kubeClient kube.Kube) error {
 
 	if installOptions.Argo.Host == "" {
 		err := retrieveHostFromLB(installOptions, kubeClient)

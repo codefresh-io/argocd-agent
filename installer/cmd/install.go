@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/handler"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/spf13/cobra"
@@ -14,7 +14,7 @@ import (
 	"path"
 )
 
-var installCmdOptions = install.InstallCmdOptions{}
+var installCmdOptions = _type.InstallCmdOptions{}
 
 // variable derived from ldflag
 var version = ""
@@ -29,7 +29,7 @@ var installCmd = &cobra.Command{
 			installCmdOptions.Codefresh.Suffix = "-" + installCmdOptions.Codefresh.Suffix
 		}
 
-		err, manifest := handler.Run(installCmdOptions)
+		err, manifest := install.Run(installCmdOptions)
 		if err != nil {
 			return err
 		}

@@ -5,14 +5,14 @@ import (
 	"encoding/json"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/elliotchance/orderedmap"
 )
 
 // AskAboutSyncOptions ask about specific sync mode
-func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
+func AskAboutSyncOptions(installOptions *_type.InstallCmdOptions) {
 	var syncMode interface{}
 
 	if installOptions.Codefresh.SyncMode != "" {

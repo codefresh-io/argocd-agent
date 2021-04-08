@@ -1,7 +1,7 @@
-package acceptance_tests
+package acceptance
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"testing"
 )
@@ -50,7 +50,7 @@ func TestEmptyResultOfApplications(t *testing.T) {
 	test := &ApplicationAcceptanceTest{
 		argoApi: &MockArgoApi{},
 	}
-	result := test.Check(&install.ArgoOptions{})
+	result := test.check(&_type.ArgoOptions{})
 
 	if result == nil {
 		t.Errorf("Acceptance test should be fail with error")

@@ -1,18 +1,18 @@
-package acceptance_tests
+package acceptance
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
 
 type (
 	acceptanceTest interface {
-		Check(argoOptions *install.ArgoOptions) error
-		GetMessage() string
+		check(argoOptions *_type.ArgoOptions) error
+		getMessage() string
 	}
 
 	IAcceptanceTestRunner interface {
-		Verify(argoOptions *install.ArgoOptions) error
+		Verify(argoOptions *_type.ArgoOptions) error
 	}
 
 	AcceptanceTestRunner struct {
@@ -22,6 +22,7 @@ type (
 var tests []acceptanceTest
 var runner IAcceptanceTestRunner
 
+// New create runner and init tests suite
 func New() IAcceptanceTestRunner {
 	if runner == nil {
 		// should be first in tests array because we setup token to storage , it is super not good and should be rewritten
@@ -35,7 +36,8 @@ func New() IAcceptanceTestRunner {
 	return runner
 }
 
-func (runner AcceptanceTestRunner) Verify(argoOptions *install.ArgoOptions) error {
+// Verify execute test suites with specific options
+func (runner AcceptanceTestRunner) Verify(argoOptions *_type.ArgoOptions) error {
 	logger.Info("\nTesting requirements")
 	logger.Info("--------------------")
 	defer logger.Info("--------------------\n")
@@ -43,12 +45,12 @@ func (runner AcceptanceTestRunner) Verify(argoOptions *install.ArgoOptions) erro
 	var err error
 
 	for _, test := range tests {
-		err = test.Check(argoOptions)
+		err = test.check(argoOptions)
 		if err != nil {
-			logger.FailureTest(test.GetMessage())
+			logger.FailureTest(test.getMessage())
 			return err
 		}
-		logger.SuccessTest(test.GetMessage())
+		logger.SuccessTest(test.getMessage())
 	}
 
 	return nil

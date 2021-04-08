@@ -1,4 +1,4 @@
-package install
+package _type
 
 type InstallCmdOptions struct {
 	Kube      Kube

@@ -1,13 +1,13 @@
 package questionnaire
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
 // AskAboutKubeContext provide ability select specific context if here few declared in one kubeconfig
-func AskAboutKubeContext(kubeOptions *install.Kube) error {
+func AskAboutKubeContext(kubeOptions *_type.Kube) error {
 	kubeConfigPath := kubeOptions.ConfigPath
 	if kubeOptions.Context == "" {
 		contexts, err := kube.GetAllContexts(kubeConfigPath)

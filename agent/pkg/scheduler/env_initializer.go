@@ -11,7 +11,7 @@ import (
 	"github.com/jasonlvhit/gocron"
 )
 
-var EnvInitializer uint64 = 25
+const envInitializationTime uint64 = 25
 
 func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironment) bool {
 	for _, env := range existingEnvs {
@@ -38,7 +38,7 @@ func extractNewApplication(application string) (*codefreshSdk.Environment, error
 	return env, nil
 }
 
-func HandleNewApplications(applications []string) {
+func handleNewApplications(applications []string) {
 	for _, application := range applications {
 		newApp, err := extractNewApplication(application)
 		if err != nil {
@@ -75,12 +75,13 @@ func handleEnvDifference() {
 
 	store.SetEnvironments(newEnvs)
 
-	HandleNewApplications(applications)
+	handleNewApplications(applications)
 
 }
 
+// StartEnvInitializer start lister about new environments and update their statuses
 func StartEnvInitializer() {
-	job := gocron.Every(EnvInitializer).Seconds().Do(handleEnvDifference)
+	job := gocron.Every(envInitializationTime).Seconds().Do(handleEnvDifference)
 
 	if job != nil {
 		err := job.Error()
