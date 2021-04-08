@@ -7,7 +7,7 @@ import (
 )
 
 type ApplicationAcceptanceTest struct {
-	argoApi argo.ArgoApi
+	argoApi argo.ArgoAPI
 }
 
 func (acceptanceTest *ApplicationAcceptanceTest) Check(argoOptions *install.ArgoOptions) error {

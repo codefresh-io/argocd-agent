@@ -14,12 +14,12 @@ import (
 )
 
 type EnvTransformer struct {
-	argoApi argo.ArgoApi
+	argoApi argo.ArgoAPI
 }
 
 var envTransformer *EnvTransformer
 
-func GetEnvTransformerInstance(argoApi argo.ArgoApi) *EnvTransformer {
+func GetEnvTransformerInstance(argoApi argo.ArgoAPI) *EnvTransformer {
 	if envTransformer != nil {
 		return envTransformer
 	}
