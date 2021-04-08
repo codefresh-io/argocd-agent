@@ -54,9 +54,15 @@ metadata:
   namespace: {{ .Namespace }}
 data:
   codefresh.token: {{ .Codefresh.Token }}
+  {{- if .Argo.Token }}
   argo.token: {{ .Argo.Token }}
+  {{- end }}
+  {{- if .Kube.BearerToken }}
   kube.bearertoken: {{ .Kube.BearerToken }}
-  argo.password: {{ .Argo.Password }}`
+  {{- end }}
+  {{- if .Argo.Password }}
+  argo.password: {{ .Argo.Password }}
+  {{- end }}`
 
 	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
 kind: Deployment
@@ -102,16 +108,20 @@ spec:
           value: {{ .Argo.Host }}
         - name: ARGO_USERNAME
           value: {{ .Argo.Username }}
+        {{- if .Argo.Password }}
         - name: ARGO_PASSWORD
           valueFrom:
             secretKeyRef:
               name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: argo.password
+        {{- end }}
+        {{- if .Argo.Token }}
         - name: ARGO_TOKEN
           valueFrom:
             secretKeyRef:
               name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: argo.token
+        {{- end }}
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
@@ -123,11 +133,13 @@ spec:
           value: "{{ .Kube.InCluster }}"
         - name: MASTERURL
           value: "{{ .Kube.MasterUrl }}"
+        {{- if .Kube.BearerToken }}
         - name: BEARERTOKEN
           valueFrom:
             secretKeyRef:
               name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: kube.bearertoken
+        {{- end }}
         - name: SYNC_MODE
           value: "{{ .Codefresh.SyncMode }}"
         - name: APPLICATIONS_FOR_SYNC
