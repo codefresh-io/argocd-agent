@@ -1,15 +1,15 @@
-package acceptance_tests
+package acceptance
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 )
 
 type ArgoCredentialsAcceptanceTest struct {
 }
 
-func (acceptanceTest *ArgoCredentialsAcceptanceTest) Check(argoOptions *install.ArgoOptions) error {
+func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
 	var err error
 	token := argoOptions.Token
 	if token == "" {
@@ -24,6 +24,6 @@ func (acceptanceTest *ArgoCredentialsAcceptanceTest) Check(argoOptions *install.
 	return err
 }
 
-func (acceptanceTest *ArgoCredentialsAcceptanceTest) GetMessage() string {
+func (acceptanceTest *ArgoCredentialsAcceptanceTest) getMessage() string {
 	return "checking argocd credentials..."
 }
