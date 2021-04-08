@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
+// AskAboutGitContext request git integration , should be selected from list of codefresh git contexts
 func AskAboutGitContext(installOptions *install.InstallCmdOptions) error {
 	if installOptions.Git.Integration != "" { // Integration is passed
 		err, _ := codefresh.GetInstance().GetGitContextByName(installOptions.Git.Integration)

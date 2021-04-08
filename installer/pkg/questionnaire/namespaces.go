@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
+// AskAboutNamespace request provide namespace name if we not found argocd namespace on your cluster
 func AskAboutNamespace(kubeOptions *install.Kube, kubeClient kube.Kube, setDefaultNamespace bool) error {
 	const defaultNamespace = "argocd"
 	if kubeOptions.Namespace != "" {

@@ -11,6 +11,7 @@ import (
 	"github.com/elliotchance/orderedmap"
 )
 
+// AskAboutSyncOptions ask about specific sync mode
 func AskAboutSyncOptions(installOptions *install.InstallCmdOptions) {
 	var syncMode interface{}
 
