@@ -1,13 +1,13 @@
 package questionnaire
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
 // AskAboutNamespace request provide namespace name if we not found argocd namespace on your cluster
-func AskAboutNamespace(kubeOptions *_type.Kube, kubeClient kube.Kube, setDefaultNamespace bool) error {
+func AskAboutNamespace(kubeOptions *entity.Kube, kubeClient kube.Kube, setDefaultNamespace bool) error {
 	const defaultNamespace = "argocd"
 	if kubeOptions.Namespace != "" {
 		return nil

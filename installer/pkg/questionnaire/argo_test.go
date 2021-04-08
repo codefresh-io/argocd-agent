@@ -2,7 +2,7 @@ package questionnaire
 
 import (
 	"errors"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	core "k8s.io/api/core/v1"
 	apixv1beta1client "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
@@ -82,7 +82,7 @@ func (k *MockKube) DeleteObjects(manifestPath string) error {
 
 func TestAskAboutArgoCredentials(t *testing.T) {
 
-	installCmdOptions := &_type.InstallCmdOptions{
+	installCmdOptions := &entity.InstallCmdOptions{
 		Argo: struct {
 			Host     string
 			Username string
@@ -100,7 +100,7 @@ func TestAskAboutArgoCredentials(t *testing.T) {
 }
 
 func TestAskAboutArgoCredentialsFromLB(t *testing.T) {
-	installCmdOptions := &_type.InstallCmdOptions{
+	installCmdOptions := &entity.InstallCmdOptions{
 		Argo: struct {
 			Host     string
 			Username string

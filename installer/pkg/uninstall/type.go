@@ -1,9 +1,9 @@
 package uninstall
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 )
 
 type CmdOptions struct {
-	Kube _type.Kube
+	Kube entity.Kube
 }

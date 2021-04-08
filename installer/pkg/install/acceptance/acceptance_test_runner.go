@@ -1,18 +1,18 @@
 package acceptance
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
 
 type (
 	acceptanceTest interface {
-		check(argoOptions *_type.ArgoOptions) error
+		check(argoOptions *entity.ArgoOptions) error
 		getMessage() string
 	}
 
 	IAcceptanceTestRunner interface {
-		Verify(argoOptions *_type.ArgoOptions) error
+		Verify(argoOptions *entity.ArgoOptions) error
 	}
 
 	AcceptanceTestRunner struct {
@@ -37,7 +37,7 @@ func New() IAcceptanceTestRunner {
 }
 
 // Verify execute test suites with specific options
-func (runner AcceptanceTestRunner) Verify(argoOptions *_type.ArgoOptions) error {
+func (runner AcceptanceTestRunner) Verify(argoOptions *entity.ArgoOptions) error {
 	logger.Info("\nTesting requirements")
 	logger.Info("--------------------")
 	defer logger.Info("--------------------\n")

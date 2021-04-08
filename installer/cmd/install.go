@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/spf13/cobra"
@@ -14,7 +14,7 @@ import (
 	"path"
 )
 
-var installCmdOptions = _type.InstallCmdOptions{}
+var installCmdOptions = entity.InstallCmdOptions{}
 
 // variable derived from ldflag
 var version = ""

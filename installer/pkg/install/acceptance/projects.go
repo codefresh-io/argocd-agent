@@ -3,14 +3,14 @@ package acceptance
 import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 )
 
 type ProjectAcceptanceTest struct {
 	argoApi argo.ArgoAPI
 }
 
-func (acceptanceTest *ProjectAcceptanceTest) check(argoOptions *_type.ArgoOptions) error {
+func (acceptanceTest *ProjectAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
 	if acceptanceTest.argoApi == nil {
 		acceptanceTest.argoApi = argo.GetInstance()
 	}

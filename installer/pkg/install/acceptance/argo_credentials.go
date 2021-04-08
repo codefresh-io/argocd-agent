@@ -3,13 +3,13 @@ package acceptance
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 )
 
 type ArgoCredentialsAcceptanceTest struct {
 }
 
-func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *_type.ArgoOptions) error {
+func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
 	var err error
 	token := argoOptions.Token
 	if token == "" {

@@ -1,4 +1,4 @@
-package _type
+package entity
 
 type InstallCmdOptions struct {
 	Kube      Kube

@@ -9,8 +9,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
 	cfEventSender "github.com/codefresh-io/argocd-listener/installer/pkg/cfeventsender"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/acceptance"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install/type"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/kube"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
@@ -20,7 +20,7 @@ import (
 	"github.com/fatih/structs"
 )
 
-func Run(installCmdOptions _type.InstallCmdOptions) (error, string) {
+func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 	var err error
 	eventSender := cfEventSender.New(cfEventSender.EVENT_AGENT_INSTALL)
 	// should be in beg for show correct events
@@ -113,7 +113,7 @@ func Run(installCmdOptions _type.InstallCmdOptions) (error, string) {
 	return nil, manifest
 }
 
-func ensureIntegration(installCmdOptions *_type.InstallCmdOptions, clusterName string) error {
+func ensureIntegration(installCmdOptions *entity.InstallCmdOptions, clusterName string) error {
 	serverVersion, err := argo.GetInstance().GetVersion()
 	if err != nil {
 		return err
