@@ -1,6 +1,7 @@
 package events
 
 import (
+	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
@@ -8,11 +9,13 @@ import (
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
+// RolloutHandler handle rollout event, rollout meat that some new release appear or state of current release is changed
 type RolloutHandler struct {
 }
 
 var rolloutHandler *RolloutHandler
 
+// GetRolloutEventHandlerInstance get singleton instance of rollout handler
 func GetRolloutEventHandlerInstance() EventHandler {
 	if rolloutHandler != nil {
 		return rolloutHandler
@@ -21,6 +24,7 @@ func GetRolloutEventHandlerInstance() EventHandler {
 	return rolloutHandler
 }
 
+// Handle handle rollout event , process and store info in codefresh
 func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 	env := rollout.(*codefreshSdk.Environment)
 	_, err := codefresh.GetInstance().SendEnvironment(*env)
@@ -33,7 +37,25 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 		return err
 	}
 
-	appResources := transform.GetApplicationResourcesTransformer().Transform(resources)
+	app, err := argo.GetInstance().GetApplication(env.Name)
+	if err != nil {
+		return err
+	}
+
+	statuses, ok := app["status"].(map[string]interface{})
+	if !ok {
+		return errors.New("Failed to parse data from retrieved application, app : " + env.Name)
+	}
+
+	manifestResources, ok := statuses["resources"].([]interface{})
+	if !ok {
+		return errors.New("Failed to parse data from retrieved application, app : " + env.Name)
+	}
+
+	appResources := transform.GetApplicationResourcesTransformer().Transform(argo.ResourcesWrapper{
+		ResourcesTree:     resources.([]interface{}),
+		ManifestResources: manifestResources,
+	})
 	if appResources != nil {
 		applicationResources := &codefreshSdk.ApplicationResources{
 			Name:      env.Name,
