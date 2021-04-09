@@ -16,10 +16,11 @@ func GetApplicationResourcesTransformer() Transformer {
 	return applicationResourcesTransformer
 }
 
-func lookForRelatedManifestResource(name string, resources []interface{}) map[string]interface{} {
+func lookForRelatedManifestResource(appElem interface{}, resources []interface{}) map[string]interface{} {
 	for _, elem := range resources {
 		item := elem.(map[string]interface{})
-		if item["name"] == name {
+		appItem := appElem.(map[string]interface{})
+		if (item["name"] == appItem["name"]) && (item["kind"] == appItem["kind"]) {
 			return item
 		}
 	}
@@ -46,12 +47,7 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 		delete(item, "version")
 		delete(item, "networkingInfo")
 
-		name, ok := item["name"].(string)
-		if !ok {
-			continue
-		}
-
-		manifestResource := lookForRelatedManifestResource(name, dataObj.ManifestResources)
+		manifestResource := lookForRelatedManifestResource(item, dataObj.ManifestResources)
 		if manifestResource != nil {
 			item["status"] = manifestResource["status"]
 		}
