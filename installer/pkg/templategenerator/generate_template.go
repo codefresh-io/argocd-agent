@@ -61,7 +61,7 @@ func main() {
 	templatesDirParam := "kubernetes"
 	var folderName = path.Join(currentDir, templatesDirParam)
 
-	// Fill Tempalte Map
+	// Fill Template Map
 	templateFilesMap := make(map[string]string)
 	filepath.Walk(folderName, func(name string, info os.FileInfo, err error) error {
 		if !info.IsDir() && path.Base(name) != outfileBaseName {

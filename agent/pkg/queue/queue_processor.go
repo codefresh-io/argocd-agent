@@ -41,7 +41,7 @@ func updateEnv(obj *unstructured.Unstructured) (error, *codefreshSdk.Environment
 		return events.GetRolloutEventHandlerInstance().Handle(env)
 	})
 
-	return nil, env
+	return err, env
 }
 
 func (processor *EnvQueueProcessor) Run() {
