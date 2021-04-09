@@ -43,10 +43,15 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 		delete(item, "version")
 		delete(item, "networkingInfo")
 
-		manifestResource := lookForRelatedManifestResource(item["name"].(string), dataObj.ManifestResources)
+		name, ok := item["name"].(string)
+		if !ok {
+			continue
+		}
+
+		manifestResource := lookForRelatedManifestResource(name, dataObj.ManifestResources)
 		if manifestResource != nil {
 			item["status"] = manifestResource["status"]
 		}
 	}
-	return data
+	return resourcestree
 }
