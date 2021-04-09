@@ -2,11 +2,11 @@ package helper
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
 
-func ShowSummary(installOptions *install.InstallCmdOptions) {
+func ShowSummary(installOptions *entity.InstallCmdOptions) {
 	logger.Success("\nInstallation options summary:")
 	var items []SummaryItem
 	var syncModeStr string

@@ -1,7 +1,7 @@
-package acceptance_tests
+package acceptance
 
 import (
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"testing"
 )
@@ -50,7 +50,7 @@ func TestEmptyResultOfProjects(t *testing.T) {
 	test := &ProjectAcceptanceTest{
 		argoApi: &PrjMockArgoApi{},
 	}
-	result := test.Check(&install.ArgoOptions{})
+	result := test.check(&entity.ArgoOptions{})
 
 	if result == nil {
 		t.Errorf("Project test should be fail with error")

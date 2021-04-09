@@ -1,16 +1,16 @@
-package acceptance_tests
+package acceptance
 
 import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 )
 
 type ProjectAcceptanceTest struct {
 	argoApi argo.ArgoAPI
 }
 
-func (acceptanceTest *ProjectAcceptanceTest) Check(argoOptions *install.ArgoOptions) error {
+func (acceptanceTest *ProjectAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
 	if acceptanceTest.argoApi == nil {
 		acceptanceTest.argoApi = argo.GetInstance()
 	}
@@ -25,6 +25,6 @@ func (acceptanceTest *ProjectAcceptanceTest) Check(argoOptions *install.ArgoOpti
 	return nil
 }
 
-func (acceptanceTest *ProjectAcceptanceTest) GetMessage() string {
+func (acceptanceTest *ProjectAcceptanceTest) getMessage() string {
 	return "checking argocd projects accessibility..."
 }
