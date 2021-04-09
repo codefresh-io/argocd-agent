@@ -43,3 +43,8 @@ type ApplicationResource struct {
 	Status    string      `json:"status"`
 	Health    argo.Health `json:"health"`
 }
+
+type ResourcesWrapper struct {
+	ResourcesTree     []interface{}
+	ManifestResources []interface{}
+}

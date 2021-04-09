@@ -1,6 +1,7 @@
 package events
 
 import (
+	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
@@ -33,7 +34,25 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 		return err
 	}
 
-	appResources := transform.GetApplicationResourcesTransformer().Transform(resources)
+	app, err := argo.GetInstance().GetApplication(env.Name)
+	if err != nil {
+		return err
+	}
+
+	statuses, ok := app["status"].(map[string]interface{})
+	if !ok {
+		return errors.New("Failed to parse data from retrieved application, app : " + env.Name)
+	}
+
+	manifestResources, ok := statuses["resources"].([]interface{})
+	if !ok {
+		return errors.New("Failed to parse data from retrieved application, app : " + env.Name)
+	}
+
+	appResources := transform.GetApplicationResourcesTransformer().Transform(argo.ResourcesWrapper{
+		ResourcesTree:     resources.([]interface{}),
+		ManifestResources: manifestResources,
+	})
 	if appResources != nil {
 		applicationResources := &codefreshSdk.ApplicationResources{
 			Name:      env.Name,
