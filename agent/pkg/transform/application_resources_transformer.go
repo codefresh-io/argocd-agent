@@ -2,11 +2,13 @@ package transform
 
 import "github.com/codefresh-io/argocd-listener/agent/pkg/argo"
 
+// ApplicationResourcesTransformer handler for normalize application resources
 type ApplicationResourcesTransformer struct {
 }
 
 var applicationResourcesTransformer *ApplicationResourcesTransformer
 
+// GetApplicationResourcesTransformer singleton for get ApplicationResourcesTransformer instance
 func GetApplicationResourcesTransformer() Transformer {
 	if applicationResourcesTransformer == nil {
 		applicationResourcesTransformer = new(ApplicationResourcesTransformer)
@@ -24,6 +26,7 @@ func lookForRelatedManifestResource(name string, resources []interface{}) map[st
 	return nil
 }
 
+// Transform convert income data into argo resource
 func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transform(data interface{}) interface{} {
 
 	if data == nil {

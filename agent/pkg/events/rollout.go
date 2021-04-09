@@ -9,11 +9,13 @@ import (
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
+// RolloutHandler handle rollout event, rollout meat that some new release appear or state of current release is changed
 type RolloutHandler struct {
 }
 
 var rolloutHandler *RolloutHandler
 
+// GetRolloutEventHandlerInstance get singleton instance of rollout handler
 func GetRolloutEventHandlerInstance() EventHandler {
 	if rolloutHandler != nil {
 		return rolloutHandler
@@ -22,6 +24,7 @@ func GetRolloutEventHandlerInstance() EventHandler {
 	return rolloutHandler
 }
 
+// Handle handle rollout event , process and store info in codefresh
 func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 	env := rollout.(*codefreshSdk.Environment)
 	_, err := codefresh.GetInstance().SendEnvironment(*env)
