@@ -20,7 +20,11 @@ func lookForRelatedManifestResource(appElem interface{}, resources []interface{}
 	for _, elem := range resources {
 		item := elem.(map[string]interface{})
 		appItem := appElem.(map[string]interface{})
-		if (item["name"] == appItem["name"]) && (item["kind"] == appItem["kind"]) {
+
+		kind, kindExist := item["kind"]
+		name, nameExist := item["name"]
+
+		if kindExist && nameExist && (name == appItem["name"]) && (kind == appItem["kind"]) {
 			return item
 		}
 	}
