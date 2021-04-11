@@ -6,6 +6,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func TestGetLoadBalancerHost(t *testing.T) {
 	kube, _ := New(&Options{
 		ContextName:      "",
