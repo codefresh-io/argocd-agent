@@ -18,7 +18,10 @@ func retrieveHostFromLB(installOptions *entity.InstallCmdOptions, kubeClient kub
 		return errors.New(msg)
 	} else {
 		if kube.IsLoadBalancer(argoServerSvc) {
-			balancerHost, _ := kubeClient.GetLoadBalancerHost(argoServerSvc)
+			balancerHost, err := kubeClient.GetLoadBalancerHost(argoServerSvc)
+			if err != nil {
+				return err
+			}
 			if balancerHost != "" {
 				installOptions.Argo.Host = balancerHost
 			}

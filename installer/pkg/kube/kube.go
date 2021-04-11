@@ -53,6 +53,7 @@ type (
 		Namespace        string
 		PathToKubeConfig string
 		InCluster        bool
+		FailFast         bool
 	}
 )
 
@@ -63,9 +64,10 @@ func New(o *Options) (Kube, error) {
 		pathToKubeConfig: o.PathToKubeConfig,
 		inCluster:        o.InCluster,
 	}
+
 	clientSet, crdClientSet, err := client.buildClient()
 
-	if err != nil {
+	if err != nil && !o.FailFast {
 		return nil, err
 	}
 
@@ -139,7 +141,7 @@ func (k *kube) GetArgoServerHost() (string, error) {
 
 func (k *kube) GetLoadBalancerHost(svc core.Service) (string, error) {
 	if svc.Status.LoadBalancer.Ingress == nil || len(svc.Status.LoadBalancer.Ingress) == 0 {
-		return "", errors.New(fmt.Sprint("Invalid Ingress"))
+		return "", errors.New(fmt.Sprint("Failed to resolve Load Balancer Hostname or IP"))
 	}
 
 	ingress := svc.Status.LoadBalancer.Ingress[0]
@@ -150,7 +152,7 @@ func (k *kube) GetLoadBalancerHost(svc core.Service) (string, error) {
 		return "https://" + ingress.IP, nil
 	}
 
-	return "", errors.New(fmt.Sprint("Can't resolve Ingress Hostname or IP"))
+	return "", errors.New(fmt.Sprint("Failed to retrieve Load Balancer Hostname or IP"))
 }
 
 func (k *kube) buildClient() (*kubernetes.Clientset, *apixv1beta1client.ApiextensionsV1beta1Client, error) {
