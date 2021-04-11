@@ -1,7 +1,7 @@
 package transform
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"testing"
 )
 

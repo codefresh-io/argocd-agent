@@ -2,8 +2,8 @@ package codefresh
 
 import (
 	"crypto/tls"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"net/http"

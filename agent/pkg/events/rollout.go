@@ -2,9 +2,9 @@ package events
 
 import (
 	"errors"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )

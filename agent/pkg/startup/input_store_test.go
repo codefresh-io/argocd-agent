@@ -1,7 +1,7 @@
 package startup
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"testing"
 )
 

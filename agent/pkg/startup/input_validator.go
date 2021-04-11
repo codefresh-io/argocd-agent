@@ -2,7 +2,7 @@ package startup
 
 import (
 	"errors"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"os"
 )
 

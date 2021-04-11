@@ -1,9 +1,9 @@
 package queue
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util/comparator"

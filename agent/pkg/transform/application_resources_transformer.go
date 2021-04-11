@@ -1,6 +1,6 @@
 package transform
 
-import "github.com/codefresh-io/argocd-listener/agent/pkg/argo"
+import "github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 
 // ApplicationResourcesTransformer handler for normalize application resources
 type ApplicationResourcesTransformer struct {

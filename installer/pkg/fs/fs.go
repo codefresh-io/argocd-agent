@@ -1,7 +1,7 @@
 package fs
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"io/ioutil"
 	"os"
 	"strings"

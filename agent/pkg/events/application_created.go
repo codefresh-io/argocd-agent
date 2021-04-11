@@ -1,8 +1,8 @@
 package events
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
 

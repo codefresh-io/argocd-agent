@@ -2,7 +2,7 @@ package git
 
 import (
 	"context"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
 	"github.com/whilp/git-urls"

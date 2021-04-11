@@ -82,12 +82,6 @@ func SetGit(Token string) *Values {
 	return values
 }
 
-func SetGitIntegration(integration string) *Values {
-	values := GetStore()
-	values.Git.Integration = integration
-	return values
-}
-
 func SetAgent(Version string) *Values {
 	values := GetStore()
 	values.Agent.Version = Version

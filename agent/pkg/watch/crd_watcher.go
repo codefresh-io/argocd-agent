@@ -2,16 +2,16 @@ package watch
 
 import (
 	//"fmt"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/argo"
-	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
+	codefresh2 "github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/kube"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/queue"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/kube"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -37,24 +37,6 @@ var (
 )
 
 var itemQueue *queue.ItemQueue
-
-func updateDeletedEnv(obj interface{}) (error, *codefreshSdk.Environment) {
-	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
-	err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
-	if err != nil {
-		return err, env
-	}
-
-	env.HealthStatus = "Deleted"
-
-	err = events.GetRolloutEventHandlerInstance().Handle(env)
-
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, env
-}
 
 func watchApplicationChanges() error {
 	config, err := kube.BuildConfig()
@@ -142,7 +124,7 @@ func watchApplicationChanges() error {
 				logger.GetLogger().Errorf("Failed to handle remove application event use handler, reason: %v", err)
 			}
 
-			err, _ = updateDeletedEnv(obj)
+			err, _ = service.NewGitopsService().MarkEnvAsRemoved(obj)
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to update application status as 'Deleted', reason: %v", err)
 			}
