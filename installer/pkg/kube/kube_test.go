@@ -45,3 +45,65 @@ func TestGetLoadBalancerHost(t *testing.T) {
 		t.Errorf("Host should be \"https://host\" but actually got %s", host)
 	}
 }
+
+func TestGetLoadBalancerHostByIp(t *testing.T) {
+	kube, _ := New(&Options{
+		ContextName:      "",
+		Namespace:        "",
+		PathToKubeConfig: "",
+		InCluster:        false,
+		FailFast:         true,
+	})
+
+	ingresses := make([]v1.LoadBalancerIngress, 0)
+	ingresses = append(ingresses, v1.LoadBalancerIngress{
+		IP:       "ip",
+		Hostname: "",
+	})
+
+	host, err := kube.GetLoadBalancerHost(v1.Service{
+		TypeMeta:   v12.TypeMeta{},
+		ObjectMeta: v12.ObjectMeta{},
+		Spec:       v1.ServiceSpec{},
+		Status: v1.ServiceStatus{
+			LoadBalancer: v1.LoadBalancerStatus{
+				Ingress: ingresses,
+			},
+		},
+	})
+
+	if err != nil {
+		t.Errorf("Should be executed without error, got error %v", err.Error())
+	}
+
+	if host != "https://ip" {
+		t.Errorf("Host should be \"https://ip\" but actually got %s", host)
+	}
+}
+
+func TestGetLoadBalancerHostWithoutIngress(t *testing.T) {
+	kube, _ := New(&Options{
+		ContextName:      "",
+		Namespace:        "",
+		PathToKubeConfig: "",
+		InCluster:        false,
+		FailFast:         true,
+	})
+
+	ingresses := make([]v1.LoadBalancerIngress, 0)
+
+	_, err := kube.GetLoadBalancerHost(v1.Service{
+		TypeMeta:   v12.TypeMeta{},
+		ObjectMeta: v12.ObjectMeta{},
+		Spec:       v1.ServiceSpec{},
+		Status: v1.ServiceStatus{
+			LoadBalancer: v1.LoadBalancerStatus{
+				Ingress: ingresses,
+			},
+		},
+	})
+
+	if err == nil {
+		t.Errorf("Should be executed with error")
+	}
+}
