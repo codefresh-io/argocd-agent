@@ -4,7 +4,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
+	env2 "github.com/codefresh-io/argocd-listener/agent/pkg/transform/env"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util/comparator"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
@@ -29,7 +29,7 @@ func (processor *EnvQueueProcessor) New() QueueProcessor {
 }
 
 func updateEnv(obj *unstructured.Unstructured) (error, *codefreshSdk.Environment) {
-	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+	envTransformer := env2.GetEnvTransformerInstance(argo.GetInstance())
 	err, env := envTransformer.PrepareEnvironment(obj.Object)
 	if err != nil {
 		return err, env

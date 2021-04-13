@@ -1,6 +1,8 @@
 package transform
 
-import "github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
+import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
+)
 
 // ApplicationResourcesTransformer handler for normalize application resources
 type ApplicationResourcesTransformer struct {
@@ -16,16 +18,12 @@ func GetApplicationResourcesTransformer() Transformer {
 	return applicationResourcesTransformer
 }
 
-func lookForRelatedManifestResource(appElem interface{}, resources []interface{}) map[string]interface{} {
-	for _, elem := range resources {
-		item := elem.(map[string]interface{})
+func lookForRelatedManifestResource(appElem interface{}, resources []service.Resource) *service.Resource {
+	for _, resource := range resources {
 		appItem := appElem.(map[string]interface{})
 
-		kind, kindExist := item["kind"]
-		name, nameExist := item["name"]
-
-		if kindExist && nameExist && (name == appItem["name"]) && (kind == appItem["kind"]) {
-			return item
+		if resource.Kind != "" && resource.Name != "" && (resource.Name == appItem["name"]) && (resource.Kind == appItem["kind"]) {
+			return &resource
 		}
 	}
 	return nil
@@ -38,7 +36,7 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 		return nil
 	}
 
-	dataObj, ok := data.(argo.ResourcesWrapper)
+	dataObj, ok := data.(service.ResourcesWrapper)
 	if !ok {
 		return nil
 	}
@@ -53,7 +51,8 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 
 		manifestResource := lookForRelatedManifestResource(item, dataObj.ManifestResources)
 		if manifestResource != nil {
-			item["status"] = manifestResource["status"]
+			item["status"] = manifestResource.Status
+			item["commit"] = manifestResource.Commit
 		}
 	}
 	return resourcestree

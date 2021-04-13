@@ -2,6 +2,7 @@ package transform
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/transform/env"
 	"testing"
 )
 
@@ -41,7 +42,7 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 		t.Errorf("We lost important key")
 	}
 
-	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
+	envTransformer := env.GetEnvTransformerInstance(&env.MockArgoApi{})
 	if envTransformer.argoApi == nil {
 		t.Errorf("Should export argoApi in struct")
 	}
