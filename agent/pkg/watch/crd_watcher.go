@@ -9,7 +9,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/mitchellh/mapstructure"
@@ -73,7 +72,7 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("applications", nil, applications, nil, func() error {
-				applications := transform.AdaptArgoApplications(applications)
+				applications := service.NewArgoResourceService().AdaptArgoApplications(applications)
 				return api.SendResources("applications", applications, len(applications))
 			})
 
@@ -108,7 +107,7 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("applications", nil, applications, nil, func() error {
-				applications := transform.AdaptArgoApplications(applications)
+				applications := service.NewArgoResourceService().AdaptArgoApplications(applications)
 				return api.SendResources("applications", applications, len(applications))
 			})
 
@@ -147,7 +146,7 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
-				projects := transform.AdaptArgoProjects(projects)
+				projects := service.NewArgoResourceService().AdaptArgoProjects(projects)
 				return api.SendResources("projects", projects, len(projects))
 			})
 
@@ -164,7 +163,7 @@ func watchApplicationChanges() error {
 			}
 
 			err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
-				projects := transform.AdaptArgoProjects(projects)
+				projects := service.NewArgoResourceService().AdaptArgoProjects(projects)
 				return api.SendResources("projects", projects, len(projects))
 			})
 			if err != nil {
