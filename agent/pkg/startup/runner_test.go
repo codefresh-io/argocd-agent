@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 var createIntegrationMock func() error
 
 type MockCodefreshApi struct {
