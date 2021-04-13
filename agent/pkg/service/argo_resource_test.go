@@ -1,6 +1,7 @@
 package service
 
 import (
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"testing"
 )
@@ -43,5 +44,57 @@ func TestArgoResourceIdentifyChangedResources(t *testing.T) {
 
 	if *changedResources[0].Commit.Avatar != avatar {
 		t.Error("Avatar is incorrect")
+	}
+}
+
+func TestAdaptArgoApplicationsEmptyState(t *testing.T) {
+	svc := NewArgoResourceService()
+
+	var apps []argoSdk.ApplicationItem
+	agentApps := svc.AdaptArgoApplications(apps)
+	if len(agentApps) != 0 {
+		t.Error("Wrong result")
+	}
+}
+
+func TestAdaptArgoApplicationsNonEmpty(t *testing.T) {
+	svc := NewArgoResourceService()
+
+	apps := make([]argoSdk.ApplicationItem, 0)
+	apps = append(apps, argoSdk.ApplicationItem{
+		Metadata: argoSdk.ApplicationMetadata{},
+		Spec:     argoSdk.ApplicationSpec{},
+	})
+
+	agentApps := svc.AdaptArgoApplications(apps)
+	if len(agentApps) != 1 {
+		t.Error("Wrong result")
+	}
+}
+
+func TestAdaptArgoProjectsNonEmpty(t *testing.T) {
+	svc := NewArgoResourceService()
+
+	projects := make([]argoSdk.ProjectItem, 0)
+	projects = append(projects, argoSdk.ProjectItem{
+		Metadata: argoSdk.ProjectMetadata{
+			Name: "Test",
+			UID:  "UUID",
+		},
+	})
+
+	agentApps := svc.AdaptArgoProjects(projects)
+	if len(agentApps) != 1 {
+		t.Error("Wrong result")
+	}
+}
+
+func TestAdaptArgoProjectsEmptyState(t *testing.T) {
+	svc := NewArgoResourceService()
+
+	var projects []argoSdk.ProjectItem
+	agentProjects := svc.AdaptArgoProjects(projects)
+	if len(agentProjects) != 0 {
+		t.Error("Wrong result")
 	}
 }
