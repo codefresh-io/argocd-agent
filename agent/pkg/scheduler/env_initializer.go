@@ -6,7 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
+	env2 "github.com/codefresh-io/argocd-listener/agent/pkg/transform/env"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/jasonlvhit/gocron"
 )
@@ -29,7 +29,7 @@ func extractNewApplication(application string) (*codefreshSdk.Environment, error
 		return nil, err
 	}
 
-	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
+	envTransformer := env2.GetEnvTransformerInstance(argo.GetInstance())
 
 	err, env := envTransformer.PrepareEnvironment(applicationObj)
 	if err != nil {

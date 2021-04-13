@@ -1,6 +1,8 @@
 package argo
 
-import argo "github.com/codefresh-io/argocd-sdk/pkg/api"
+import (
+	argo "github.com/codefresh-io/argocd-sdk/pkg/api"
+)
 
 type ManagedResourceState struct {
 	Spec     ManagedResourceStateSpec
@@ -42,9 +44,4 @@ type ApplicationResource struct {
 	Namespace string      `json:"namespace"`
 	Status    string      `json:"status"`
 	Health    argo.Health `json:"health"`
-}
-
-type ResourcesWrapper struct {
-	ResourcesTree     []interface{}
-	ManifestResources []interface{}
 }

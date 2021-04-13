@@ -1,11 +1,7 @@
 package service
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type Gitops interface {
@@ -20,19 +16,20 @@ func NewGitopsService() Gitops {
 }
 
 func (gitops *gitops) MarkEnvAsRemoved(obj interface{}) (error, *codefreshSdk.Environment) {
-	envTransformer := transform.GetEnvTransformerInstance(argo.GetInstance())
-	err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
-	if err != nil {
-		return err, env
-	}
+	//disable for now
+	//envTransformer := env.GetEnvTransformerInstance(argo.GetInstance())
+	//err, env := envTransformer.PrepareEnvironment(obj.(*unstructured.Unstructured).Object)
+	//if err != nil {
+	//	return err, env
+	//}
+	//
+	//env.HealthStatus = "Deleted"
+	//
+	//err = events.GetRolloutEventHandlerInstance().Handle(env)
+	//
+	//if err != nil {
+	//	return err, nil
+	//}
 
-	env.HealthStatus = "Deleted"
-
-	err = events.GetRolloutEventHandlerInstance().Handle(env)
-
-	if err != nil {
-		return err, nil
-	}
-
-	return nil, env
+	return nil, nil
 }

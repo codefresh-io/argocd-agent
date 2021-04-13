@@ -1,9 +1,15 @@
 package transform
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
+	"encoding/json"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"testing"
 )
+
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
 
 func TestApplicationResourcesTransformer(t *testing.T) {
 
@@ -18,7 +24,7 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 
 	data[0] = item0
 
-	wrapper := argo.ResourcesWrapper{
+	wrapper := service.ResourcesWrapper{
 		ResourcesTree:     data,
 		ManifestResources: nil,
 	}
@@ -41,10 +47,6 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 		t.Errorf("We lost important key")
 	}
 
-	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
-	if envTransformer.argoApi == nil {
-		t.Errorf("Should export argoApi in struct")
-	}
 }
 
 func TestApplicationResourcesTransformerInCaseNilInput(t *testing.T) {
@@ -54,6 +56,15 @@ func TestApplicationResourcesTransformerInCaseNilInput(t *testing.T) {
 	if result != nil {
 		t.Errorf("Result should be nil")
 	}
+}
+
+func convert(resources interface{}) []service.Resource {
+	manifestResourcesJson, _ := json.Marshal(resources)
+
+	var manifestResourcesStruct []service.Resource
+
+	_ = json.Unmarshal(manifestResourcesJson, &manifestResourcesStruct)
+	return manifestResourcesStruct
 }
 
 func TestApplicationResourcesTransformerInCaseManifestResourcesNotIncludeKind(t *testing.T) {
@@ -77,9 +88,9 @@ func TestApplicationResourcesTransformerInCaseManifestResourcesNotIncludeKind(t 
 	mitem0["status"] = "OutOfSync"
 	manifestResources[0] = mitem0
 
-	wrapper := argo.ResourcesWrapper{
+	wrapper := service.ResourcesWrapper{
 		ResourcesTree:     data,
-		ManifestResources: manifestResources,
+		ManifestResources: convert(manifestResources),
 	}
 
 	result := GetApplicationResourcesTransformer().Transform(wrapper)
@@ -124,9 +135,9 @@ func TestApplicationResourcesTransformerInCaseManifestResourcesIncludeSyncStatus
 	mitem0["kind"] = "Service"
 	manifestResources[0] = mitem0
 
-	wrapper := argo.ResourcesWrapper{
+	wrapper := service.ResourcesWrapper{
 		ResourcesTree:     data,
-		ManifestResources: manifestResources,
+		ManifestResources: convert(manifestResources),
 	}
 
 	result := GetApplicationResourcesTransformer().Transform(wrapper)
@@ -139,7 +150,7 @@ func TestApplicationResourcesTransformerInCaseManifestResourcesIncludeSyncStatus
 
 	elemToMatch := transformationResult[0].(map[string]interface{})
 
-	if len(elemToMatch) != 4 {
+	if len(elemToMatch) != 5 {
 		t.Errorf("Garbage not removed during transformation")
 	}
 
