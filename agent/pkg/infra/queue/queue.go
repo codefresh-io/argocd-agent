@@ -11,6 +11,20 @@ type ItemQueue struct {
 	lock  sync.RWMutex
 }
 
+var queueInstance = ItemQueue{
+	items: nil,
+	lock:  sync.RWMutex{},
+}
+
+var q *ItemQueue
+
+func GetInstance() *ItemQueue {
+	if q == nil {
+		q = queueInstance.New()
+	}
+	return q
+}
+
 // New creates a new ItemQueue
 func (s *ItemQueue) New() *ItemQueue {
 	s.items = make([]*unstructured.Unstructured, 0)
