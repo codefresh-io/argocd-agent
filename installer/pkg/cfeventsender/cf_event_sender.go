@@ -14,23 +14,29 @@ const (
 )
 
 type CfEventSender struct {
-	eventName string
+	eventName    string
+	codefreshApi codefresh.CodefreshApi
 }
 
 func New(eventName string) *CfEventSender {
-	return &CfEventSender{eventName}
+	return &CfEventSender{eventName, codefresh.GetInstance()}
+}
+
+func (cfEventSender *CfEventSender) WithCustomCodefreshApi(cfapi codefresh.CodefreshApi) *CfEventSender {
+	cfEventSender.codefreshApi = cfapi
+	return cfEventSender
 }
 
 func (cfEventSender *CfEventSender) Success(reason string) {
 	props := make(map[string]string)
 	props["status"] = STATUS_SUCCESS
 	props["reason"] = reason
-	_ = codefresh.GetInstance().SendEvent(cfEventSender.eventName, props)
+	_ = cfEventSender.codefreshApi.SendEvent(cfEventSender.eventName, props)
 }
 
 func (cfEventSender *CfEventSender) Fail(reason string) {
 	props := make(map[string]string)
 	props["status"] = STATUS_FAILED
 	props["reason"] = reason
-	_ = codefresh.GetInstance().SendEvent(cfEventSender.eventName, props)
+	_ = cfEventSender.codefreshApi.SendEvent(cfEventSender.eventName, props)
 }
