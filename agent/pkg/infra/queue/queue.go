@@ -47,19 +47,6 @@ func (s *ItemQueue) Dequeue() *unstructured.Unstructured {
 	return item
 }
 
-// Front returns the item next in the queue, without removing it
-func (s *ItemQueue) Front() *unstructured.Unstructured {
-	s.lock.RLock()
-	item := s.items[0]
-	s.lock.RUnlock()
-	return item
-}
-
-// IsEmpty returns true if the queue is empty
-func (s *ItemQueue) IsEmpty() bool {
-	return len(s.items) == 0
-}
-
 // Size returns the number of Items in the queue
 func (s *ItemQueue) Size() int {
 	return len(s.items)
