@@ -1,25 +1,13 @@
 package scheduler
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/robfig/cron/v3"
 )
 
-func updateIntegrationTask() {
-	storeData := store.GetStore()
-
-	err := codefresh.GetInstance().UpdateIntegration(storeData.Codefresh.Integration, storeData.Argo.Host,
-		"", "", storeData.Argo.Token, "", "", "")
-
-	if err != nil {
-		logger.GetLogger().Errorf("Failed to update integration, reason %v", err)
-	}
-}
-
 func StartUpdateIntegration() {
+	gitopsService := service.NewGitopsService()
 	c := cron.New()
-	_, _ = c.AddFunc("@every 10s", updateIntegrationTask) // time???
+	_, _ = c.AddFunc("@every 10s", gitopsService.UpdateIntegration) // time???
 	c.Start()
 }
