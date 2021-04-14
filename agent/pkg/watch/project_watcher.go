@@ -26,6 +26,41 @@ func NewProjectWatcher() Watcher {
 	return &projectWatcher{codefreshApi: codefresh.GetInstance()}
 }
 
+func (projectWatcher *projectWatcher) add(obj interface{}) {
+	projects, err := argo.GetInstance().GetProjectsWithCredentialsFromStorage()
+
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to get projects, reason: %v", err)
+		return
+	}
+
+	err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
+		projects := service.NewArgoResourceService().AdaptArgoProjects(projects)
+		return projectWatcher.codefreshApi.SendResources("projects", projects, len(projects))
+	})
+
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
+	}
+}
+
+func (projectWatcher *projectWatcher) delete(obj interface{}) {
+	projects, err := argo.GetInstance().GetProjectsWithCredentialsFromStorage()
+
+	if err != nil {
+		//TODO: add error handling
+		return
+	}
+
+	err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
+		projects := service.NewArgoResourceService().AdaptArgoProjects(projects)
+		return projectWatcher.codefreshApi.SendResources("projects", projects, len(projects))
+	})
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
+	}
+}
+
 func (projectWatcher *projectWatcher) Watch() error {
 	projectInformer, kubeInformerFactory, err := getInformer(projectCRD)
 	if err != nil {
@@ -34,37 +69,10 @@ func (projectWatcher *projectWatcher) Watch() error {
 
 	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			projects, err := argo.GetInstance().GetProjectsWithCredentialsFromStorage()
-
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to get projects, reason: %v", err)
-				return
-			}
-
-			err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
-				projects := service.NewArgoResourceService().AdaptArgoProjects(projects)
-				return projectWatcher.codefreshApi.SendResources("projects", projects, len(projects))
-			})
-
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
-			}
+			projectWatcher.add(obj)
 		},
 		DeleteFunc: func(obj interface{}) {
-			projects, err := argo.GetInstance().GetProjectsWithCredentialsFromStorage()
-
-			if err != nil {
-				//TODO: add error handling
-				return
-			}
-
-			err = util.ProcessDataWithFilter("projects", nil, projects, nil, func() error {
-				projects := service.NewArgoResourceService().AdaptArgoProjects(projects)
-				return projectWatcher.codefreshApi.SendResources("projects", projects, len(projects))
-			})
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to send projects to codefresh, reason: %v", err)
-			}
+			projectWatcher.delete(obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
 		},
