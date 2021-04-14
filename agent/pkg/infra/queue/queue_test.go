@@ -33,7 +33,7 @@ func TestItemQueue(t *testing.T) {
 
 	queue = queue.New()
 	size = queue.Size()
-	if size != 1 {
+	if size != 0 {
 		t.Error("Wrong size of queue after create new one")
 	}
 
