@@ -47,7 +47,7 @@ func watchApplicationChanges() error {
 		return err
 	}
 
-	kubeInformerFactory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(clientset, time.Minute*30, "argocd", nil)
+	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
 	applicationInformer := kubeInformerFactory.ForResource(applicationCRD).Informer()
 
 	api := codefresh2.GetInstance()
