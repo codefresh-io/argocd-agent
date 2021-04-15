@@ -43,9 +43,12 @@ func getInformer(crd schema.GroupVersionResource) (cache.SharedIndexInformer, dy
 
 func Start() error {
 	projectWatcher := NewProjectWatcher()
-	applicationWatcher := NewApplicationWatcher()
+	applicationWatcher, err := NewApplicationWatcher()
+	if err != nil {
+		return err
+	}
 
-	err := projectWatcher.Watch()
+	err = projectWatcher.Watch()
 	if err != nil {
 		return err
 	}
@@ -55,5 +58,7 @@ func Start() error {
 		return err
 	}
 
-	return nil
+	for {
+		time.Sleep(time.Second)
+	}
 }

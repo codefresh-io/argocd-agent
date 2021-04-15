@@ -12,6 +12,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -24,12 +25,20 @@ var (
 )
 
 type applicationWatcher struct {
-	codefreshApi codefresh.CodefreshApi
-	itemQueue    *queue.ItemQueue
+	codefreshApi    codefresh.CodefreshApi
+	itemQueue       *queue.ItemQueue
+	informer        cache.SharedIndexInformer
+	informerFactory dynamicinformer.DynamicSharedInformerFactory
+	argoApi         argo.ArgoAPI
 }
 
-func NewApplicationWatcher() Watcher {
-	return &applicationWatcher{codefreshApi: codefresh.GetInstance(), itemQueue: queue.GetInstance()}
+func NewApplicationWatcher() (Watcher, error) {
+	informer, informerFactory, err := getInformer(applicationCRD)
+	if err != nil {
+		return nil, err
+	}
+	return &applicationWatcher{codefreshApi: codefresh.GetInstance(), itemQueue: queue.GetInstance(),
+		informer: informer, informerFactory: informerFactory, argoApi: argo.GetInstance()}, nil
 }
 
 func (watcher *applicationWatcher) add(obj interface{}) {
@@ -43,7 +52,7 @@ func (watcher *applicationWatcher) add(obj interface{}) {
 
 	watcher.itemQueue.Enqueue(obj.(*unstructured.Unstructured))
 
-	applications, err := argo.GetInstance().GetApplicationsWithCredentialsFromStorage()
+	applications, err := watcher.argoApi.GetApplicationsWithCredentialsFromStorage()
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
@@ -80,7 +89,7 @@ func (watcher *applicationWatcher) delete(obj interface{}) {
 		return
 	}
 
-	applications, err := argo.GetInstance().GetApplicationsWithCredentialsFromStorage()
+	applications, err := watcher.argoApi.GetApplicationsWithCredentialsFromStorage()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to get applications, reason: %v", err)
 		return
@@ -114,12 +123,8 @@ func (watcher *applicationWatcher) update(newObj interface{}) {
 }
 
 func (watcher *applicationWatcher) Watch() error {
-	applicationInformer, kubeInformerFactory, err := getInformer(applicationCRD)
-	if err != nil {
-		return err
-	}
 
-	applicationInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+	watcher.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			watcher.add(obj)
 		},
@@ -131,7 +136,7 @@ func (watcher *applicationWatcher) Watch() error {
 		},
 	})
 
-	start(kubeInformerFactory)
+	start(watcher.informerFactory)
 
 	return nil
 }
