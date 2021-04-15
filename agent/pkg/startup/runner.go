@@ -52,5 +52,5 @@ func (runner *Runner) Run() error {
 	queueProcessor := queue.EnvQueueProcessor{}
 	go queueProcessor.Run()
 
-	return watch.Watch()
+	return watch.Start()
 }
