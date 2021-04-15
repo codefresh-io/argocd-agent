@@ -7,6 +7,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic/dynamicinformer"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -19,15 +20,23 @@ var (
 )
 
 type projectWatcher struct {
-	codefreshApi codefresh.CodefreshApi
+	codefreshApi    codefresh.CodefreshApi
+	informer        cache.SharedIndexInformer
+	informerFactory dynamicinformer.DynamicSharedInformerFactory
+	argoApi         argo.ArgoAPI
 }
 
-func NewProjectWatcher() Watcher {
-	return &projectWatcher{codefreshApi: codefresh.GetInstance()}
+func NewProjectWatcher() (Watcher, error) {
+	informer, informerFactory, err := getInformer(projectCRD)
+	if err != nil {
+		return nil, err
+	}
+	return &projectWatcher{codefreshApi: codefresh.GetInstance(), informer: informer,
+		informerFactory: informerFactory, argoApi: argo.GetInstance()}, nil
 }
 
 func (projectWatcher *projectWatcher) add(obj interface{}) {
-	projects, err := argo.GetInstance().GetProjectsWithCredentialsFromStorage()
+	projects, err := projectWatcher.argoApi.GetProjectsWithCredentialsFromStorage()
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to get projects, reason: %v", err)
@@ -45,7 +54,7 @@ func (projectWatcher *projectWatcher) add(obj interface{}) {
 }
 
 func (projectWatcher *projectWatcher) delete(obj interface{}) {
-	projects, err := argo.GetInstance().GetProjectsWithCredentialsFromStorage()
+	projects, err := projectWatcher.argoApi.GetProjectsWithCredentialsFromStorage()
 
 	if err != nil {
 		//TODO: add error handling
@@ -62,12 +71,7 @@ func (projectWatcher *projectWatcher) delete(obj interface{}) {
 }
 
 func (projectWatcher *projectWatcher) Watch() error {
-	projectInformer, kubeInformerFactory, err := getInformer(projectCRD)
-	if err != nil {
-		return err
-	}
-
-	projectInformer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+	projectWatcher.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			projectWatcher.add(obj)
 		},
@@ -78,7 +82,7 @@ func (projectWatcher *projectWatcher) Watch() error {
 		},
 	})
 
-	start(kubeInformerFactory)
+	start(projectWatcher.informerFactory)
 
 	return nil
 }
