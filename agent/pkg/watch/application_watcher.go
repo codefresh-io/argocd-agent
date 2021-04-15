@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic/dynamicinformer"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -122,7 +123,7 @@ func (watcher *applicationWatcher) update(newObj interface{}) {
 	watcher.itemQueue.Enqueue(newObj.(*unstructured.Unstructured))
 }
 
-func (watcher *applicationWatcher) Watch() error {
+func (watcher *applicationWatcher) Watch() (dynamicinformer.DynamicSharedInformerFactory, error) {
 
 	watcher.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -136,7 +137,5 @@ func (watcher *applicationWatcher) Watch() error {
 		},
 	})
 
-	start(watcher.informerFactory)
-
-	return nil
+	return watcher.informerFactory, nil
 }
