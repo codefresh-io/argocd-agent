@@ -8,6 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic/dynamicinformer"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -70,7 +71,7 @@ func (projectWatcher *projectWatcher) delete(obj interface{}) {
 	}
 }
 
-func (projectWatcher *projectWatcher) Watch() error {
+func (projectWatcher *projectWatcher) Watch() (dynamicinformer.DynamicSharedInformerFactory, error) {
 	projectWatcher.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			projectWatcher.add(obj)
@@ -82,7 +83,5 @@ func (projectWatcher *projectWatcher) Watch() error {
 		},
 	})
 
-	start(projectWatcher.informerFactory)
-
-	return nil
+	return projectWatcher.informerFactory, nil
 }

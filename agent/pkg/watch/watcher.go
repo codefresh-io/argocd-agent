@@ -10,7 +10,7 @@ import (
 )
 
 type Watcher interface {
-	Watch() error
+	Watch() (dynamicinformer.DynamicSharedInformerFactory, error)
 }
 
 func getKubeconfig() (dynamic.Interface, error) {
@@ -23,12 +23,6 @@ func getKubeconfig() (dynamic.Interface, error) {
 		return nil, err
 	}
 	return clientset, nil
-}
-
-func start(kubeInformerFactory dynamicinformer.DynamicSharedInformerFactory) {
-	stop := make(chan struct{})
-	defer close(stop)
-	kubeInformerFactory.Start(stop)
 }
 
 func getInformer(crd schema.GroupVersionResource) (cache.SharedIndexInformer, dynamicinformer.DynamicSharedInformerFactory, error) {
@@ -52,15 +46,23 @@ func Start() error {
 		return err
 	}
 
-	err = projectWatcher.Watch()
+	projectInformerFactory, err := projectWatcher.Watch()
 	if err != nil {
 		return err
 	}
 
-	err = applicationWatcher.Watch()
+	applicationInformerFactory, err := applicationWatcher.Watch()
 	if err != nil {
 		return err
 	}
+
+	stopApplication := make(chan struct{})
+	defer close(stopApplication)
+	applicationInformerFactory.Start(stopApplication)
+
+	stopProject := make(chan struct{})
+	defer close(stopProject)
+	projectInformerFactory.Start(stopProject)
 
 	for {
 		time.Sleep(time.Second)

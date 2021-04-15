@@ -20,6 +20,6 @@ func updateIntegrationTask() {
 
 func StartUpdateIntegration() {
 	c := cron.New()
-	_, _ = c.AddFunc("@every 10s", updateIntegrationTask) // time???
+	_, _ = c.AddFunc("@every 100s", updateIntegrationTask) // time???
 	c.Start()
 }
