@@ -156,10 +156,11 @@ func TestApplicationWatcherDeleteEvent(t *testing.T) {
 }
 
 func TestApplicationWatcherCreateEvent(t *testing.T) {
+	q := queue.GetInstance().New()
 
 	appwatcher := applicationWatcher{
 		codefreshApi:    &MockCodefreshApi{},
-		itemQueue:       queue.GetInstance(),
+		itemQueue:       q,
 		informer:        nil,
 		informerFactory: nil,
 		argoApi:         &MockArgoApi{},
@@ -176,7 +177,7 @@ func TestApplicationWatcherCreateEvent(t *testing.T) {
 
 	appwatcher.add(obj)
 
-	size := queue.GetInstance().Size()
+	size := q.Size()
 
 	if size != 1 {
 		t.Error("Unable watch update events")
