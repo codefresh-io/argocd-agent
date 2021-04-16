@@ -2,5 +2,5 @@ comment:
   layout: "reach, diff, flags, files"
   behavior: default
   require_changes: false  # if true: only post the comment if coverage changes
-  ignore:
-    - "installer/obj/kubeobj"
+ignore:
+  - "installer/obj/kubeobj"
