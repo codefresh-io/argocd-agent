@@ -16,18 +16,19 @@ func retrieveHostFromLB(installOptions *entity.InstallCmdOptions, kubeClient kub
 	if err != nil {
 		msg := fmt.Sprintf("We didn't find ArgoCD on \"%s/%s\"", installOptions.Kube.ClusterName, kubeOptions.Namespace)
 		return errors.New(msg)
-	} else {
-		if kube.IsLoadBalancer(argoServerSvc) {
-			balancerHost, err := kubeClient.GetLoadBalancerHost(argoServerSvc)
-			if err != nil {
-				return err
-			}
-			if balancerHost != "" {
-				installOptions.Argo.Host = balancerHost
-			}
-		}
 	}
-	return nil
+
+	if kube.IsLoadBalancer(argoServerSvc) {
+		balancerHost, err := kubeClient.GetLoadBalancerHost(argoServerSvc)
+		if err != nil {
+			return err
+		}
+		if balancerHost != "" {
+			installOptions.Argo.Host = balancerHost
+		}
+		return nil
+	}
+	return errors.New("Failed to retrieve LoadBalancer information, codefresh argocd agent require argocd-server be LoadBalancer type")
 }
 
 // AskAboutArgoCredentials request argocd credentials if it wasnt passed in cli during installation
