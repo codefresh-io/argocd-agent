@@ -8,6 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
+	//"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
 )
 
 type Runner struct {
@@ -42,7 +43,7 @@ func (runner *Runner) Run() error {
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
-	scheduler.StartUpdateIntegration()
+	go scheduler.StartUpdateIntegration()
 
 	err := events.GetSyncHandlerInstance(codefresh.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {

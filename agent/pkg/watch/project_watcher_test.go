@@ -117,6 +117,18 @@ func (api *PMockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.
 	return applications, nil
 }
 
+func (api *PMockArgoApi) GetClusters() ([]argoSdk.ClusterItem, error) {
+	panic("implement me")
+}
+
+func (api *PMockArgoApi) GetApplications() ([]argoSdk.ApplicationItem, error) {
+	panic("implement me")
+}
+
+func (api *PMockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
+	panic("implement me")
+}
+
 func TestProjectWatcherDeleteEvent(t *testing.T) {
 
 	projectwatcher := projectWatcher{

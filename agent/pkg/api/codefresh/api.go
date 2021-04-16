@@ -2,9 +2,9 @@ package codefresh
 
 import (
 	"crypto/tls"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
-	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"net/http"
 )
@@ -144,19 +144,18 @@ func prepareIntegration(name string, host string, username string, password stri
 		Url:  host,
 	}
 
-	if token == "" && username != "" && password != "" {
-		token, _ = argoSdk.GetToken(username, password, host)
+	if token == "" {
+		token = store.GetStore().Argo.Token
 	}
 
-	argoClientOptions := argoSdk.ClientOptions{Auth: argoSdk.AuthOptions{Token: token}, Host: host}
-	argoApi := argoSdk.New(&argoClientOptions)
+	argoApi := argo.GetInstance()
 
-	applications, _ := argoApi.Application().GetApplications()
-	clusters, _ := argoApi.Clusters().GetClusters()
-	repositories, _ := argoApi.Repository().GetRepositories()
+	applications, _ := argoApi.GetApplications()
+	clusters, _ := argoApi.GetClusters()
+	repositories, _ := argoApi.GetRepositories()
 
-	payloadData.Clusters = codefreshSdk.IntegrationItem{Amount: len(clusters)}
-	payloadData.Applications = codefreshSdk.IntegrationItem{Amount: len(applications)}
+	payloadData.Clusters = codefreshSdk.IntegrationItem{Amount: len(applications)}
+	payloadData.Applications = codefreshSdk.IntegrationItem{Amount: len(clusters)}
 	payloadData.Repositories = codefreshSdk.IntegrationItem{Amount: len(repositories)}
 
 	if username != "" {

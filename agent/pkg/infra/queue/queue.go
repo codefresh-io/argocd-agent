@@ -1,13 +1,13 @@
 package queue
 
 import (
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"sync"
 )
 
 // ItemQueue the queue of Items
 type ItemQueue struct {
-	items []*unstructured.Unstructured
+	items []*argoSdk.ArgoApplication
 	lock  sync.RWMutex
 }
 
@@ -27,19 +27,19 @@ func GetInstance() *ItemQueue {
 
 // New creates a new ItemQueue
 func (s *ItemQueue) New() *ItemQueue {
-	s.items = make([]*unstructured.Unstructured, 0)
+	s.items = make([]*argoSdk.ArgoApplication, 0)
 	return s
 }
 
 // Enqueue adds an Item to the end of the queue
-func (s *ItemQueue) Enqueue(t *unstructured.Unstructured) {
+func (s *ItemQueue) Enqueue(t *argoSdk.ArgoApplication) {
 	s.lock.Lock()
 	s.items = append(s.items, t)
 	s.lock.Unlock()
 }
 
 // Dequeue removes an Item from the start of the queue
-func (s *ItemQueue) Dequeue() *unstructured.Unstructured {
+func (s *ItemQueue) Dequeue() *argoSdk.ArgoApplication {
 	s.lock.Lock()
 	item := s.items[0]
 	s.items = s.items[1:len(s.items)]

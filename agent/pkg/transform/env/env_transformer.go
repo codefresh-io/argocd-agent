@@ -9,7 +9,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"github.com/mitchellh/mapstructure"
 	"sort"
 )
 
@@ -126,13 +125,7 @@ func filterResources(resources interface{}) []interface{} {
 	return result
 }
 
-func (envTransformer *EnvTransformer) PrepareEnvironment(envItem map[string]interface{}) (error, *codefreshSdk.Environment) {
-
-	var app argoSdk.ArgoApplication
-	err := mapstructure.Decode(envItem, &app)
-	if err != nil {
-		return err, nil
-	}
+func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication) (error, *codefreshSdk.Environment) {
 
 	github := provider.NewGithubProvider()
 

@@ -46,6 +46,18 @@ func (api *MockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.A
 	return []argoSdk.ApplicationItem{}, nil
 }
 
+func (api *MockArgoApi) GetClusters() ([]argoSdk.ClusterItem, error) {
+	panic("implement me")
+}
+
+func (api *MockArgoApi) GetApplications() ([]argoSdk.ApplicationItem, error) {
+	panic("implement me")
+}
+
+func (api *MockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
+	panic("implement me")
+}
+
 func TestEmptyResultOfApplications(t *testing.T) {
 	test := &ApplicationAcceptanceTest{
 		argoApi: &MockArgoApi{},
