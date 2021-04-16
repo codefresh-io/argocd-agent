@@ -6,9 +6,14 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 )
 
-func ShowSummary(installOptions *entity.InstallCmdOptions) {
-	logger.Success("\nInstallation options summary:")
+type SummaryItem struct {
+	message string
+	value   string
+}
+
+func buildSummary(installOptions *entity.InstallCmdOptions) []SummaryItem {
 	var items []SummaryItem
+
 	var syncModeStr string
 	if installOptions.Codefresh.SyncMode == codefresh.ContinueSync {
 		syncModeStr = "Yes"
@@ -63,6 +68,14 @@ func ShowSummary(installOptions *entity.InstallCmdOptions) {
 		message: "HTTPS proxy",
 		value:   getProxyString(installOptions.Host.HttpsProxy),
 	})
+
+	return items
+}
+
+func ShowSummary(installOptions *entity.InstallCmdOptions) {
+	logger.Success("\nInstallation options summary:")
+
+	items := buildSummary(installOptions)
 
 	for i, item := range items {
 		logger.Summary(i+1, item.message, item.value)
