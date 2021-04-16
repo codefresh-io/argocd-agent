@@ -8,7 +8,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
-	//"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
 )
 
 type Runner struct {
