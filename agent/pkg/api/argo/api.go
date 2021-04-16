@@ -17,6 +17,9 @@ type ArgoAPI interface {
 	GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error)
 	GetApplication(application string) (map[string]interface{}, error)
 	CheckToken() error
+	GetClusters() ([]argoSdk.ClusterItem, error)
+	GetApplications() ([]argoSdk.ApplicationItem, error)
+	GetRepositories() ([]argoSdk.RepositoryItem, error)
 }
 
 type argoAPI struct {
@@ -98,6 +101,21 @@ func (api *argoAPI) GetVersion() (string, error) {
 // GetManagedResources
 func (api *argoAPI) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
 	return api.sdk.Application().GetManagedResources(applicationName)
+}
+
+// GetClusters get argocd connected clusters
+func (api *argoAPI) GetClusters() ([]argoSdk.ClusterItem, error) {
+	return api.sdk.Clusters().GetClusters()
+}
+
+// GetApplications get argocd applications
+func (api *argoAPI) GetApplications() ([]argoSdk.ApplicationItem, error) {
+	return api.sdk.Application().GetApplications()
+}
+
+// GetRepositories get argocd connected repositories
+func (api *argoAPI) GetRepositories() ([]argoSdk.RepositoryItem, error) {
+	return api.sdk.Repository().GetRepositories()
 }
 
 // GetProjectsWithCredentialsFromStorage retrieve projects use credentials from storage that we init during startup

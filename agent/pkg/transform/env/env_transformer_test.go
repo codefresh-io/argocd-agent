@@ -1,6 +1,7 @@
 package env
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"testing"
 )
@@ -89,6 +90,18 @@ func (m MockArgoApi) GetManagedResources(applicationName string) (*argoSdk.Manag
 	}, nil
 }
 
+func (api *MockArgoApi) GetClusters() ([]argoSdk.ClusterItem, error) {
+	panic("implement me")
+}
+
+func (api *MockArgoApi) GetApplications() ([]argoSdk.ApplicationItem, error) {
+	panic("implement me")
+}
+
+func (api *MockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
+	panic("implement me")
+}
+
 func TestGetEnvTransformerInstance(t *testing.T) {
 	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
 	if envTransformer.argoApi == nil {
@@ -124,7 +137,11 @@ func TestPrepareEnvironment(t *testing.T) {
 		},
 	}
 
-	err, _ = envTransformer.PrepareEnvironment(envItem)
+	var env argoSdk.ArgoApplication
+
+	util.Convert(envItem, &env)
+
+	err, _ = envTransformer.PrepareEnvironment(env)
 	if err != nil {
 		t.Errorf("Should successful finish PrepareEnvironment")
 	}

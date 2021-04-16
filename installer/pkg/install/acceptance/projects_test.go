@@ -46,6 +46,18 @@ func (api *PrjMockArgoApi) GetApplication(application string) (map[string]interf
 	panic("implement me")
 }
 
+func (api *PrjMockArgoApi) GetClusters() ([]argoSdk.ClusterItem, error) {
+	panic("implement me")
+}
+
+func (api *PrjMockArgoApi) GetApplications() ([]argoSdk.ApplicationItem, error) {
+	panic("implement me")
+}
+
+func (api *PrjMockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
+	panic("implement me")
+}
+
 func TestEmptyResultOfProjects(t *testing.T) {
 	test := &ProjectAcceptanceTest{
 		argoApi: &PrjMockArgoApi{},

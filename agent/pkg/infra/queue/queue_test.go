@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"testing"
 )
@@ -16,7 +18,11 @@ func TestItemQueue(t *testing.T) {
 	m["k"] = "v"
 
 	queue := GetInstance()
-	queue.Enqueue(&unstructured.Unstructured{Object: m})
+
+	var env argoSdk.ArgoApplication
+
+	util.Convert(unstructured.Unstructured{Object: m}, env)
+	queue.Enqueue(&env)
 
 	size := queue.Size()
 	if size != 1 {
@@ -29,7 +35,7 @@ func TestItemQueue(t *testing.T) {
 		t.Error("We should be able retrieve item")
 	}
 
-	queue.Enqueue(&unstructured.Unstructured{Object: m})
+	queue.Enqueue(&env)
 
 	queue = queue.New()
 	size = queue.Size()

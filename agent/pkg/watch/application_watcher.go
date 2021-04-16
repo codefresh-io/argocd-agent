@@ -51,7 +51,10 @@ func (watcher *applicationWatcher) add(obj interface{}) {
 		return
 	}
 
-	watcher.itemQueue.Enqueue(obj.(*unstructured.Unstructured))
+	var crd argoSdk.ArgoApplication
+	util.Convert(obj, &crd)
+
+	watcher.itemQueue.Enqueue(&crd)
 
 	applications, err := watcher.argoApi.GetApplicationsWithCredentialsFromStorage()
 
@@ -120,7 +123,9 @@ func (watcher *applicationWatcher) delete(obj interface{}) {
 }
 
 func (watcher *applicationWatcher) update(newObj interface{}) {
-	watcher.itemQueue.Enqueue(newObj.(*unstructured.Unstructured))
+	var crd argoSdk.ArgoApplication
+	util.Convert(newObj, &crd)
+	watcher.itemQueue.Enqueue(&crd)
 }
 
 func (watcher *applicationWatcher) Watch() (dynamicinformer.DynamicSharedInformerFactory, error) {

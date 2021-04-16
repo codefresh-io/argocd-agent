@@ -42,7 +42,7 @@ func (runner *Runner) Run() error {
 
 	scheduler.StartHeartBeat()
 	scheduler.StartEnvInitializer()
-	scheduler.StartUpdateIntegration()
+	go scheduler.StartUpdateIntegration()
 
 	err := events.GetSyncHandlerInstance(codefresh.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
