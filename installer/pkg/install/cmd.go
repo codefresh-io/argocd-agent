@@ -21,12 +21,12 @@ import (
 )
 
 func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
+	// should be in begining for show correct events
+	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
+	store.SetCodefresh(installCmdOptions.Codefresh.Host, installCmdOptions.Codefresh.Token, installCmdOptions.Codefresh.Integration)
+
 	var err error
 	eventSender := cfEventSender.New(cfEventSender.EVENT_AGENT_INSTALL)
-	// should be in beg for show correct events
-	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
-
-	store.SetCodefresh(installCmdOptions.Codefresh.Host, installCmdOptions.Codefresh.Token, installCmdOptions.Codefresh.Integration)
 
 	kubeConfigPath := installCmdOptions.Kube.ConfigPath
 	kubeOptions := installCmdOptions.Kube
