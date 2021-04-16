@@ -16,6 +16,8 @@ var _ = func() bool {
 	return true
 }()
 
+var GetArgoServerSvcFunc func() (core.Service, error)
+
 type MockKube struct {
 }
 
@@ -44,7 +46,7 @@ func (k *MockKube) GetArgoServerHost() (string, error) {
 }
 
 func (k *MockKube) GetLoadBalancerHost(svc core.Service) (string, error) {
-	return "", nil
+	return "localhost", nil
 }
 
 func (k *MockKube) buildClient() (*kubernetes.Clientset, *apixv1beta1client.ApiextensionsV1beta1Client, error) {
@@ -52,12 +54,7 @@ func (k *MockKube) buildClient() (*kubernetes.Clientset, *apixv1beta1client.Apie
 }
 
 func (k *MockKube) GetArgoServerSvc(namespace string) (core.Service, error) {
-	return core.Service{
-		TypeMeta:   v1.TypeMeta{},
-		ObjectMeta: v1.ObjectMeta{},
-		Spec:       core.ServiceSpec{},
-		Status:     core.ServiceStatus{},
-	}, errors.New("cant find service with lb")
+	return GetArgoServerSvcFunc()
 }
 
 func (k *MockKube) GetNamespaces() ([]string, error) {
@@ -82,6 +79,15 @@ func (k *MockKube) DeleteObjects(manifestPath string) error {
 
 func TestAskAboutArgoCredentials(t *testing.T) {
 
+	GetArgoServerSvcFunc = func() (service core.Service, e error) {
+		return core.Service{
+			TypeMeta:   v1.TypeMeta{},
+			ObjectMeta: v1.ObjectMeta{},
+			Spec:       core.ServiceSpec{},
+			Status:     core.ServiceStatus{},
+		}, errors.New("cant find service with lb")
+	}
+
 	installCmdOptions := &entity.InstallCmdOptions{
 		Argo: struct {
 			Host     string
@@ -100,6 +106,15 @@ func TestAskAboutArgoCredentials(t *testing.T) {
 }
 
 func TestAskAboutArgoCredentialsFromLB(t *testing.T) {
+	GetArgoServerSvcFunc = func() (service core.Service, e error) {
+		return core.Service{
+			TypeMeta:   v1.TypeMeta{},
+			ObjectMeta: v1.ObjectMeta{},
+			Spec:       core.ServiceSpec{},
+			Status:     core.ServiceStatus{},
+		}, errors.New("cant find service with lb")
+	}
+
 	installCmdOptions := &entity.InstallCmdOptions{
 		Argo: struct {
 			Host     string
@@ -113,5 +128,61 @@ func TestAskAboutArgoCredentialsFromLB(t *testing.T) {
 	err := AskAboutArgoCredentials(installCmdOptions, NewKubeClient())
 	if err == nil || err.Error() != "We didn't find ArgoCD on \"/\"" {
 		t.Errorf("We should fail with error: We didn't find ArgoCD on \"/\" ")
+	}
+}
+
+func TestAskAboutArgoCredentialsFromLBWithError(t *testing.T) {
+	GetArgoServerSvcFunc = func() (service core.Service, e error) {
+		return core.Service{
+			TypeMeta:   v1.TypeMeta{},
+			ObjectMeta: v1.ObjectMeta{},
+			Spec: core.ServiceSpec{
+				Type: "ClusterIp",
+			},
+			Status: core.ServiceStatus{},
+		}, nil
+	}
+
+	installCmdOptions := &entity.InstallCmdOptions{
+		Argo: struct {
+			Host     string
+			Username string
+			Password string
+			Token    string
+			Update   bool
+		}{Username: "test", Password: "test", Token: "test", Update: false},
+	}
+
+	err := AskAboutArgoCredentials(installCmdOptions, &MockKube{})
+	if err == nil || err.Error() != "Failed to retrieve LoadBalancer information, codefresh argocd agent require argocd-server be LoadBalancer type" {
+		t.Errorf("We should fail with error: \"Failed to retrieve LoadBalancer information, codefresh argocd agent require argocd-server be LoadBalancer type\" ")
+	}
+}
+
+func TestAskAboutArgoCredentialsFromLBWithoutError(t *testing.T) {
+	GetArgoServerSvcFunc = func() (service core.Service, e error) {
+		return core.Service{
+			TypeMeta:   v1.TypeMeta{},
+			ObjectMeta: v1.ObjectMeta{},
+			Spec: core.ServiceSpec{
+				Type: "LoadBalancer",
+			},
+			Status: core.ServiceStatus{},
+		}, nil
+	}
+
+	installCmdOptions := &entity.InstallCmdOptions{
+		Argo: struct {
+			Host     string
+			Username string
+			Password string
+			Token    string
+			Update   bool
+		}{Username: "test", Password: "test", Token: "test", Update: false},
+	}
+
+	err := AskAboutArgoCredentials(installCmdOptions, &MockKube{})
+	if err != nil || installCmdOptions.Argo.Host != "https://localhost" {
+		t.Errorf("Argo host should be \"https://localhost\", but %s", installCmdOptions.Argo.Host)
 	}
 }
