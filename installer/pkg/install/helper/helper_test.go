@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 func verifySummaryItem(t *testing.T, expectedTitle string, expectedValue string, item SummaryItem) {
 	if item.message != expectedTitle {
 		t.Errorf("Wrong message %s, should be %s", item.message, expectedTitle)
