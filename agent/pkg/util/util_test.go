@@ -30,11 +30,11 @@ func TestConvert(t *testing.T) {
 	labels := map[string]interface{}{"app.kubernetes.io/instance": "apps-root"}
 	envItem := map[string]interface{}{
 		"metadata": struct {
-			name   string
-			labels map[string]interface{}
+			Name   string
+			Labels map[string]interface{}
 		}{
-			labels: labels,
-			name:   "test",
+			Labels: labels,
+			Name:   "test",
 		},
 	}
 
