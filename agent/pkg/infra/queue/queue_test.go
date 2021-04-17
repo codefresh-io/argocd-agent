@@ -51,3 +51,17 @@ func TestItemQueue(t *testing.T) {
 	}
 
 }
+
+func TestItemQueueDequeueEmptyState(t *testing.T) {
+
+	m := make(map[string]interface{})
+	m["k"] = "v"
+
+	queue := GetInstance()
+
+	result := queue.Dequeue()
+
+	if result != nil {
+		t.Error("Dequeue should return nil")
+	}
+}

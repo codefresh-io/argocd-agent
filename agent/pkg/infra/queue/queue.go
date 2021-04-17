@@ -48,8 +48,6 @@ func (s *ItemQueue) Dequeue() *service.ApplicationWrapper {
 			delete(s.items, key)
 			s.lock.Unlock()
 			return element
-		} else {
-			delete(s.items, key)
 		}
 	}
 	s.lock.Unlock()
