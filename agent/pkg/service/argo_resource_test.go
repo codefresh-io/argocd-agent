@@ -122,13 +122,17 @@ func TestResolveHistoryIdByRevision(t *testing.T) {
 			Id:       0,
 			Revision: "123",
 		},
+		{
+			Id:       1,
+			Revision: "123",
+		},
 	}
 	err, historyId := svc.ResolveHistoryId(historyList, "123", "test")
 	if err != nil {
 		t.Error("Resolve history id should not fail")
 	}
 
-	if historyId != 0 {
-		t.Error("History id should be 0")
+	if historyId != 1 {
+		t.Error("History id should be 1")
 	}
 }
