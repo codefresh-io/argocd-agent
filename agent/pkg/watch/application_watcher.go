@@ -57,7 +57,6 @@ func (watcher *applicationWatcher) add(obj interface{}) {
 
 	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
 	if err == nil {
-		crd.Status.History = nil
 		logger.GetLogger().Infof("Add item to queue, revision %v, history %v", crd.Status.OperationState.SyncResult.Revision, historyId)
 		watcher.itemQueue.Enqueue(&service.ApplicationWrapper{
 			Application: crd,
@@ -138,7 +137,6 @@ func (watcher *applicationWatcher) update(newObj interface{}) {
 
 	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
 	if err == nil {
-		crd.Status.History = nil
 		logger.GetLogger().Infof("Add item to queue, revision %v, history %v", crd.Status.OperationState.SyncResult.Revision, historyId)
 		watcher.itemQueue.Enqueue(&service.ApplicationWrapper{
 			Application: crd,
