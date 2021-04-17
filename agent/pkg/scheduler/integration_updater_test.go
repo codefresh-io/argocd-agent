@@ -5,6 +5,11 @@ import (
 	"testing"
 )
 
+var _ = func() bool {
+	testing.Init()
+	return true
+}()
+
 var UpdateIntegration func() error
 
 type MockCodefreshApi struct {
