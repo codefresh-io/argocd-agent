@@ -1,13 +1,14 @@
 package queue
 
 import (
-	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
+	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"sync"
 )
 
 // ItemQueue the queue of Items
 type ItemQueue struct {
-	items []*argoSdk.ArgoApplication
+	items map[string]*service.ApplicationWrapper
 	lock  sync.RWMutex
 }
 
@@ -27,24 +28,32 @@ func GetInstance() *ItemQueue {
 
 // New creates a new ItemQueue
 func (s *ItemQueue) New() *ItemQueue {
-	s.items = make([]*argoSdk.ArgoApplication, 0)
+	s.items = make(map[string]*service.ApplicationWrapper, 0)
 	return s
 }
 
 // Enqueue adds an Item to the end of the queue
-func (s *ItemQueue) Enqueue(t *argoSdk.ArgoApplication) {
+func (s *ItemQueue) Enqueue(t *service.ApplicationWrapper) {
 	s.lock.Lock()
-	s.items = append(s.items, t)
+	key := fmt.Sprintf("%s.%v", t.Application.Status.OperationState.SyncResult.Revision, t.HistoryId)
+	s.items[key] = t
 	s.lock.Unlock()
 }
 
 // Dequeue removes an Item from the start of the queue
-func (s *ItemQueue) Dequeue() *argoSdk.ArgoApplication {
+func (s *ItemQueue) Dequeue() *service.ApplicationWrapper {
 	s.lock.Lock()
-	item := s.items[0]
-	s.items = s.items[1:len(s.items)]
+	for key, element := range s.items {
+		if element != nil {
+			delete(s.items, key)
+			s.lock.Unlock()
+			return element
+		} else {
+			delete(s.items, key)
+		}
+	}
 	s.lock.Unlock()
-	return item
+	return nil
 }
 
 // Size returns the number of Items in the queue

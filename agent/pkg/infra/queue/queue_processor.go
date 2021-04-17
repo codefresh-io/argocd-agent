@@ -49,10 +49,13 @@ func (processor *EnvQueueProcessor) Run() {
 	for true {
 		if itemQueue.Size() > 0 {
 			item := itemQueue.Dequeue()
-			err, _ := updateEnv(item)
-			if err != nil {
-				logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
+			if item != nil {
+				err, _ := updateEnv(&item.Application)
+				if err != nil {
+					logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
+				}
 			}
+			logger.GetLogger().Infof("Queue size %v", itemQueue.Size())
 		}
 		time.Sleep(1 * time.Second)
 	}

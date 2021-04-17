@@ -30,7 +30,7 @@ func getInformer(crd schema.GroupVersionResource) (cache.SharedIndexInformer, dy
 	if err != nil {
 		return nil, nil, err
 	}
-	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
+	kubeInformerFactory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(clientset, time.Minute*30, "argocd", nil)
 	informer := kubeInformerFactory.ForResource(crd).Informer()
 	return informer, kubeInformerFactory, nil
 }
