@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	env2 "github.com/codefresh-io/argocd-listener/agent/pkg/transform/env"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
@@ -37,7 +38,12 @@ func extractNewApplication(application string) (*codefreshSdk.Environment, error
 
 	envTransformer := env2.GetEnvTransformerInstance(argo.GetInstance())
 
-	err, env := envTransformer.PrepareEnvironment(app)
+	err, historyId := service.NewArgoResourceService().ResolveHistoryId(app.Status.History, app.Status.OperationState.SyncResult.Revision, app.Metadata.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	err, env := envTransformer.PrepareEnvironment(app, historyId)
 	if err != nil {
 		return nil, err
 	}

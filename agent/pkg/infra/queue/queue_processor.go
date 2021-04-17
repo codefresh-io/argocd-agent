@@ -28,9 +28,9 @@ func (processor *EnvQueueProcessor) New() QueueProcessor {
 	return envQueueProcessor
 }
 
-func updateEnv(obj *argoSdk.ArgoApplication) (error, *codefreshSdk.Environment) {
+func updateEnv(obj *argoSdk.ArgoApplication, historyId int64) (error, *codefreshSdk.Environment) {
 	envTransformer := env2.GetEnvTransformerInstance(argo.GetInstance())
-	err, env := envTransformer.PrepareEnvironment(*obj)
+	err, env := envTransformer.PrepareEnvironment(*obj, historyId)
 	if err != nil {
 		return err, env
 	}
@@ -50,7 +50,7 @@ func (processor *EnvQueueProcessor) Run() {
 		if itemQueue.Size() > 0 {
 			item := itemQueue.Dequeue()
 			if item != nil {
-				err, _ := updateEnv(&item.Application)
+				err, _ := updateEnv(&item.Application, item.HistoryId)
 				if err != nil {
 					logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 				}
