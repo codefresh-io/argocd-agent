@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -22,7 +23,10 @@ func TestItemQueue(t *testing.T) {
 	var env argoSdk.ArgoApplication
 
 	util.Convert(unstructured.Unstructured{Object: m}, env)
-	queue.Enqueue(&env)
+	queue.Enqueue(&service.ApplicationWrapper{
+		Application: env,
+		HistoryId:   0,
+	})
 
 	size := queue.Size()
 	if size != 1 {
@@ -35,7 +39,10 @@ func TestItemQueue(t *testing.T) {
 		t.Error("We should be able retrieve item")
 	}
 
-	queue.Enqueue(&env)
+	queue.Enqueue(&service.ApplicationWrapper{
+		Application: env,
+		HistoryId:   0,
+	})
 
 	queue = queue.New()
 	size = queue.Size()
@@ -43,4 +50,18 @@ func TestItemQueue(t *testing.T) {
 		t.Error("Wrong size of queue after create new one")
 	}
 
+}
+
+func TestItemQueueDequeueEmptyState(t *testing.T) {
+
+	m := make(map[string]interface{})
+	m["k"] = "v"
+
+	queue := GetInstance()
+
+	result := queue.Dequeue()
+
+	if result != nil {
+		t.Error("Dequeue should return nil")
+	}
 }

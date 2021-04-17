@@ -3,13 +3,12 @@ package env
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"sort"
 )
 
 type EnvTransformer struct {
@@ -152,7 +151,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
 	}
 
-	err, historyId := resolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
+	err, historyId := service.NewArgoResourceService().ResolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
 
 	if err != nil {
 		return err, nil
@@ -190,22 +189,4 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 
 	return nil, &env
 
-}
-
-func resolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64) {
-	if historyList == nil {
-		logger.GetLogger().Errorf("can`t find history id for application %s, because history list is empty", name)
-		return nil, -1
-	}
-
-	sort.Slice(historyList, func(i, j int) bool {
-		return historyList[i].Id > historyList[j].Id
-	})
-
-	for _, item := range historyList {
-		if item.Revision == revision {
-			return nil, item.Id
-		}
-	}
-	return fmt.Errorf("can`t find history id for application %s", name), 0
 }

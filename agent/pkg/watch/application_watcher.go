@@ -43,6 +43,7 @@ func NewApplicationWatcher() (Watcher, error) {
 }
 
 func (watcher *applicationWatcher) add(obj interface{}) {
+	logger.GetLogger().Info("Receive application add event")
 	var app argoSdk.ArgoApplication
 	err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 
@@ -54,7 +55,15 @@ func (watcher *applicationWatcher) add(obj interface{}) {
 	var crd argoSdk.ArgoApplication
 	util.Convert(obj, &crd)
 
-	watcher.itemQueue.Enqueue(&crd)
+	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
+	if err == nil {
+		crd.Status.History = nil
+		logger.GetLogger().Infof("Add item to queue, revision %v, history %v", crd.Status.OperationState.SyncResult.Revision, historyId)
+		watcher.itemQueue.Enqueue(&service.ApplicationWrapper{
+			Application: crd,
+			HistoryId:   historyId,
+		})
+	}
 
 	applications, err := watcher.argoApi.GetApplicationsWithCredentialsFromStorage()
 
@@ -123,9 +132,19 @@ func (watcher *applicationWatcher) delete(obj interface{}) {
 }
 
 func (watcher *applicationWatcher) update(newObj interface{}) {
+	logger.GetLogger().Info("Receive application update event")
 	var crd argoSdk.ArgoApplication
 	util.Convert(newObj, &crd)
-	watcher.itemQueue.Enqueue(&crd)
+
+	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
+	if err == nil {
+		crd.Status.History = nil
+		logger.GetLogger().Infof("Add item to queue, revision %v, history %v", crd.Status.OperationState.SyncResult.Revision, historyId)
+		watcher.itemQueue.Enqueue(&service.ApplicationWrapper{
+			Application: crd,
+			HistoryId:   historyId,
+		})
+	}
 }
 
 func (watcher *applicationWatcher) Watch() (dynamicinformer.DynamicSharedInformerFactory, error) {

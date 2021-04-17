@@ -1,10 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/thoas/go-funk"
+	"sort"
 )
 
 type (
@@ -22,6 +25,11 @@ type (
 		ResourcesTree     []interface{}
 		ManifestResources []Resource
 	}
+
+	ApplicationWrapper struct {
+		Application argoSdk.ArgoApplication
+		HistoryId   int64
+	}
 )
 
 const (
@@ -33,6 +41,7 @@ type ArgoResourceService interface {
 	IdentifyChangedResources([]Resource, codefreshSdk.Commit) []Resource
 	AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh.AgentProject
 	AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh.AgentApplication
+	ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64)
 }
 
 // NewArgoResourceService new instance of service
@@ -92,4 +101,22 @@ func (argoResourceService *argoResourceService) AdaptArgoProjects(projects []arg
 	}
 
 	return result
+}
+
+func (argoResourceService *argoResourceService) ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64) {
+	if historyList == nil {
+		logger.GetLogger().Errorf("can`t find history id for application %s, because history list is empty", name)
+		return nil, -1
+	}
+
+	sort.Slice(historyList, func(i, j int) bool {
+		return historyList[i].Id > historyList[j].Id
+	})
+
+	for _, item := range historyList {
+		if item.Revision == revision {
+			return nil, item.Id
+		}
+	}
+	return fmt.Errorf("can`t find history id for application %s", name), 0
 }

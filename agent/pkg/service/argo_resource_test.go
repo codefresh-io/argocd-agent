@@ -98,3 +98,41 @@ func TestAdaptArgoProjectsEmptyState(t *testing.T) {
 		t.Error("Wrong result")
 	}
 }
+
+func TestResolveHistoryIdWithNilList(t *testing.T) {
+	svc := NewArgoResourceService()
+	_, historyId := svc.ResolveHistoryId(nil, "123", "test")
+	if historyId != -1 {
+		t.Error("Resolve history id should fail because history array is nil")
+	}
+}
+
+func TestResolveHistoryIdWithEmptyList(t *testing.T) {
+	svc := NewArgoResourceService()
+	err, _ := svc.ResolveHistoryId([]argoSdk.ApplicationHistoryItem{}, "123", "test")
+	if err == nil {
+		t.Error("Resolve history id should fail because history array is []")
+	}
+}
+
+func TestResolveHistoryIdByRevision(t *testing.T) {
+	svc := NewArgoResourceService()
+	historyList := []argoSdk.ApplicationHistoryItem{
+		{
+			Id:       0,
+			Revision: "123",
+		},
+		{
+			Id:       1,
+			Revision: "123",
+		},
+	}
+	err, historyId := svc.ResolveHistoryId(historyList, "123", "test")
+	if err != nil {
+		t.Error("Resolve history id should not fail")
+	}
+
+	if historyId != 1 {
+		t.Error("History id should be 1")
+	}
+}
