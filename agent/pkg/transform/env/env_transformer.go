@@ -6,7 +6,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
@@ -124,12 +123,11 @@ func filterResources(resources interface{}) []interface{} {
 	return result
 }
 
-func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication) (error, *codefreshSdk.Environment) {
+func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *codefreshSdk.Environment) {
 
 	github := provider.NewGithubProvider()
 
 	name := app.Metadata.Name
-	historyList := app.Status.History
 	revision := app.Status.OperationState.SyncResult.Revision
 	repoUrl := app.Spec.Source.RepoURL
 	parentApp, _ := app.Metadata.Labels["app.kubernetes.io/instance"]
@@ -149,12 +147,6 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
-	}
-
-	err, historyId := service.NewArgoResourceService().ResolveHistoryId(historyList, app.Status.OperationState.SyncResult.Revision, name)
-
-	if err != nil {
-		return err, nil
 	}
 
 	activities, err := envTransformer.prepareEnvironmentActivity(name)
