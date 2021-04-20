@@ -35,6 +35,7 @@ steps:
             - success
 
   codecov-report:
+    stage: "prepare"
     title: Codecov report
     type: codecov-reporter
     arguments:
