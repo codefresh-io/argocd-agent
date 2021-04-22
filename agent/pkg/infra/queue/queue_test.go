@@ -23,6 +23,9 @@ func TestItemQueue(t *testing.T) {
 	var env argoSdk.ArgoApplication
 
 	util.Convert(unstructured.Unstructured{Object: m}, env)
+
+	env.Status.OperationState.SyncResult.Revision = "123"
+
 	queue.Enqueue(&service.ApplicationWrapper{
 		Application: env,
 		HistoryId:   0,
@@ -48,6 +51,50 @@ func TestItemQueue(t *testing.T) {
 	size = queue.Size()
 	if size != 0 {
 		t.Error("Wrong size of queue after create new one")
+	}
+
+}
+
+func TestItemQueueWithWrongHistoryId(t *testing.T) {
+
+	m := make(map[string]interface{})
+	m["k"] = "v"
+
+	queue := GetInstance()
+
+	var env argoSdk.ArgoApplication
+
+	util.Convert(unstructured.Unstructured{Object: m}, env)
+	queue.Enqueue(&service.ApplicationWrapper{
+		Application: env,
+		HistoryId:   -1,
+	})
+
+	size := queue.Size()
+	if size != 0 {
+		t.Error("Wrong size of queue")
+	}
+
+}
+
+func TestItemQueueWithWrongRevision(t *testing.T) {
+
+	m := make(map[string]interface{})
+	m["k"] = "v"
+
+	queue := GetInstance()
+
+	var env argoSdk.ArgoApplication
+
+	util.Convert(unstructured.Unstructured{Object: m}, env)
+	queue.Enqueue(&service.ApplicationWrapper{
+		Application: env,
+		HistoryId:   1,
+	})
+
+	size := queue.Size()
+	if size != 0 {
+		t.Error("Wrong size of queue")
 	}
 
 }
