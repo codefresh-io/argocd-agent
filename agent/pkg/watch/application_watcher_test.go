@@ -132,7 +132,26 @@ func TestApplicationWatcherUpdateEvent(t *testing.T) {
 		informerFactory: nil,
 	}
 
-	obj := &unstructured.Unstructured{}
+	syncResult := make(map[string]interface{})
+	syncResult["Revision"] = "123"
+
+	operationState := make(map[string]interface{})
+	operationState["SyncResult"] = syncResult
+
+	status := make(map[string]interface{})
+	status["OperationState"] = operationState
+	historyItem := make(map[string]interface{})
+	historyItem["Revision"] = "123"
+	historyItem["Id"] = 1
+
+	status["History"] = []map[string]interface{}{
+		historyItem,
+	}
+
+	payload := make(map[string]interface{})
+	payload["Status"] = status
+
+	obj := &unstructured.Unstructured{Object: payload}
 
 	appwatcher.update(obj)
 
@@ -178,7 +197,28 @@ func TestApplicationWatcherCreateEvent(t *testing.T) {
 		argoApi:         &MockArgoApi{},
 	}
 
-	obj := &unstructured.Unstructured{}
+	//Status.OperationState.SyncResult.Revision
+
+	syncResult := make(map[string]interface{})
+	syncResult["Revision"] = "123"
+
+	operationState := make(map[string]interface{})
+	operationState["SyncResult"] = syncResult
+
+	status := make(map[string]interface{})
+	status["OperationState"] = operationState
+	historyItem := make(map[string]interface{})
+	historyItem["Revision"] = "123"
+	historyItem["Id"] = 1
+
+	status["History"] = []map[string]interface{}{
+		historyItem,
+	}
+
+	payload := make(map[string]interface{})
+	payload["Status"] = status
+
+	obj := &unstructured.Unstructured{Object: payload}
 
 	sendResources = func(len int) error {
 		if len != 1 {
