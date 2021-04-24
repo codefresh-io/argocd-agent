@@ -7,7 +7,7 @@ require (
 	github.com/Masterminds/goutils v1.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/codefresh-io/argocd-sdk v0.3.7
+	github.com/codefresh-io/argocd-sdk v0.3.9
 	github.com/codefresh-io/go-sdk v0.24.0
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
