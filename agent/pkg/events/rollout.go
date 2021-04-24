@@ -8,6 +8,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
+	argo2 "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
@@ -53,6 +55,10 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 		return err
 	}
 
+	var newApp argo2.ArgoApplication
+
+	util.Convert(app, &newApp)
+
 	statuses, ok := app["status"].(map[string]interface{})
 	if !ok {
 		return errors.New("Failed to parse data from retrieved application, app : " + env.Name)
@@ -65,7 +71,7 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 
 	manifestResourcesStruct := convert(manifestResources)
 
-	result := service.NewArgoResourceService().IdentifyChangedResources(manifestResourcesStruct, env.Commit)
+	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, env.Commit)
 
 	appResources := transform.GetApplicationResourcesTransformer().Transform(service.ResourcesWrapper{
 		ResourcesTree:     resources.([]interface{}),
