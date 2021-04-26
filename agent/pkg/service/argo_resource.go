@@ -5,7 +5,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/thoas/go-funk"
 	"sort"
 	"strings"
@@ -18,7 +17,7 @@ type (
 	Resource struct {
 		Status string
 		Name   string
-		Commit codefreshSdk.Commit
+		Commit ResourceCommit
 		Kind   string
 	}
 
@@ -31,6 +30,13 @@ type (
 		Application argoSdk.ArgoApplication
 		HistoryId   int64
 	}
+
+	ResourceCommit struct {
+		Message *string `json:"message,omitempty"`
+		Avatar  *string `json:"avatar,omitempty"`
+		Sha     *string `json:"sha,omitempty"`
+		Link    *string `json:"link,omitempty"`
+	}
 )
 
 const (
@@ -39,7 +45,7 @@ const (
 
 // ArgoResourceService service for process argo resources
 type ArgoResourceService interface {
-	IdentifyChangedResources(argoSdk.ArgoApplication, []Resource, codefreshSdk.Commit) []Resource
+	IdentifyChangedResources(argoSdk.ArgoApplication, []Resource, ResourceCommit) []Resource
 	AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh.AgentProject
 	AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh.AgentApplication
 	ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64)
@@ -51,7 +57,7 @@ func NewArgoResourceService() ArgoResourceService {
 }
 
 // IdentifyChangedResources understand which resources changed during current rollout
-func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit codefreshSdk.Commit) []Resource {
+func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit ResourceCommit) []Resource {
 	result := funk.Filter(application.Status.OperationState.SyncResult.Resources, func(resource argoSdk.SyncResultResource) bool {
 		return strings.Contains(resource.Message, ChangedResourceKey)
 	})

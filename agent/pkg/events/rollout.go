@@ -39,11 +39,12 @@ func convert(resources interface{}) []service.Resource {
 
 // Handle handle rollout event , process and store info in codefresh
 func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
-	env := rollout.(*codefreshSdk.Environment)
-	_, err := codefresh.GetInstance().SendEnvironment(*env)
+	envWrapper := rollout.(*service.EnvironmentWrapper)
+	_, err := codefresh.GetInstance().SendEnvironment(envWrapper.Environment)
 	if err != nil {
 		return err
 	}
+	env := envWrapper.Environment
 
 	resources, err := argo.GetInstance().GetResourceTreeAll(env.Name)
 	if err != nil {
@@ -71,7 +72,7 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 
 	manifestResourcesStruct := convert(manifestResources)
 
-	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, env.Commit)
+	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit)
 
 	appResources := transform.GetApplicationResourcesTransformer().Transform(service.ResourcesWrapper{
 		ResourcesTree:     resources.([]interface{}),

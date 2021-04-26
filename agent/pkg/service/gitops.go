@@ -8,6 +8,11 @@ type Gitops interface {
 	MarkEnvAsRemoved(obj interface{}) (error, *codefreshSdk.Environment)
 }
 
+type EnvironmentWrapper struct {
+	Environment codefreshSdk.Environment
+	Commit      ResourceCommit
+}
+
 type gitops struct {
 }
 

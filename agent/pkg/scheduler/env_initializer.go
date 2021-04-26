@@ -26,7 +26,7 @@ func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironmen
 	return true
 }
 
-func extractNewApplication(application string) (*codefreshSdk.Environment, error) {
+func extractNewApplication(application string) (*service.EnvironmentWrapper, error) {
 	applicationObj, err := argo.GetInstance().GetApplication(application)
 	if err != nil {
 		return nil, err
@@ -43,11 +43,11 @@ func extractNewApplication(application string) (*codefreshSdk.Environment, error
 		return nil, err
 	}
 
-	err, env := envTransformer.PrepareEnvironment(app, historyId)
+	err, envWrapper := envTransformer.PrepareEnvironment(app, historyId)
 	if err != nil {
 		return nil, err
 	}
-	return env, nil
+	return envWrapper, nil
 }
 
 func handleNewApplications(applications []string) {

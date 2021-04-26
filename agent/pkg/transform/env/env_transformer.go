@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
@@ -123,7 +124,7 @@ func filterResources(resources interface{}) []interface{} {
 	return result
 }
 
-func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *codefreshSdk.Environment) {
+func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper) {
 
 	github := provider.NewGithubProvider()
 
@@ -176,9 +177,19 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 
 	if commit != nil {
 		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
-		env.Commit = *commit
+		env.Commit = codefreshSdk.Commit{
+			Message: commit.Message,
+			Avatar:  commit.Avatar,
+		}
 	}
 
-	return nil, &env
+	envWrapper := &service.EnvironmentWrapper{
+		Environment: env,
+	}
 
+	if commit != nil {
+		envWrapper.Commit = *commit
+	}
+
+	return nil, envWrapper
 }

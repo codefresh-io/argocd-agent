@@ -2,7 +2,6 @@ package service
 
 import (
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	"github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"testing"
 )
 
@@ -40,7 +39,7 @@ func TestArgoResourceIdentifyChangedResources(t *testing.T) {
 	commitMessage := "Commit message"
 	avatar := "avatar"
 
-	changedResources := service.IdentifyChangedResources(app, resources, codefresh.Commit{
+	changedResources := service.IdentifyChangedResources(app, resources, ResourceCommit{
 		Message: &commitMessage,
 		Avatar:  &avatar,
 	})
