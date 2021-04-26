@@ -3,6 +3,7 @@ package provider
 import (
 	git2 "github.com/codefresh-io/argocd-listener/agent/pkg/infra/git"
 	client2 "github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/client"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
@@ -20,7 +21,7 @@ func NewGithubProvider() GitProvider {
 	return github
 }
 
-func (github *Github) GetCommitByRevision(repoUrl string, revision string) (error, *codefreshSdk.Commit) {
+func (github *Github) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
 	err, gitClient := git2.GetInstance(repoUrl)
 	cachedGithub := client2.New(gitClient)
 	if err != nil {
@@ -31,8 +32,9 @@ func (github *Github) GetCommitByRevision(repoUrl string, revision string) (erro
 		return err, nil
 	}
 
-	result := &codefreshSdk.Commit{
+	result := &service.ResourceCommit{
 		Message: commit.Commit.Message,
+		Sha:     &revision,
 	}
 
 	if commit.Author != nil {

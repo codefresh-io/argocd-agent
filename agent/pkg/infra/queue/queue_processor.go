@@ -30,15 +30,17 @@ func (processor *EnvQueueProcessor) New() QueueProcessor {
 
 func updateEnv(obj *argoSdk.ArgoApplication, historyId int64) (error, *codefreshSdk.Environment) {
 	envTransformer := env2.GetEnvTransformerInstance(argo.GetInstance())
-	err, env := envTransformer.PrepareEnvironment(*obj, historyId)
+	err, envWrapper := envTransformer.PrepareEnvironment(*obj, historyId)
 	if err != nil {
-		return err, env
+		return err, nil
 	}
+
+	env := &envWrapper.Environment
 
 	envComparator := comparator.EnvComparator{}
 
 	err = util.ProcessDataWithFilter("environment", &env.Name, env, envComparator.Compare, func() error {
-		return events.GetRolloutEventHandlerInstance().Handle(env)
+		return events.GetRolloutEventHandlerInstance().Handle(envWrapper)
 	})
 
 	return err, env

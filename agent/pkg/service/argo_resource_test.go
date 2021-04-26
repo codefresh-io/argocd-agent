@@ -2,7 +2,6 @@ package service
 
 import (
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	"github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"testing"
 )
 
@@ -13,6 +12,17 @@ var _ = func() bool {
 
 func TestArgoResourceIdentifyChangedResources(t *testing.T) {
 	service := NewArgoResourceService()
+
+	var app argoSdk.ArgoApplication
+
+	syncResultResources := make([]argoSdk.SyncResultResource, 0)
+	syncResultResources = append(syncResultResources, argoSdk.SyncResultResource{
+		Kind:    "Service",
+		Name:    "test",
+		Message: "msg configured",
+	})
+
+	app.Status.OperationState.SyncResult.Resources = syncResultResources
 
 	resources := make([]Resource, 0)
 	resources = append(resources, Resource{
@@ -29,7 +39,7 @@ func TestArgoResourceIdentifyChangedResources(t *testing.T) {
 	commitMessage := "Commit message"
 	avatar := "avatar"
 
-	changedResources := service.IdentifyChangedResources(resources, codefresh.Commit{
+	changedResources := service.IdentifyChangedResources(app, resources, ResourceCommit{
 		Message: &commitMessage,
 		Avatar:  &avatar,
 	})

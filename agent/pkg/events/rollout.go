@@ -8,6 +8,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
+	argo2 "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
@@ -37,11 +39,12 @@ func convert(resources interface{}) []service.Resource {
 
 // Handle handle rollout event , process and store info in codefresh
 func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
-	env := rollout.(*codefreshSdk.Environment)
-	_, err := codefresh.GetInstance().SendEnvironment(*env)
+	envWrapper := rollout.(*service.EnvironmentWrapper)
+	_, err := codefresh.GetInstance().SendEnvironment(envWrapper.Environment)
 	if err != nil {
 		return err
 	}
+	env := envWrapper.Environment
 
 	resources, err := argo.GetInstance().GetResourceTreeAll(env.Name)
 	if err != nil {
@@ -52,6 +55,10 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	var newApp argo2.ArgoApplication
+
+	util.Convert(app, &newApp)
 
 	statuses, ok := app["status"].(map[string]interface{})
 	if !ok {
@@ -65,7 +72,7 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 
 	manifestResourcesStruct := convert(manifestResources)
 
-	result := service.NewArgoResourceService().IdentifyChangedResources(manifestResourcesStruct, env.Commit)
+	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit)
 
 	appResources := transform.GetApplicationResourcesTransformer().Transform(service.ResourcesWrapper{
 		ResourcesTree:     resources.([]interface{}),
