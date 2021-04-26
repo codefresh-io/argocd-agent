@@ -46,6 +46,8 @@ func (github *Github) GetCommitByRevision(repoUrl string, revision string) (erro
 		}
 	}
 
+	result.Link = commit.HTMLURL
+
 	return nil, result
 }
 
