@@ -15,7 +15,7 @@ func AskAboutNamespace(kubeOptions *entity.Kube, kubeClient kube.Kube, setDefaul
 
 	namespaces, err := kubeClient.GetNamespaces()
 	if err != nil {
-		err = prompt.InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to install", "argocd")
+		err = prompt.NewPrompt().InputWithDefault(&kubeOptions.Namespace, "Kubernetes namespace to install", "argocd")
 		if err != nil {
 			return err
 		}
@@ -29,7 +29,7 @@ func AskAboutNamespace(kubeOptions *entity.Kube, kubeClient kube.Kube, setDefaul
 			}
 		}
 
-		err, selectedNamespace := prompt.Select(namespaces, "Select Kubernetes namespace")
+		err, selectedNamespace := prompt.NewPrompt().Select(namespaces, "Select Kubernetes namespace")
 		if err != nil {
 			return err
 		}

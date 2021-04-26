@@ -4,7 +4,23 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 )
 
-func InputWithDefault(target *string, label string, defaultValue string) error {
+type prompt struct {
+}
+
+type Prompt interface {
+	InputWithDefault(target *string, label string, defaultValue string) error
+	InputPassword(target *string, label string) error
+	Input(target *string, label string) error
+	Confirm(label string) (error, bool)
+	Multiselect(items []string, label string) (error, []string)
+	Select(items []string, label string) (error, string)
+}
+
+func NewPrompt() Prompt {
+	return &prompt{}
+}
+
+func (p *prompt) InputWithDefault(target *string, label string, defaultValue string) error {
 	if *target != "" {
 		return nil
 	}
@@ -23,7 +39,7 @@ func InputWithDefault(target *string, label string, defaultValue string) error {
 	return nil
 }
 
-func InputPassword(target *string, label string) error {
+func (p *prompt) InputPassword(target *string, label string) error {
 	if *target != "" {
 		return nil
 	}
@@ -41,7 +57,7 @@ func InputPassword(target *string, label string) error {
 	return nil
 }
 
-func Input(target *string, label string) error {
+func (p *prompt) Input(target *string, label string) error {
 	if *target != "" {
 		return nil
 	}
@@ -59,7 +75,7 @@ func Input(target *string, label string) error {
 	return nil
 }
 
-func Confirm(label string) (error, bool) {
+func (p *prompt) Confirm(label string) (error, bool) {
 	result := false
 
 	prompt := &survey.Confirm{
@@ -75,7 +91,7 @@ func Confirm(label string) (error, bool) {
 	return nil, result
 }
 
-func Multiselect(items []string, label string) (error, []string) {
+func (p *prompt) Multiselect(items []string, label string) (error, []string) {
 	result := make([]string, 0)
 
 	var multiQs = []*survey.Question{
@@ -97,7 +113,7 @@ func Multiselect(items []string, label string) (error, []string) {
 	return nil, result
 }
 
-func Select(items []string, label string) (error, string) {
+func (p *prompt) Select(items []string, label string) (error, string) {
 	result := ""
 
 	prompt := &survey.Select{

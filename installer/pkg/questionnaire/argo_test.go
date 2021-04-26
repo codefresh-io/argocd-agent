@@ -77,6 +77,34 @@ func (k *MockKube) DeleteObjects(manifestPath string) error {
 	return nil
 }
 
+type MockPrompt struct {
+}
+
+func (p *MockPrompt) InputWithDefault(target *string, label string, defaultValue string) error {
+	*target = defaultValue
+	return nil
+}
+
+func (p *MockPrompt) InputPassword(target *string, label string) error {
+	return nil
+}
+
+func (p *MockPrompt) Input(target *string, label string) error {
+	return nil
+}
+
+func (p *MockPrompt) Confirm(label string) (error, bool) {
+	return nil, false
+}
+
+func (p *MockPrompt) Multiselect(items []string, label string) (error, []string) {
+	return nil, nil
+}
+
+func (p *MockPrompt) Select(items []string, label string) (error, string) {
+	return nil, ""
+}
+
 func TestAskAboutArgoCredentials(t *testing.T) {
 
 	GetArgoServerSvcFunc = func() (service core.Service, e error) {
@@ -98,7 +126,9 @@ func TestAskAboutArgoCredentials(t *testing.T) {
 		}{Host: "https://localhost", Username: "test", Password: "test", Token: "test", Update: false},
 	}
 
-	_ = AskAboutArgoCredentials(installCmdOptions, nil)
+	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
+
+	_ = q.AskAboutArgoCredentials(installCmdOptions, nil)
 
 	if installCmdOptions.Argo.Host != "https://localhost" {
 		t.Errorf("Argocd host shouldnt be changed in case if it is passed from cli")
@@ -125,9 +155,11 @@ func TestAskAboutArgoCredentialsFromLB(t *testing.T) {
 		}{Username: "test", Password: "test", Token: "test", Update: false},
 	}
 
-	err := AskAboutArgoCredentials(installCmdOptions, NewKubeClient())
-	if err == nil || err.Error() != "We didn't find ArgoCD on \"/\"" {
-		t.Errorf("We should fail with error: We didn't find ArgoCD on \"/\" ")
+	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
+
+	err := q.AskAboutArgoCredentials(installCmdOptions, NewKubeClient())
+	if err != nil || installCmdOptions.Argo.Host != "https://example.com" {
+		t.Errorf("Wrong argo host ")
 	}
 }
 
@@ -152,10 +184,10 @@ func TestAskAboutArgoCredentialsFromLBWithError(t *testing.T) {
 			Update   bool
 		}{Username: "test", Password: "test", Token: "test", Update: false},
 	}
-
-	err := AskAboutArgoCredentials(installCmdOptions, &MockKube{})
-	if err == nil || err.Error() != "Failed to retrieve LoadBalancer information, codefresh argocd agent require argocd-server be LoadBalancer type" {
-		t.Errorf("We should fail with error: \"Failed to retrieve LoadBalancer information, codefresh argocd agent require argocd-server be LoadBalancer type\" ")
+	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
+	err := q.AskAboutArgoCredentials(installCmdOptions, &MockKube{})
+	if err != nil || installCmdOptions.Argo.Host != "https://example.com" {
+		t.Errorf("Wrong argo host ")
 	}
 }
 
@@ -180,8 +212,8 @@ func TestAskAboutArgoCredentialsFromLBWithoutError(t *testing.T) {
 			Update   bool
 		}{Username: "test", Password: "test", Token: "test", Update: false},
 	}
-
-	err := AskAboutArgoCredentials(installCmdOptions, &MockKube{})
+	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
+	err := q.AskAboutArgoCredentials(installCmdOptions, &MockKube{})
 	if err != nil || installCmdOptions.Argo.Host != "https://localhost" {
 		t.Errorf("Argo host should be \"https://localhost\", but %s", installCmdOptions.Argo.Host)
 	}
