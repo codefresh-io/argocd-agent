@@ -46,12 +46,12 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 
 	kubeOptions = installCmdOptions.Kube
 
-	err = prompt.InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
+	err = prompt.NewPrompt().InputWithDefault(&installCmdOptions.Codefresh.Integration, "Codefresh integration name", "argocd")
 	if err != nil {
 		return err, ""
 	}
 
-	err = questionnaire.AskAboutArgoCredentials(&installCmdOptions, kubeClient)
+	err = questionnaire.NewArgoQuestionnaire().AskAboutArgoCredentials(&installCmdOptions, kubeClient)
 	if err != nil {
 		eventSender.Fail(err.Error())
 		return errors.New(err.Error()), ""
@@ -136,7 +136,7 @@ func ensureIntegration(installCmdOptions *entity.InstallCmdOptions, clusterName 
 
 	needUpdate := installCmdOptions.Argo.Update
 	if !needUpdate {
-		err, needUpdate = prompt.Confirm("You already have integration with this name, do you want to update it")
+		err, needUpdate = prompt.NewPrompt().Confirm("You already have integration with this name, do you want to update it")
 		if err != nil {
 			return err
 		}

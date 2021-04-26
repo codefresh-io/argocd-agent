@@ -32,7 +32,7 @@ func AskAboutGitContext(installOptions *entity.InstallCmdOptions) error {
 	if len(list) == 1 {
 		installOptions.Git.Integration = list[0]
 	} else {
-		err, installOptions.Git.Integration = prompt.Select(list, "Select Git context (Please create a dedicated context for the agent to  avoid hitting the Github rate limits)")
+		err, installOptions.Git.Integration = prompt.NewPrompt().Select(list, "Select Git context (Please create a dedicated context for the agent to  avoid hitting the Github rate limits)")
 	}
 
 	return err

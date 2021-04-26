@@ -18,7 +18,7 @@ func AskAboutKubeContext(kubeOptions *entity.Kube) error {
 		if len(contexts) == 1 {
 			kubeOptions.Context = contexts[0]
 		} else {
-			_, selectedContext := prompt.Select(contexts, "Select Kubernetes context")
+			_, selectedContext := prompt.NewPrompt().Select(contexts, "Select Kubernetes context")
 			kubeOptions.Context = selectedContext
 		}
 

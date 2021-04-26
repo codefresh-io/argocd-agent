@@ -23,12 +23,12 @@ func AskAboutSyncOptions(installOptions *entity.InstallCmdOptions) {
 		syncModes.Set("Select specific Argo applications to import", codefresh.SelectSync)
 		syncModes.Set("Do not import anything from Argo to Codefresh", codefresh.None)
 
-		_, autoSyncMode := prompt.Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd sync behavior please")
+		_, autoSyncMode := prompt.NewPrompt().Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd sync behavior please")
 
 		syncMode, _ = syncModes.Get(autoSyncMode)
 
 		if syncMode == "SYNC" {
-			_, autoSync := prompt.Confirm("Enable auto-sync of applications, this will import all existing applications and update Codefresh in the future")
+			_, autoSync := prompt.NewPrompt().Confirm("Enable auto-sync of applications, this will import all existing applications and update Codefresh in the future")
 			if autoSync {
 				syncMode = codefresh.ContinueSync
 			} else {
@@ -56,7 +56,7 @@ func AskAboutSyncOptions(installOptions *entity.InstallCmdOptions) {
 				applicationNames = append(applicationNames, prj.Metadata.Name)
 			}
 
-			_, applicationsForSync = prompt.Multiselect(applicationNames, "Please select application for sync")
+			_, applicationsForSync = prompt.NewPrompt().Multiselect(applicationNames, "Please select application for sync")
 		}
 
 		applicationsAsJson, _ := json.Marshal(applicationsForSync)
