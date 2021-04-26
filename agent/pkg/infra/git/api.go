@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-type Api struct {
+type api struct {
 	Token  string
 	Client *github.Client
 	Owner  string
@@ -19,17 +19,25 @@ type Api struct {
 	Ctx    context.Context
 }
 
-var api *Api
+type Api interface {
+	GetCommitBySha(sha string) (error, *github.RepositoryCommit)
+	GetUserByUsername(username string) (error, *github.User)
+	GetCommitsBySha(sha string) (error, []*github.RepositoryCommit)
+	GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User)
+	GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation)
+}
 
-func GetInstance(repoUrl string) (error, *Api) {
+var githubApi *api
+
+func GetInstance(repoUrl string) (error, Api) {
 	err, owner, repo := extractRepoAndOwnerFromUrl(repoUrl)
 	if err != nil {
 		return err, nil
 	}
-	if api != nil {
-		api.Owner = owner
-		api.Repo = repo
-		return nil, api
+	if githubApi != nil {
+		githubApi.Owner = owner
+		githubApi.Repo = repo
+		return nil, githubApi
 	}
 	gitConfig := store.GetStore().Git
 	ctx := context.Background()
@@ -39,14 +47,14 @@ func GetInstance(repoUrl string) (error, *Api) {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
-	api = &Api{
+	githubApi = &api{
 		Token:  gitConfig.Token,
 		Ctx:    ctx,
 		Client: client,
 		Owner:  owner,
 		Repo:   repo,
 	}
-	return nil, api
+	return nil, githubApi
 }
 
 func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
@@ -82,31 +90,31 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 	return nil, "", ""
 }
 
-func (a *Api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
-	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
+func (a *api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
+	revisionCommit, _, err := a.Client.Repositories.GetCommit(a.Ctx, a.Owner, a.Repo, sha)
 	if err != nil {
 		return err, nil
 	}
 	return nil, revisionCommit
 }
 
-func (a *Api) GetUserByUsername(username string) (error, *github.User) {
-	user, _, err := api.Client.Users.Get(api.Ctx, username)
+func (a *api) GetUserByUsername(username string) (error, *github.User) {
+	user, _, err := a.Client.Users.Get(a.Ctx, username)
 	if err != nil {
 		return err, nil
 	}
 	return nil, user
 }
 
-func (a *Api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
-	revisionCommit, _, err := api.Client.Repositories.GetCommit(api.Ctx, api.Owner, api.Repo, sha)
+func (a *api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
+	revisionCommit, _, err := a.Client.Repositories.GetCommit(a.Ctx, a.Owner, a.Repo, sha)
 	if err != nil {
 		return err, nil
 	}
 	return nil, []*github.RepositoryCommit{revisionCommit}
 }
 
-func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
+func (a *api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
 	comitters := []codefreshSdk.User{}
 	comittersSet := make(map[string]bool)
 	for _, commit := range commits {
@@ -127,8 +135,8 @@ func (a *Api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, 
 	return nil, comitters
 }
 
-func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
-	allPullRequests, _, err := api.Client.PullRequests.List(api.Ctx, api.Owner, api.Repo, &github.PullRequestListOptions{State: "all"})
+func (a *api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
+	allPullRequests, _, err := a.Client.PullRequests.List(a.Ctx, a.Owner, a.Repo, &github.PullRequestListOptions{State: "all"})
 	if err != nil {
 		return err, nil, nil
 	}
@@ -146,7 +154,7 @@ func (a *Api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 				continue
 			}
 			if *commit.SHA == *mergeCommitSHA {
-				issue, _, err := api.Client.Issues.Get(api.Ctx, api.Owner, api.Repo, *pr.Number)
+				issue, _, err := a.Client.Issues.Get(a.Ctx, a.Owner, a.Repo, *pr.Number)
 				if err != nil {
 					return err, nil, nil
 				}

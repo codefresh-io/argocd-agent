@@ -7,7 +7,7 @@ import (
 )
 
 type CachedGithub struct {
-	GitClient      *git2.Api
+	GitClient      git2.Api
 	commitBySha    map[string]github.RepositoryCommit
 	commitsBySha   map[string][]github.RepositoryCommit
 	userByUsername map[string]github.User
@@ -17,7 +17,7 @@ var cachedGithub *CachedGithub
 
 var cacheSize = 1000
 
-func New(gitClient *git2.Api) *CachedGithub {
+func New(gitClient git2.Api) *CachedGithub {
 	if cachedGithub == nil {
 		commitBySha := make(map[string]github.RepositoryCommit)
 		commitsBySha := make(map[string][]github.RepositoryCommit)
