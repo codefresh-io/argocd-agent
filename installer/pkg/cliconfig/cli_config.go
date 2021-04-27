@@ -29,6 +29,18 @@ func NewCliConfig() CliConfig {
 	return &cliConfig{}
 }
 
+func (cf *cliConfig) getCurrentConfig(data []byte) (*CliConfigItem, error) {
+	var config CFCliConfig
+
+	err := yaml.Unmarshal(data, &config)
+
+	if err != nil {
+		return nil, err
+	}
+	result := config.Contexts[config.CurrentContext]
+	return &result, nil
+}
+
 func (cf *cliConfig) GetCurrentConfig() (*CliConfigItem, error) {
 	currentUser, err := user.Current()
 
@@ -39,18 +51,5 @@ func (cf *cliConfig) GetCurrentConfig() (*CliConfigItem, error) {
 	configPath := path.Join(currentUser.HomeDir, ".cfconfig")
 
 	data, err := ioutil.ReadFile(configPath)
-
-	var config CFCliConfig
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = yaml.Unmarshal(data, &config)
-
-	if err != nil {
-		return nil, err
-	}
-	result := config.Contexts[config.CurrentContext]
-	return &result, nil
+	return cf.getCurrentConfig(data)
 }
