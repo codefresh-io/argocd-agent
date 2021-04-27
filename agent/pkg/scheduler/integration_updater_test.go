@@ -59,6 +59,21 @@ func (api *MockCodefreshApi) SendApplicationResources(resources *codefreshSdk.Ap
 	panic("implement me")
 }
 
+func (api *MockCodefreshApi) GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload) {
+	return nil, nil
+}
+
+func (api *MockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPayload) {
+	metadata := struct {
+		Name string `json:"name"`
+	}{Name: "test"}
+	return nil, &[]codefreshSdk.ContextPayload{
+		{
+			Metadata: metadata,
+		},
+	}
+}
+
 func TestIntegrationUpdaterScheduler(t *testing.T) {
 
 	integrationUpdaterScheduler := integrationUpdaterScheduler{codefreshApi: &MockCodefreshApi{}}

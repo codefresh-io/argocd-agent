@@ -22,7 +22,7 @@ import (
 
 func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 	// should be in begining for show correct events
-	_ = questionnaire.AskAboutCodefreshCredentials(&installCmdOptions)
+	_ = questionnaire.NewCodefreshCredentialsQuestionnaire().AskAboutCodefreshCredentials(&installCmdOptions)
 	store.SetCodefresh(installCmdOptions.Codefresh.Host, installCmdOptions.Codefresh.Token, installCmdOptions.Codefresh.Integration)
 
 	var err error
@@ -64,7 +64,7 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 		return errors.New(msg), ""
 	}
 
-	_ = questionnaire.AskAboutGitContext(&installCmdOptions)
+	_ = questionnaire.NewGitContextQuestionnaire().AskAboutGitContext(&installCmdOptions)
 
 	// Need check if we want support not in cluster mode with Product owner
 	installCmdOptions.Kube.InCluster = true

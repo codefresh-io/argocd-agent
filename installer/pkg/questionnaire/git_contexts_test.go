@@ -1,18 +1,10 @@
-package startup
+package questionnaire
 
 import (
-	"fmt"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"testing"
-	"time"
 )
-
-var _ = func() bool {
-	testing.Init()
-	return true
-}()
-
-var createIntegrationMock func() error
 
 type MockCodefreshApi struct {
 }
@@ -41,6 +33,10 @@ func (api *MockCodefreshApi) GetEnvironments() ([]codefreshSdk.CFEnvironment, er
 	panic("implement me")
 }
 
+func (api *MockCodefreshApi) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
+	panic("implement me")
+}
+
 func (api *MockCodefreshApi) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
 	panic("implement me")
 }
@@ -50,15 +46,11 @@ func (api *MockCodefreshApi) SendEnvironment(environment codefreshSdk.Environmen
 }
 
 func (api *MockCodefreshApi) CreateEnvironment(name string, project string, application string) error {
-	return nil
+	panic("implement me")
 }
 
 func (api *MockCodefreshApi) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
 	panic("implement me")
-}
-
-func (api *MockCodefreshApi) CreateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
-	return createIntegrationMock()
 }
 
 func (api *MockCodefreshApi) GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload) {
@@ -76,39 +68,21 @@ func (api *MockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPay
 	}
 }
 
-func TestEnsureIntegrationAlreadyExist(t *testing.T) {
-
-	input := &Input{
-		argoHost:                 "http://argo-host",
-		argoToken:                "1234",
-		argoUsername:             "",
-		argoPassword:             "",
-		codefreshToken:           "token",
-		codefreshHost:            "http://cf-host",
-		codefreshIntegrationName: "",
-		applications:             nil,
-		agentVersion:             "124",
-		gitIntegration:           "integration",
-		password:                 "",
-		syncMode:                 "AUTOSYNC",
+func TestGitContextQuestionnaire_AskAboutGitContext(t *testing.T) {
+	questionnaire := GitContextQuestionnaire{codefreshApi: &MockCodefreshApi{}}
+	options := &entity.InstallCmdOptions{}
+	options.Git.Integration = "test"
+	err := questionnaire.AskAboutGitContext(options)
+	if err != nil {
+		t.Error("Ask about context should fail without any error")
 	}
+}
 
-	result := make(chan string)
-
-	createIntegrationMock = func() error {
-		result <- "ok"
-		return nil
+func TestGitContextQuestionnaire_AskAboutGitContextWithoutIntegration(t *testing.T) {
+	questionnaire := GitContextQuestionnaire{codefreshApi: &MockCodefreshApi{}}
+	options := &entity.InstallCmdOptions{}
+	err := questionnaire.AskAboutGitContext(options)
+	if err != nil {
+		t.Error("Ask about context should fail without any error")
 	}
-
-	cfApi := &MockCodefreshApi{}
-
-	go NewRunner(input, cfApi).ensureIntegration()
-
-	select {
-	case ret := <-result:
-		fmt.Println(ret)
-	case <-time.After(10 * time.Second):
-		t.Error("Create integration func should be called")
-	}
-
 }

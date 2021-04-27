@@ -13,12 +13,23 @@ type CliConfigItem struct {
 	Token string `yaml:"token"`
 }
 
-type CliConfig struct {
+type CFCliConfig struct {
 	Contexts       map[string]CliConfigItem `yaml:"contexts"`
 	CurrentContext string                   `yaml:"current-context"`
 }
 
-func GetCurrentConfig() (*CliConfigItem, error) {
+type cliConfig struct {
+}
+
+type CliConfig interface {
+	GetCurrentConfig() (*CliConfigItem, error)
+}
+
+func NewCliConfig() CliConfig {
+	return &cliConfig{}
+}
+
+func (cf *cliConfig) GetCurrentConfig() (*CliConfigItem, error) {
 	currentUser, err := user.Current()
 
 	if err != nil {
@@ -29,7 +40,7 @@ func GetCurrentConfig() (*CliConfigItem, error) {
 
 	data, err := ioutil.ReadFile(configPath)
 
-	var config CliConfig
+	var config CFCliConfig
 
 	if err != nil {
 		return nil, err
