@@ -123,6 +123,21 @@ func (api *MockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
 	panic("implement me")
 }
 
+func (api *MockCodefreshApi) GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload) {
+	return nil, nil
+}
+
+func (api *MockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPayload) {
+	metadata := struct {
+		Name string `json:"name"`
+	}{Name: "test"}
+	return nil, &[]codefreshSdk.ContextPayload{
+		{
+			Metadata: metadata,
+		},
+	}
+}
+
 func TestApplicationWatcherUpdateEvent(t *testing.T) {
 
 	appwatcher := applicationWatcher{

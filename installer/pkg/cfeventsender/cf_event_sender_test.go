@@ -61,6 +61,21 @@ func (api *MockCodefreshApi) CreateIntegration(name string, host string, usernam
 	panic("implement me")
 }
 
+func (api *MockCodefreshApi) GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload) {
+	return nil, nil
+}
+
+func (api *MockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPayload) {
+	metadata := struct {
+		Name string `json:"name"`
+	}{Name: "test"}
+	return nil, &[]codefreshSdk.ContextPayload{
+		{
+			Metadata: metadata,
+		},
+	}
+}
+
 func TestNew(t *testing.T) {
 	client := New(EVENT_AGENT_UNINSTALL)
 	if client.eventName != EVENT_AGENT_UNINSTALL {

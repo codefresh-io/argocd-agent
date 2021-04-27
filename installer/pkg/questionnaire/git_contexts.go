@@ -6,17 +6,25 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
+type GitContextQuestionnaire struct {
+	codefreshApi codefresh.CodefreshApi
+}
+
+func NewGitContextQuestionnaire() *GitContextQuestionnaire {
+	return &GitContextQuestionnaire{codefreshApi: codefresh.GetInstance()}
+}
+
 // AskAboutGitContext request git integration , should be selected from list of codefresh git contexts
-func AskAboutGitContext(installOptions *entity.InstallCmdOptions) error {
+func (questionnaire *GitContextQuestionnaire) AskAboutGitContext(installOptions *entity.InstallCmdOptions) error {
 	if installOptions.Git.Integration != "" { // Integration is passed
-		err, _ := codefresh.GetInstance().GetGitContextByName(installOptions.Git.Integration)
+		err, _ := questionnaire.codefreshApi.GetGitContextByName(installOptions.Git.Integration)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
 
-	err, contexts := codefresh.GetInstance().GetGitContexts()
+	err, contexts := questionnaire.codefreshApi.GetGitContexts()
 	if err != nil {
 		return err
 	}

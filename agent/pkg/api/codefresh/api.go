@@ -26,6 +26,8 @@ type CodefreshApi interface {
 	UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error
 	SendEnvironment(environment codefreshSdk.Environment) (map[string]interface{}, error)
 	SendApplicationResources(resources *codefreshSdk.ApplicationResources) error
+	GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload)
+	GetGitContexts() (error, *[]codefreshSdk.ContextPayload)
 }
 
 var api *Api
