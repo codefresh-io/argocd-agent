@@ -11,10 +11,27 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"github.com/jasonlvhit/gocron"
 )
 
-const envInitializationTime uint64 = 25
+type envInitializerScheduler struct {
+}
+
+func GetEnvInitializerScheduler() Scheduler {
+	return &envInitializerScheduler{}
+}
+
+func (envInitializer *envInitializerScheduler) getTime() string {
+	return "@every 100s"
+}
+
+func (envInitializer *envInitializerScheduler) getFunc() func() {
+	return handleEnvDifference
+}
+
+//Run start lister about new environments and update their statuses
+func (envInitializer *envInitializerScheduler) Run() {
+	run(envInitializer)
+}
 
 func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironment) bool {
 	for _, env := range existingEnvs {
@@ -89,19 +106,4 @@ func handleEnvDifference() {
 
 	handleNewApplications(applications)
 
-}
-
-// StartEnvInitializer start lister about new environments and update their statuses
-func StartEnvInitializer() {
-	job := gocron.Every(envInitializationTime).Seconds().Do(handleEnvDifference)
-
-	if job != nil {
-		err := job.Error()
-
-		if err != "" {
-			panic("Cant run env changes job because " + err)
-		}
-	}
-
-	go gocron.Start()
 }
