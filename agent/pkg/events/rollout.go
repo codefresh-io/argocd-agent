@@ -72,7 +72,7 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 
 	manifestResourcesStruct := convert(manifestResources)
 
-	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit)
+	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit, env.HistoryId, env.Date)
 
 	appResources := transform.GetApplicationResourcesTransformer().Transform(service.ResourcesWrapper{
 		ResourcesTree:     resources.([]interface{}),

@@ -15,10 +15,12 @@ type (
 	}
 
 	Resource struct {
-		Status string
-		Name   string
-		Commit ResourceCommit
-		Kind   string
+		Status    string
+		Name      string
+		Commit    ResourceCommit
+		Kind      string
+		UpdatedAt string
+		HistoryId int64
 	}
 
 	ResourcesWrapper struct {
@@ -45,7 +47,7 @@ const (
 
 // ArgoResourceService service for process argo resources
 type ArgoResourceService interface {
-	IdentifyChangedResources(argoSdk.ArgoApplication, []Resource, ResourceCommit) []Resource
+	IdentifyChangedResources(app argoSdk.ArgoApplication, resources []Resource, commit ResourceCommit, historyId int64, updateAt string) []Resource
 	AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh.AgentProject
 	AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh.AgentApplication
 	ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64)
@@ -57,7 +59,7 @@ func NewArgoResourceService() ArgoResourceService {
 }
 
 // IdentifyChangedResources understand which resources changed during current rollout
-func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit ResourceCommit) []Resource {
+func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit ResourceCommit, historyId int64, updateAt string) []Resource {
 	result := funk.Filter(application.Status.OperationState.SyncResult.Resources, func(resource argoSdk.SyncResultResource) bool {
 		return strings.Contains(resource.Message, ChangedResourceKey)
 	})
@@ -67,6 +69,8 @@ func (argoResourceService *argoResourceService) IdentifyChangedResources(applica
 			return syncResultResource.Name == resource.Name && syncResultResource.Kind == resource.Kind
 		}).(Resource)
 		resource.Commit = commit
+		resource.HistoryId = historyId
+		resource.UpdatedAt = updateAt
 		return resource
 	})
 	return result.([]Resource)

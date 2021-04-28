@@ -42,7 +42,7 @@ func TestArgoResourceIdentifyChangedResources(t *testing.T) {
 	changedResources := service.IdentifyChangedResources(app, resources, ResourceCommit{
 		Message: &commitMessage,
 		Avatar:  &avatar,
-	})
+	}, 0, "")
 
 	if len(changedResources) != 1 {
 		t.Error("We should identify only 1 changed resource")
