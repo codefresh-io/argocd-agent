@@ -150,7 +150,7 @@ func TestApplicationResourcesTransformerInCaseManifestResourcesIncludeSyncStatus
 
 	elemToMatch := transformationResult[0].(map[string]interface{})
 
-	if len(elemToMatch) != 5 {
+	if len(elemToMatch) != 7 {
 		t.Errorf("Garbage not removed during transformation")
 	}
 

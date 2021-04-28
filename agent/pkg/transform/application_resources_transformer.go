@@ -53,6 +53,8 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 		if manifestResource != nil {
 			item["status"] = manifestResource.Status
 			item["commit"] = manifestResource.Commit
+			item["updateAt"] = manifestResource.UpdatedAt
+			item["historyId"] = manifestResource.HistoryId
 		}
 	}
 	return resourcestree
