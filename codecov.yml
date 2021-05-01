@@ -5,3 +5,4 @@ comment:
 ignore:
   - "installer/pkg/obj/kubeobj"
   - "installer/pkg/templategenerator"
+  - "installer/cmd"

@@ -20,6 +20,11 @@ import (
 	"github.com/fatih/structs"
 )
 
+type InstallIntegration struct {
+	argoApi      argo.ArgoAPI
+	codefreshApi codefresh.CodefreshApi
+}
+
 func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 	// should be in begining for show correct events
 	_ = questionnaire.NewCodefreshCredentialsQuestionnaire().AskAboutCodefreshCredentials(&installCmdOptions)
@@ -71,7 +76,9 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 
 	questionnaire.AskAboutSyncOptions(&installCmdOptions)
 
-	err = ensureIntegration(&installCmdOptions, clusterName)
+	installIntegration := &InstallIntegration{codefreshApi: codefresh.GetInstance(), argoApi: argo.GetInstance()}
+
+	err = installIntegration.ensureIntegration(&installCmdOptions, clusterName)
 	if err != nil {
 		eventSender.Fail(err.Error())
 		return err, ""
@@ -113,12 +120,12 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 	return nil, manifest
 }
 
-func ensureIntegration(installCmdOptions *entity.InstallCmdOptions, clusterName string) error {
-	serverVersion, err := argo.GetInstance().GetVersion()
+func (installCmd *InstallIntegration) ensureIntegration(installCmdOptions *entity.InstallCmdOptions, clusterName string) error {
+	serverVersion, err := installCmd.argoApi.GetVersion()
 	if err != nil {
 		return err
 	}
-	err = codefresh.GetInstance().CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+	err = installCmd.codefreshApi.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
 		installCmdOptions.Codefresh.Provider, clusterName)
 	if err == nil {
@@ -146,7 +153,7 @@ func ensureIntegration(installCmdOptions *entity.InstallCmdOptions, clusterName 
 		return fmt.Errorf("you should update integration")
 	}
 
-	err = codefresh.GetInstance().UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
+	err = installCmd.codefreshApi.UpdateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
 		installCmdOptions.Codefresh.Provider, clusterName)
 
