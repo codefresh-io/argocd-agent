@@ -79,7 +79,7 @@ func (api *MockCodefreshApi) CreateIntegration(name string, host string, usernam
 }
 
 func (api *MockCodefreshApi) UpdateIntegration(name string, host string, username string, password string, token string, serverVersion string, provider string, clusterName string) error {
-	panic("implement me")
+	panic("implement me ")
 }
 
 func (api *MockCodefreshApi) SendEnvironment(environment codefreshSdk.Environment) (map[string]interface{}, error) {
