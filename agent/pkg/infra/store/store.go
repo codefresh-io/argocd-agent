@@ -1,5 +1,7 @@
 package store
 
+import "github.com/codefresh-io/go-sdk/pkg/codefresh"
+
 var (
 	store *Values
 )
@@ -16,6 +18,7 @@ type (
 		Git struct {
 			Token       string
 			Integration string
+			Context     codefresh.ContextPayload
 		}
 		Argo struct {
 			Token string
@@ -79,6 +82,12 @@ func SetEnvironments(environments []Environment) *Values {
 func SetGit(Token string) *Values {
 	values := GetStore()
 	values.Git.Token = Token
+	return values
+}
+
+func SetGitContext(context codefresh.ContextPayload) *Values {
+	values := GetStore()
+	values.Git.Context = context
 	return values
 }
 

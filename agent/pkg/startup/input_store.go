@@ -41,7 +41,7 @@ func (inputStore *InputStore) Store() error {
 	if input.gitIntegration != "" {
 		err, gitContext := codefresh.GetInstance().GetGitContextByName(input.gitIntegration)
 		if err == nil {
-			store.SetGit(gitContext.Spec.Data.Auth.Password)
+			store.SetGitContext(*gitContext)
 		}
 	}
 

@@ -2,12 +2,17 @@ package git
 
 import (
 	"context"
+	"encoding/base64"
+	"errors"
+	"github.com/bradleyfalzon/ghinstallation"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
 	"github.com/whilp/git-urls"
 	"golang.org/x/oauth2"
+	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -40,21 +45,51 @@ func GetInstance(repoUrl string) (error, Api) {
 		return nil, githubApi
 	}
 	gitConfig := store.GetStore().Git
-	ctx := context.Background()
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: gitConfig.Token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	client := github.NewClient(tc)
+	err, ctx := getGitHttpClient(&store.GetStore().Git.Context)
+	if err != nil {
+		return err, nil
+	}
+	client := github.NewClient(ctx)
 
 	githubApi = &api{
 		Token:  gitConfig.Token,
-		Ctx:    ctx,
+		Ctx:    context.Background(),
 		Client: client,
 		Owner:  owner,
 		Repo:   repo,
 	}
 	return nil, githubApi
+}
+
+func getGitHttpClient(gitContext *codefreshSdk.ContextPayload) (error, *http.Client) {
+	auth := gitContext.Spec.Data.Auth
+	if gitContext.Spec.Type == "git.github" {
+		ctx := context.Background()
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: gitContext.Spec.Data.Auth.Password},
+		)
+		return nil, oauth2.NewClient(ctx, ts)
+	}
+	if gitContext.Spec.Type == "git.github-app" {
+		appId, err := strconv.Atoi(auth.AppId)
+		if err != nil {
+			return err, nil
+		}
+		installationId, err := strconv.Atoi(auth.InstallationId)
+		if err != nil {
+			return err, nil
+		}
+		key, err := base64.URLEncoding.DecodeString(auth.PrivateKey)
+		if err != nil {
+			return err, nil
+		}
+		transport, err := ghinstallation.New(http.DefaultTransport, int64(appId), int64(installationId), key)
+		if err != nil {
+			return err, nil
+		}
+		return nil, &http.Client{Transport: transport}
+	}
+	return errors.New("Cant handle unknown git type"), nil
 }
 
 func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
