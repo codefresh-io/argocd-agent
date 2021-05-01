@@ -1,6 +1,8 @@
 package git
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	"github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
 	"testing"
 )
@@ -37,6 +39,57 @@ func TestExtractRepoAndOwnerFromUrl(t *testing.T) {
 }
 
 func TestGetInstance(t *testing.T) {
+	auth := struct {
+		Type           string `json:"type"`
+		Username       string `json:"username"`
+		Password       string `json:"password"`
+		ApiHost        string `json:"apiHost"`
+		ApiPathPrefix  string `json:"apiPathPrefix"`
+		SshPrivateKey  string `json:"sshPrivateKey"`
+		AppId          string `json:"appId"`
+		InstallationId string `json:"installationId"`
+		PrivateKey     string `json:"privateKey"`
+	}{Type: "git.github", Username: "u", Password: "p", ApiHost: "h", ApiPathPrefix: "pr", SshPrivateKey: "pk", AppId: "123", InstallationId: "123", PrivateKey: "test"}
+	data := struct {
+		Auth struct {
+			Type           string `json:"type"`
+			Username       string `json:"username"`
+			Password       string `json:"password"`
+			ApiHost        string `json:"apiHost"`
+			ApiPathPrefix  string `json:"apiPathPrefix"`
+			SshPrivateKey  string `json:"sshPrivateKey"`
+			AppId          string `json:"appId"`
+			InstallationId string `json:"installationId"`
+			PrivateKey     string `json:"privateKey"`
+		} `json:"auth"`
+	}{
+		Auth: auth,
+	}
+	context := codefresh.ContextPayload{
+		Metadata: struct {
+			Name string `json:"name"`
+		}{},
+		Spec: struct {
+			Type string `json:"type"`
+			Data struct {
+				Auth struct {
+					Type           string `json:"type"`
+					Username       string `json:"username"`
+					Password       string `json:"password"`
+					ApiHost        string `json:"apiHost"`
+					ApiPathPrefix  string `json:"apiPathPrefix"`
+					SshPrivateKey  string `json:"sshPrivateKey"`
+					AppId          string `json:"appId"`
+					InstallationId string `json:"installationId"`
+					PrivateKey     string `json:"privateKey"`
+				} `json:"auth"`
+			} `json:"data"`
+		}{
+			Data: data,
+			Type: "git.github",
+		},
+	}
+	store.SetGitContext(context)
 	err, api := GetInstance("https://github.com/owner/repo")
 	_ = api
 	if err != nil {
@@ -46,7 +99,6 @@ func TestGetInstance(t *testing.T) {
 
 func TestGetComittersByCommits(t *testing.T) {
 	api := api{
-		Token:  "",
 		Client: nil,
 		Owner:  "",
 		Repo:   "",

@@ -17,7 +17,6 @@ import (
 )
 
 type api struct {
-	Token  string
 	Client *github.Client
 	Owner  string
 	Repo   string
@@ -44,7 +43,6 @@ func GetInstance(repoUrl string) (error, Api) {
 		githubApi.Repo = repo
 		return nil, githubApi
 	}
-	gitConfig := store.GetStore().Git
 	err, ctx := getGitHttpClient(&store.GetStore().Git.Context)
 	if err != nil {
 		return err, nil
@@ -52,7 +50,6 @@ func GetInstance(repoUrl string) (error, Api) {
 	client := github.NewClient(ctx)
 
 	githubApi = &api{
-		Token:  gitConfig.Token,
 		Ctx:    context.Background(),
 		Client: client,
 		Owner:  owner,
