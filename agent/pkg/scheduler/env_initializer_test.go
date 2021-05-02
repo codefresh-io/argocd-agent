@@ -229,3 +229,18 @@ func TestHandleEnvDifference(t *testing.T) {
 	}
 
 }
+
+func TestCreateInstance(t *testing.T) {
+	envInitializerScheduler := GetEnvInitializerScheduler()
+	if envInitializerScheduler == nil {
+		t.Error("Cant initialize env initializer")
+	}
+}
+
+func TestExecutionTime(t *testing.T) {
+	envInitializerScheduler := GetEnvInitializerScheduler()
+	time := envInitializerScheduler.getTime()
+	if time != "@every 100s" {
+		t.Error("Wrong schedule time")
+	}
+}
