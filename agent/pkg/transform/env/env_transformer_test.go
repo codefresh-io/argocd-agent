@@ -102,16 +102,9 @@ func (api *MockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
 	panic("implement me")
 }
 
-func TestGetEnvTransformerInstance(t *testing.T) {
-	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
-	if envTransformer.argoApi == nil {
-		t.Errorf("Should export argoApi in struct")
-	}
-}
-
 func TestPrepareEnvironment(t *testing.T) {
 
-	envTransformer := GetEnvTransformerInstance(&MockArgoApi{})
+	envTransformer := EnvTransformer{argoApi: &MockArgoApi{}}
 
 	services, err := envTransformer.prepareEnvironmentActivity("test")
 	if err != nil {
