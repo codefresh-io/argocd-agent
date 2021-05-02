@@ -31,11 +31,77 @@ func (api *githubApi) GetCommitBySha(sha string) (error, *github.RepositoryCommi
 }
 
 func (api *githubApi) GetUserByUsername(username string) (error, *github.User) {
-	panic("Not implemented yet")
+	return nil, &github.User{
+		Login:             &username,
+		ID:                nil,
+		NodeID:            nil,
+		AvatarURL:         nil,
+		HTMLURL:           nil,
+		GravatarID:        nil,
+		Name:              nil,
+		Company:           nil,
+		Blog:              nil,
+		Location:          nil,
+		Email:             nil,
+		Hireable:          nil,
+		Bio:               nil,
+		PublicRepos:       nil,
+		PublicGists:       nil,
+		Followers:         nil,
+		Following:         nil,
+		CreatedAt:         nil,
+		UpdatedAt:         nil,
+		SuspendedAt:       nil,
+		Type:              nil,
+		SiteAdmin:         nil,
+		TotalPrivateRepos: nil,
+		OwnedPrivateRepos: nil,
+		PrivateGists:      nil,
+		DiskUsage:         nil,
+		Collaborators:     nil,
+		Plan:              nil,
+		URL:               nil,
+		EventsURL:         nil,
+		FollowingURL:      nil,
+		FollowersURL:      nil,
+		GistsURL:          nil,
+		OrganizationsURL:  nil,
+		ReceivedEventsURL: nil,
+		ReposURL:          nil,
+		StarredURL:        nil,
+		SubscriptionsURL:  nil,
+		TextMatches:       nil,
+		Permissions:       nil,
+	}
 }
 
 func (api *githubApi) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
-	panic("Not implemented yet")
+	return nil, []*github.RepositoryCommit{
+		{
+			SHA:         &sha,
+			Commit:      nil,
+			Author:      nil,
+			Committer:   nil,
+			Parents:     nil,
+			HTMLURL:     nil,
+			URL:         nil,
+			CommentsURL: nil,
+			Stats:       nil,
+			Files:       nil,
+		},
+		{
+			SHA:         &sha,
+			Commit:      nil,
+			Author:      nil,
+			Committer:   nil,
+			Parents:     nil,
+			HTMLURL:     nil,
+			URL:         nil,
+			CommentsURL: nil,
+			Stats:       nil,
+			Files:       nil,
+		},
+	}
 }
 
 func (api *githubApi) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
@@ -56,5 +122,35 @@ func TestGetCommitBySha(t *testing.T) {
 
 	if *commit.SHA != sha {
 		t.Error("Sha is wrong")
+	}
+}
+
+func TestGetCommitsBySha(t *testing.T) {
+	cachedGithub := New(&githubApi{})
+	sha := "revision"
+	err, commits := cachedGithub.GetCommitsBySha(sha)
+	if err != nil {
+		t.Error("Should retrieve commit without error")
+	}
+
+	if len(commits) != 2 {
+		t.Error("Retrieve wrong number of commits")
+	}
+
+	if *commits[0].SHA != sha {
+		t.Error("Sha is wrong")
+	}
+}
+
+func TestGetUserByUsername(t *testing.T) {
+	cachedGithub := New(&githubApi{})
+	username := "test"
+	err, user := cachedGithub.GetUserByUsername(username)
+	if err != nil {
+		t.Error("Should retrieve user without error")
+	}
+
+	if *user.Login != username {
+		t.Error("Username is wrong")
 	}
 }
