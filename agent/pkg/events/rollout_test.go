@@ -68,7 +68,7 @@ func (api *PMockCodefreshApi) CreateEnvironment(name string, project string, app
 }
 
 func (api *PMockCodefreshApi) SendApplicationResources(resources *codefreshSdk.ApplicationResources) error {
-	panic("implement me")
+	return nil
 }
 
 func (api *PMockCodefreshApi) GetGitContextByName(name string) (error, *codefreshSdk.ContextPayload) {
@@ -147,11 +147,13 @@ func (api *PMockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.
 	return applications, nil
 }
 
+var transformFunc func() interface{}
+
 type MockApplicationResourceTransformer struct {
 }
 
 func (transformer *MockApplicationResourceTransformer) Transform(data interface{}) interface{} {
-	return nil
+	return transformFunc()
 }
 
 type MockArgoResourceService struct {
@@ -185,6 +187,34 @@ func TestRolloutHandler(t *testing.T) {
 	wrapper := &service.EnvironmentWrapper{
 		Environment: codefreshSdk.Environment{},
 		Commit:      service.ResourceCommit{},
+	}
+
+	transformFunc = func() interface{} {
+		return nil
+	}
+
+	err := rolloutHandler.Handle(wrapper)
+	if err != nil {
+		t.Error("Rollout should be handler without error")
+	}
+}
+
+func TestRolloutHandlerWithAppResources(t *testing.T) {
+
+	rolloutHandler := RolloutHandler{
+		codefreshApi:                   &PMockCodefreshApi{},
+		argoApi:                        &PMockArgoApi{},
+		argoResourceService:            &MockArgoResourceService{},
+		applicationResourceTransformer: &MockApplicationResourceTransformer{},
+	}
+
+	wrapper := &service.EnvironmentWrapper{
+		Environment: codefreshSdk.Environment{},
+		Commit:      service.ResourceCommit{},
+	}
+
+	transformFunc = func() interface{} {
+		return make(map[string]interface{})
 	}
 
 	err := rolloutHandler.Handle(wrapper)
