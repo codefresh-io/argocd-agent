@@ -11,10 +11,37 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"github.com/jasonlvhit/gocron"
 )
 
-const envInitializationTime uint64 = 25
+type envInitializerScheduler struct {
+	codefreshApi        codefresh.CodefreshApi
+	rolloutEventHandler events.EventHandler
+	argoApi             argo.ArgoAPI
+	argoResourceService service.ArgoResourceService
+	envTransformer      env2.ETransformer
+}
+
+func GetEnvInitializerScheduler() Scheduler {
+	return &envInitializerScheduler{
+		codefreshApi:        codefresh.GetInstance(),
+		rolloutEventHandler: events.GetRolloutEventHandlerInstance(),
+		argoApi:             argo.GetInstance(),
+		envTransformer:      env2.GetEnvTransformerInstance(argo.GetInstance()),
+	}
+}
+
+func (envInitializer *envInitializerScheduler) getTime() string {
+	return "@every 100s"
+}
+
+func (envInitializer *envInitializerScheduler) getFunc() func() {
+	return envInitializer.handleEnvDifference
+}
+
+//Run start lister about new environments and update their statuses
+func (envInitializer *envInitializerScheduler) Run() {
+	run(envInitializer)
+}
 
 func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironment) bool {
 	for _, env := range existingEnvs {
@@ -26,8 +53,8 @@ func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironmen
 	return true
 }
 
-func extractNewApplication(application string) (*service.EnvironmentWrapper, error) {
-	applicationObj, err := argo.GetInstance().GetApplication(application)
+func (envInitializer *envInitializerScheduler) extractNewApplication(application string) (*service.EnvironmentWrapper, error) {
+	applicationObj, err := envInitializer.argoApi.GetApplication(application)
 	if err != nil {
 		return nil, err
 	}
@@ -36,40 +63,38 @@ func extractNewApplication(application string) (*service.EnvironmentWrapper, err
 
 	util.Convert(applicationObj, &app)
 
-	envTransformer := env2.GetEnvTransformerInstance(argo.GetInstance())
-
-	err, historyId := service.NewArgoResourceService().ResolveHistoryId(app.Status.History, app.Status.OperationState.SyncResult.Revision, app.Metadata.Name)
+	err, historyId := envInitializer.argoResourceService.ResolveHistoryId(app.Status.History, app.Status.OperationState.SyncResult.Revision, app.Metadata.Name)
 	if err != nil {
 		return nil, err
 	}
 
-	err, envWrapper := envTransformer.PrepareEnvironment(app, historyId)
+	err, envWrapper := envInitializer.envTransformer.PrepareEnvironment(app, historyId)
 	if err != nil {
 		return nil, err
 	}
 	return envWrapper, nil
 }
 
-func handleNewApplications(applications []string) {
+func (envInitializer *envInitializerScheduler) handleNewApplications(applications []string) {
 	for _, application := range applications {
-		newApp, err := extractNewApplication(application)
+		newApp, err := envInitializer.extractNewApplication(application)
 		if err != nil {
 			logger.GetLogger().Errorf("Failed to handle new gitops application %v, reason: %v", application, err)
 			continue
 		}
 		logger.GetLogger().Infof("Detect new gitops application %s, initiate initialization", application)
-		err = events.GetRolloutEventHandlerInstance().Handle(newApp)
+		err = envInitializer.rolloutEventHandler.Handle(newApp)
 		if err != nil {
 			logger.GetLogger().Errorf("Failed to send environment, reason %v", err)
 		}
 	}
 }
 
-func handleEnvDifference() {
+func (envInitializer *envInitializerScheduler) handleEnvDifference() {
 	storeInst := store.GetStore()
 	var newEnvs []store.Environment
 	var applications []string
-	envs, _ := codefresh.GetInstance().GetEnvironments()
+	envs, _ := envInitializer.codefreshApi.GetEnvironments()
 	for _, env := range envs {
 		if env.Spec.Type != "argo" {
 			continue
@@ -87,21 +112,6 @@ func handleEnvDifference() {
 
 	store.SetEnvironments(newEnvs)
 
-	handleNewApplications(applications)
+	envInitializer.handleNewApplications(applications)
 
-}
-
-// StartEnvInitializer start lister about new environments and update their statuses
-func StartEnvInitializer() {
-	job := gocron.Every(envInitializationTime).Seconds().Do(handleEnvDifference)
-
-	if job != nil {
-		err := job.Error()
-
-		if err != "" {
-			panic("Cant run env changes job because " + err)
-		}
-	}
-
-	go gocron.Start()
 }
