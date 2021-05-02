@@ -15,6 +15,10 @@ import (
 
 // RolloutHandler handle rollout event, rollout meat that some new release appear or state of current release is changed
 type RolloutHandler struct {
+	codefreshApi                   codefresh.CodefreshApi
+	argoApi                        argo.ArgoAPI
+	argoResourceService            service.ArgoResourceService
+	applicationResourceTransformer transform.Transformer
 }
 
 var rolloutHandler *RolloutHandler
@@ -24,7 +28,12 @@ func GetRolloutEventHandlerInstance() EventHandler {
 	if rolloutHandler != nil {
 		return rolloutHandler
 	}
-	rolloutHandler = &RolloutHandler{}
+	rolloutHandler = &RolloutHandler{
+		codefreshApi:                   codefresh.GetInstance(),
+		argoApi:                        argo.GetInstance(),
+		argoResourceService:            service.NewArgoResourceService(),
+		applicationResourceTransformer: transform.GetApplicationResourcesTransformer(),
+	}
 	return rolloutHandler
 }
 
@@ -40,18 +49,18 @@ func convert(resources interface{}) []service.Resource {
 // Handle handle rollout event , process and store info in codefresh
 func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 	envWrapper := rollout.(*service.EnvironmentWrapper)
-	_, err := codefresh.GetInstance().SendEnvironment(envWrapper.Environment)
+	_, err := rolloutHandler.codefreshApi.SendEnvironment(envWrapper.Environment)
 	if err != nil {
 		return err
 	}
 	env := envWrapper.Environment
 
-	resources, err := argo.GetInstance().GetResourceTreeAll(env.Name)
+	resources, err := rolloutHandler.argoApi.GetResourceTreeAll(env.Name)
 	if err != nil {
 		return err
 	}
 
-	app, err := argo.GetInstance().GetApplication(env.Name)
+	app, err := rolloutHandler.argoApi.GetApplication(env.Name)
 	if err != nil {
 		return err
 	}
@@ -72,9 +81,9 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 
 	manifestResourcesStruct := convert(manifestResources)
 
-	result := service.NewArgoResourceService().IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit, env.HistoryId, env.Date)
+	result := rolloutHandler.argoResourceService.IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit, env.HistoryId, env.Date)
 
-	appResources := transform.GetApplicationResourcesTransformer().Transform(service.ResourcesWrapper{
+	appResources := rolloutHandler.applicationResourceTransformer.Transform(service.ResourcesWrapper{
 		ResourcesTree:     resources.([]interface{}),
 		ManifestResources: result,
 	})
@@ -86,7 +95,7 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 			Resources: appResources,
 		}
 		logger.GetLogger().Infof("Send application resources for app %s with history %v", env.Name, env.HistoryId)
-		err = codefresh.GetInstance().SendApplicationResources(applicationResources)
+		err = rolloutHandler.codefreshApi.SendApplicationResources(applicationResources)
 	} else {
 		logger.GetLogger().Infof("Skip send application resources for app %s with history %v, because resources not exists", env.Name, env.HistoryId)
 	}

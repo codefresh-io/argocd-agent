@@ -15,9 +15,14 @@ type EnvTransformer struct {
 	argoApi argo.ArgoAPI
 }
 
+// This one should not exist and will be refactored soon, Env transformer should be migrated to service layer
+type ETransformer interface {
+	PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper)
+}
+
 var envTransformer *EnvTransformer
 
-func GetEnvTransformerInstance(argoApi argo.ArgoAPI) *EnvTransformer {
+func GetEnvTransformerInstance(argoApi argo.ArgoAPI) ETransformer {
 	if envTransformer != nil {
 		return envTransformer
 	}
