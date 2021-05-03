@@ -27,6 +27,7 @@ func GetEnvInitializerScheduler() Scheduler {
 		rolloutEventHandler: events.GetRolloutEventHandlerInstance(),
 		argoApi:             argo.GetInstance(),
 		envTransformer:      env2.GetEnvTransformerInstance(argo.GetInstance()),
+		argoResourceService: service.NewArgoResourceService(),
 	}
 }
 
