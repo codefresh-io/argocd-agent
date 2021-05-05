@@ -83,8 +83,14 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 
 	result := rolloutHandler.argoResourceService.IdentifyChangedResources(newApp, manifestResourcesStruct, envWrapper.Commit, env.HistoryId, env.Date)
 
+	var resourceTree []interface{}
+
+	if resources != nil {
+		resourceTree = resources.([]interface{})
+	}
+
 	appResources := rolloutHandler.applicationResourceTransformer.Transform(service.ResourcesWrapper{
-		ResourcesTree:     resources.([]interface{}),
+		ResourcesTree:     resourceTree,
 		ManifestResources: result,
 	})
 	if appResources != nil {
