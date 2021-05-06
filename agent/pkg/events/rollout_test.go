@@ -90,8 +90,10 @@ func (api *PMockArgoApi) GetResourceTree(applicationName string) (*argoSdk.Resou
 	panic("implement me")
 }
 
+var getResourceTreeAll func() (interface{}, error)
+
 func (api *PMockArgoApi) GetResourceTreeAll(applicationName string) (interface{}, error) {
-	return make([]interface{}, 0), nil
+	return getResourceTreeAll()
 }
 
 func (api *PMockArgoApi) GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error) {
@@ -193,6 +195,10 @@ func TestRolloutHandler(t *testing.T) {
 		return nil
 	}
 
+	getResourceTreeAll = func() (interface{}, error) {
+		return make([]interface{}, 0), nil
+	}
+
 	err := rolloutHandler.Handle(wrapper)
 	if err != nil {
 		t.Error("Rollout should be handler without error")
@@ -217,8 +223,40 @@ func TestRolloutHandlerWithAppResources(t *testing.T) {
 		return make(map[string]interface{})
 	}
 
+	getResourceTreeAll = func() (interface{}, error) {
+		return make([]interface{}, 0), nil
+	}
+
 	err := rolloutHandler.Handle(wrapper)
 	if err != nil {
 		t.Error("Rollout should be handler without error")
+	}
+}
+
+func TestRolloutHandlerWithoutAppResources(t *testing.T) {
+
+	rolloutHandler := RolloutHandler{
+		codefreshApi:                   &PMockCodefreshApi{},
+		argoApi:                        &PMockArgoApi{},
+		argoResourceService:            &MockArgoResourceService{},
+		applicationResourceTransformer: &MockApplicationResourceTransformer{},
+	}
+
+	wrapper := &service.EnvironmentWrapper{
+		Environment: codefreshSdk.Environment{},
+		Commit:      service.ResourceCommit{},
+	}
+
+	transformFunc = func() interface{} {
+		return make(map[string]interface{})
+	}
+
+	getResourceTreeAll = func() (interface{}, error) {
+		return nil, nil
+	}
+
+	err := rolloutHandler.Handle(wrapper)
+	if err == nil || err.Error() != "failed to update current state, resources are nil" {
+		t.Error("Rollout failed with wrong error")
 	}
 }

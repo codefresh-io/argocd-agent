@@ -60,6 +60,10 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 		return err
 	}
 
+	if resources == nil {
+		return errors.New("failed to update current state, resources are nil")
+	}
+
 	app, err := rolloutHandler.argoApi.GetApplication(env.Name)
 	if err != nil {
 		return err
