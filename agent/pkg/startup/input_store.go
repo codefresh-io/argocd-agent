@@ -17,13 +17,13 @@ func NewInputStore(input *Input) *InputStore {
 func (inputStore *InputStore) Store() error {
 	input := inputStore.input
 	if input.argoToken == "" {
-		token, err := argo.GetToken(input.argoUsername, input.argoPassword, input.argoHost)
+		token, err := argo.GetUnauthorizedApiInstance().GetToken(input.argoUsername, input.argoPassword, input.argoHost)
 		if err != nil {
 			return err
 		}
-		store.SetArgo(token, input.argoHost)
+		store.SetArgo(token, input.argoHost, input.argoUsername, input.argoPassword)
 	} else {
-		store.SetArgo(input.argoToken, input.argoHost)
+		store.SetArgo(input.argoToken, input.argoHost, "", "")
 	}
 
 	store.SetSyncOptions(input.syncMode, input.applications)

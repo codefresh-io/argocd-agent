@@ -43,6 +43,7 @@ func (runner *Runner) Run() error {
 	scheduler.StartHeartBeat()
 	go scheduler.GetEnvInitializerScheduler().Run()
 	go scheduler.GetIntegrationUpdatedScheduler().Run()
+	go scheduler.GetRegenerateTokenScheduler().Run()
 
 	err := events.GetSyncHandlerInstance(codefresh.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {

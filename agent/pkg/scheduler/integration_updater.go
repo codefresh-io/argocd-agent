@@ -18,7 +18,7 @@ func (integrationUpdaterScheduler *integrationUpdaterScheduler) updateIntegratio
 	storeData := store.GetStore()
 
 	err := integrationUpdaterScheduler.codefreshApi.UpdateIntegration(storeData.Codefresh.Integration, storeData.Argo.Host,
-		"", "", storeData.Argo.Token, "", "", "")
+		"", "", "", "", "", "")
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to update integration, reason %v", err)
