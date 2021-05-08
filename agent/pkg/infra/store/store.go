@@ -21,8 +21,10 @@ type (
 			Context     codefresh.ContextPayload
 		}
 		Argo struct {
-			Token string
-			Host  string
+			Username string
+			Password string
+			Token    string
+			Host     string
 		}
 		Codefresh struct {
 			Host                string
@@ -46,10 +48,22 @@ func GetStore() *Values {
 	return store
 }
 
-func SetArgo(token string, host string) *Values {
+func SetArgo(token string, host string, username string, password string) *Values {
 	values := GetStore()
 	values.Argo.Token = token
 	values.Argo.Host = host
+	if username != "" {
+		values.Argo.Username = username
+	}
+	if password != "" {
+		values.Argo.Password = password
+	}
+	return values
+}
+
+func SetArgoToken(token string) *Values {
+	values := GetStore()
+	values.Argo.Token = token
 	return values
 }
 

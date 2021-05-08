@@ -13,12 +13,12 @@ func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.A
 	var err error
 	token := argoOptions.Token
 	if token == "" {
-		token, err = argo.GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
+		token, err = argo.GetUnauthorizedApiInstance().GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
 		if err == nil {
-			store.SetArgo(token, argoOptions.Host)
+			store.SetArgo(token, argoOptions.Host, "", "")
 		}
 	} else {
-		store.SetArgo(token, argoOptions.Host)
+		store.SetArgo(token, argoOptions.Host, "", "")
 		err = argo.GetInstance().CheckToken()
 	}
 	return err

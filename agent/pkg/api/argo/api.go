@@ -26,11 +26,16 @@ type argoAPI struct {
 	sdk argoSdk.Argo
 }
 
-type UnauthorizedApi struct {
+type unauthorizedApi struct {
+}
+
+type UnauthorizedApi interface {
+	GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error)
+	GetToken(username string, password string, host string) (string, error)
 }
 
 var api *argoAPI
-var unauthorizedApi *UnauthorizedApi
+var unauthorizedArgoApi *unauthorizedApi
 
 // GetInstance build and provide as singleton new instance of ArgoAPI interface
 func GetInstance() ArgoAPI {
@@ -46,13 +51,13 @@ func GetInstance() ArgoAPI {
 }
 
 // GetUnauthorizedApiInstance build and provide singleton for unathorized argo api
-func GetUnauthorizedApiInstance() *UnauthorizedApi {
-	if unauthorizedApi != nil {
-		return unauthorizedApi
+func GetUnauthorizedApiInstance() UnauthorizedApi {
+	if unauthorizedArgoApi != nil {
+		return unauthorizedArgoApi
 	}
 
-	unauthorizedApi = &UnauthorizedApi{}
-	return unauthorizedApi
+	unauthorizedArgoApi = &unauthorizedApi{}
+	return unauthorizedArgoApi
 }
 
 func buildArgoSdk(token string, host string) argoSdk.Argo {
@@ -74,7 +79,7 @@ func buildHttpClient() *http.Client {
 }
 
 // GetToken retrieve argocd token use basic auth in before use ArgoAPI interface
-func GetToken(username string, password string, host string) (string, error) {
+func (api *unauthorizedApi) GetToken(username string, password string, host string) (string, error) {
 	return argoSdk.GetToken(username, password, host)
 }
 
@@ -140,7 +145,7 @@ func (api *argoAPI) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.Appli
 }
 
 // GetApplications get applications with token as param, without init API interface
-func (api *UnauthorizedApi) GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error) {
+func (api *unauthorizedApi) GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error) {
 	sdk := buildArgoSdk(token, host)
 	return sdk.Application().GetApplications()
 }

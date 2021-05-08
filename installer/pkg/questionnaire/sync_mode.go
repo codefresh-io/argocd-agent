@@ -45,7 +45,7 @@ func AskAboutSyncOptions(installOptions *entity.InstallCmdOptions) {
 			argoToken := installOptions.Argo.Token
 
 			if installOptions.Argo.Username != "" {
-				argoToken, _ = argo.GetToken(installOptions.Argo.Username, installOptions.Argo.Password, installOptions.Argo.Host)
+				argoToken, _ = argo.GetUnauthorizedApiInstance().GetToken(installOptions.Argo.Username, installOptions.Argo.Password, installOptions.Argo.Host)
 			}
 
 			applications, _ := argo.GetUnauthorizedApiInstance().GetApplications(argoToken, installOptions.Argo.Host)
