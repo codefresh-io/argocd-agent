@@ -31,10 +31,10 @@ func (tokenScheduler *regenerateTokenScheduler) Run() {
 
 func (tokenScheduler *regenerateTokenScheduler) regenerateToken() {
 	argoValues := store.GetStore().Argo
-	if argoValues.Username != "" || argoValues.Password != "" {
+	if argoValues.Username != "" && argoValues.Password != "" {
 		logger.GetLogger().Info("Regenerate argocd token")
 		token, err := tokenScheduler.argoApi.GetToken(argoValues.Username, argoValues.Password, argoValues.Host)
-		if err != nil {
+		if err == nil {
 			store.SetArgoToken(token)
 		}
 	}

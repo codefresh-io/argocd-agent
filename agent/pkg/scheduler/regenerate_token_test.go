@@ -26,7 +26,7 @@ func TestRegenerateTokenScheduler(t *testing.T) {
 
 	store.SetArgo("", "", "test", "test")
 
-	regenerateTokenScheduler := regenerateTokenScheduler{argoApi: nil}
+	regenerateTokenScheduler := regenerateTokenScheduler{argoApi: &MockUnathourizedArgoApi{}}
 	regenerateTokenScheduler.regenerateToken()
 
 	tk := store.GetStore().Argo.Token

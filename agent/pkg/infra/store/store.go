@@ -52,10 +52,10 @@ func SetArgo(token string, host string, username string, password string) *Value
 	values := GetStore()
 	values.Argo.Token = token
 	values.Argo.Host = host
-	if values.Argo.Username != "" {
+	if username != "" {
 		values.Argo.Username = username
 	}
-	if values.Argo.Password != "" {
+	if password != "" {
 		values.Argo.Password = password
 	}
 	return values
