@@ -11,6 +11,7 @@ func TestInputFactory(t *testing.T) {
 	argoUsername := "username"
 	argoPassword := "password"
 	codefreshToken := "token"
+	newRelicLicense := "key"
 	codefreshHost := "http://cf-host"
 	codefreshIntegration := "integration"
 	syncMode := "sync-mode"
@@ -23,6 +24,7 @@ func TestInputFactory(t *testing.T) {
 	os.Setenv("ARGO_USERNAME", argoUsername)
 	os.Setenv("ARGO_PASSWORD", argoPassword)
 	os.Setenv("CODEFRESH_TOKEN", codefreshToken)
+	os.Setenv("NEWRELIC_LICENSE_KEY", newRelicLicense)
 	os.Setenv("CODEFRESH_HOST", codefreshHost)
 	os.Setenv("CODEFRESH_INTEGRATION", codefreshIntegration)
 	os.Setenv("SYNC_MODE", syncMode)
@@ -51,6 +53,10 @@ func TestInputFactory(t *testing.T) {
 
 	if input.codefreshToken != codefreshToken {
 		t.Error("CODEFRESH_TOKEN env variables not parsed to structure")
+	}
+
+	if input.newRelicLicense != newRelicLicense {
+		t.Error("NEWRELIC_LICENSE_KEY env variables not parsed to structure")
 	}
 
 	if input.codefreshIntegrationName != codefreshIntegration {

@@ -84,6 +84,7 @@ func TestEnsureIntegrationAlreadyExist(t *testing.T) {
 		argoUsername:             "",
 		argoPassword:             "",
 		codefreshToken:           "token",
+		newRelicLicense:          "key",
 		codefreshHost:            "http://cf-host",
 		codefreshIntegrationName: "",
 		applications:             nil,

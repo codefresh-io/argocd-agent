@@ -30,6 +30,11 @@ func main() {
 		handleError(err)
 	}
 
+	err = startup.NewNewrelicApp(input).Init()
+	if err != nil {
+		handleError(err)
+	}
+
 	err = startup.NewRunner(input, codefresh.GetInstance()).Run()
 	if err != nil {
 		handleError(err)

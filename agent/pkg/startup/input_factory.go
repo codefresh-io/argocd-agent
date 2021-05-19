@@ -14,6 +14,7 @@ type Input struct {
 	argoUsername                string
 	argoPassword                string
 	codefreshToken              string
+	newRelicLicense             string
 	codefreshHost               string
 	codefreshIntegrationName    string
 	applications                []string
@@ -44,6 +45,7 @@ func (inputFactory *InputFactory) Create() *Input {
 	argoUsername, _ := os.LookupEnv("ARGO_USERNAME")
 	argoPassword, _ := os.LookupEnv("ARGO_PASSWORD")
 	codefreshToken, _ := os.LookupEnv("CODEFRESH_TOKEN")
+	newRelicLicense, _ := os.LookupEnv("NEWRELIC_LICENSE_KEY")
 	codefreshHost, codefreshHostExistance := os.LookupEnv("CODEFRESH_HOST")
 	if !codefreshHostExistance {
 		codefreshHost = "https://g.codefresh.io"
@@ -70,6 +72,7 @@ func (inputFactory *InputFactory) Create() *Input {
 		argoUsername:             argoUsername,
 		argoPassword:             argoPassword,
 		codefreshToken:           codefreshToken,
+		newRelicLicense:          newRelicLicense,
 		codefreshHost:            codefreshHost,
 		codefreshIntegrationName: codefreshIntegrationName,
 		applications:             applications,

@@ -1,8 +1,11 @@
 package entity
 
 type InstallCmdOptions struct {
-	Kube      Kube
-	Argo      ArgoOptions
+	Kube     Kube
+	Argo     ArgoOptions
+	NewRelic struct {
+		Key string
+	}
 	Codefresh struct {
 		Host                   string
 		Token                  string

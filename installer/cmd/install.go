@@ -70,6 +70,7 @@ func init() {
 
 	flags.StringVar(&installCmdOptions.Host.HttpProxy, "http-proxy", "", "Http proxy")
 	flags.StringVar(&installCmdOptions.Host.HttpsProxy, "https-proxy", "", "Https proxy")
+	flags.StringVar(&installCmdOptions.NewRelic.Key, "new-relic", "", "")
 
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
