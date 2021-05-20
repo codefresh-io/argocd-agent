@@ -32,7 +32,7 @@ func main() {
 
 	err = startup.NewNewrelicApp(input).Init()
 	if err != nil {
-		logger.GetLogger().Errorf("Failed to setup New Relic agent with provided license", err.Error())
+		logger.GetLogger().Errorf("Failed to setup New Relic agent with provided license")
 	}
 
 	err = startup.NewRunner(input, codefresh.GetInstance()).Run()
