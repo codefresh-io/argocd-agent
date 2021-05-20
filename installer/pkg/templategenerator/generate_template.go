@@ -57,7 +57,8 @@ type packageTemplateData struct {
 }
 
 func main() {
-	currentDir := filepath.Dir("/Users/pashavictorovich/Documents/work/golang/src/github.com/codefresh-io/argocd-listener/installer/pkg/templates/")
+	wd, _ := os.Getwd()
+	currentDir := filepath.Dir(fmt.Sprintf("%s/installer/pkg/templates/", wd))
 	templatesDirParam := "kubernetes"
 	var folderName = path.Join(currentDir, templatesDirParam)
 
