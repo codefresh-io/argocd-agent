@@ -1,4 +1,4 @@
-package git
+package api
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"

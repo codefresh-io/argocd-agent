@@ -6,3 +6,4 @@ ignore:
   - "installer/pkg/obj/kubeobj"
   - "installer/pkg/templategenerator"
   - "installer/cmd"
+  - "agent/pkg/infra/git/provider/api/gitlab_api" # it is not possible to test
