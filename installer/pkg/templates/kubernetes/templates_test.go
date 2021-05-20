@@ -27,7 +27,10 @@ data:
   {{- end }}
   {{- if .Argo.Password }}
   argo.password: {{ .Argo.Password }}
-  {{- end }}`
+  {{- end }}
+  { { - if .NewRelic.Key } }
+  newrelic.key: { { .NewRelic.Key } }
+  { { - end } }`
 
 	if secrets != originalSecret {
 		t.Error("Original secrets and generated secrets are different")
@@ -165,6 +168,20 @@ spec:
               name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: argo.token
         {{- end }}
+        { { - if .Env.Name } }
+        - name: ENV_NAME
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
+              key: env.name
+        { { - end } }
+        { { - if .NewRelic.Key } }
+        - name: NEWRELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cf-argocd-agent{{ .Codefresh.Suffix }}
+              key: newrelic.key
+        { { - end } }
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
