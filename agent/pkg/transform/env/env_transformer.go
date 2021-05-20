@@ -131,7 +131,7 @@ func filterResources(resources interface{}) []interface{} {
 
 func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper) {
 
-	github := provider.NewGithubProvider()
+	git := provider.GetGitProvider()
 
 	name := app.Metadata.Name
 	revision := app.Status.OperationState.SyncResult.Revision
@@ -149,7 +149,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 	filteredResources := filterResources(resources)
 
 	// we still need send env , even if we have problem with retrieve gitops info
-	err, gitops := github.GetManifestRepoInfo(repoUrl, revision)
+	err, gitops := git.GetManifestRepoInfo(repoUrl, revision)
 
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to retrieve manifest repo git information , reason: %v", err)
@@ -178,7 +178,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		Date:         app.Status.OperationState.FinishedAt,
 	}
 
-	err, commit := github.GetCommitByRevision(repoUrl, revision)
+	err, commit := git.GetCommitByRevision(repoUrl, revision)
 
 	if commit != nil {
 		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
