@@ -6,7 +6,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/startup"
-	log "github.com/sirupsen/logrus"
 )
 
 func handleError(err error) {
@@ -33,7 +32,7 @@ func main() {
 
 	err = startup.NewNewrelicApp(input).Init()
 	if err != nil {
-		log.WithError(err).Error("failed to setup New Relic agent with provided license")
+		logger.GetLogger().Errorf("Failed to setup New Relic agent with provided license", err.Error())
 	}
 
 	err = startup.NewRunner(input, codefresh.GetInstance()).Run()

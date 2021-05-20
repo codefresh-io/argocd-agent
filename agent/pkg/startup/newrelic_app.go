@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	newrelic "github.com/newrelic/go-agent"
-	log "github.com/sirupsen/logrus"
 )
 
 var nrApp newrelic.Application
@@ -23,7 +22,6 @@ func (NewRelicApp *NewRelicApp) Init() error {
 	envName := storeState.Env.Name
 
 	if newRelicLicense != "" {
-		log.Debug("setting New Relic agent")
 		cfg := newrelic.NewConfig(fmt.Sprintf("argo-agent[%s]", envName), newRelicLicense)
 		_, err := newrelic.NewApplication(cfg)
 		return err
