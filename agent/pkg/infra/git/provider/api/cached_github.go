@@ -1,13 +1,12 @@
-package client
+package api
 
 import (
 	"fmt"
-	git2 "github.com/codefresh-io/argocd-listener/agent/pkg/infra/git"
 	"github.com/google/go-github/github"
 )
 
 type CachedGithub struct {
-	GitClient      git2.Api
+	GitClient      Api
 	commitBySha    map[string]github.RepositoryCommit
 	commitsBySha   map[string][]github.RepositoryCommit
 	userByUsername map[string]github.User
@@ -17,7 +16,7 @@ var cachedGithub *CachedGithub
 
 var cacheSize = 1000
 
-func New(gitClient git2.Api) *CachedGithub {
+func New(gitClient Api) *CachedGithub {
 	if cachedGithub == nil {
 		commitBySha := make(map[string]github.RepositoryCommit)
 		commitsBySha := make(map[string][]github.RepositoryCommit)

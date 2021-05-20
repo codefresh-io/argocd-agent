@@ -2,7 +2,8 @@ package provider
 
 import (
 	"errors"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider/api"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/thoas/go-funk"
@@ -12,7 +13,7 @@ import (
 
 type (
 	Gitlab struct {
-		git *gitlab.Client
+		api api.GitlabApi
 	}
 )
 
@@ -20,33 +21,9 @@ var gitlabInstance *Gitlab
 
 func NewGitlabProvider() GitProvider {
 	if gitlabInstance == nil {
-		context := &store.GetStore().Git.Context
-		git, _ := gitlab.NewOAuthClient(context.Spec.Data.Auth.Password, gitlab.WithBaseURL(context.Spec.Data.Auth.ApiHost))
-		gitlabInstance = &Gitlab{git: git}
+		gitlabInstance = &Gitlab{api: api.NewGitlabApi()}
 	}
 	return gitlabInstance
-}
-
-// TODO: contibute this api to go-gitlab library
-func (gitlabInstance *Gitlab) retrieveAvatar(email string) (error, string) {
-	opts := struct {
-		Email string `url:"email,omitempty"`
-	}{Email: email}
-	req, err := gitlabInstance.git.NewRequest("GET", "/avatar", opts, nil)
-	if err != nil {
-		return err, ""
-	}
-
-	avatar := struct {
-		Url string `json:"avatar_url"`
-	}{}
-
-	_, err = gitlabInstance.git.Do(req, &avatar)
-	if err != nil {
-		return err, ""
-	}
-
-	return nil, avatar.Url
 }
 
 func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
@@ -55,13 +32,8 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 	if len(parts) != 2 {
 		return errors.New("wrong amount of arguments"), nil
 	}
-	owner := true
-	listProjectOptions := &gitlab.ListProjectsOptions{
-		Search: &parts[1],
-		Owned:  &owner,
-	}
 
-	projects, _, err := gitlabInstance.git.Projects.ListProjects(listProjectOptions)
+	err, projects := gitlabInstance.api.ListProjects(parts[1])
 
 	if err != nil {
 		return err, nil
@@ -75,16 +47,17 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 		return errors.New("failed to find gitlab project"), nil
 	}
 
-	commit, _, err := gitlabInstance.git.Commits.GetCommit(proj.ID, revision)
+	err, commit := gitlabInstance.api.GetCommit(proj.ID, revision)
 
 	if err != nil {
 		return err, nil
 	}
 
-	err, avatar := gitlabInstance.retrieveAvatar(commit.AuthorEmail)
+	err, avatar := gitlabInstance.api.RetrieveAvatar(commit.AuthorEmail)
 
 	if err != nil {
-		return err, nil
+		avatar = ""
+		logger.GetLogger().Infof("Setup empty avatar for user %s because of error", commit.AuthorEmail)
 	}
 
 	result := &service.ResourceCommit{

@@ -1,4 +1,4 @@
-package client
+package api
 
 import (
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
@@ -11,10 +11,10 @@ var _ = func() bool {
 	return true
 }()
 
-type githubApi struct {
+type mgithubApi struct {
 }
 
-func (api *githubApi) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
+func (api *mgithubApi) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
 
 	return nil, &github.RepositoryCommit{
 		SHA:         &sha,
@@ -30,7 +30,7 @@ func (api *githubApi) GetCommitBySha(sha string) (error, *github.RepositoryCommi
 	}
 }
 
-func (api *githubApi) GetUserByUsername(username string) (error, *github.User) {
+func (api *mgithubApi) GetUserByUsername(username string) (error, *github.User) {
 	return nil, &github.User{
 		Login:             &username,
 		ID:                nil,
@@ -75,7 +75,7 @@ func (api *githubApi) GetUserByUsername(username string) (error, *github.User) {
 	}
 }
 
-func (api *githubApi) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
+func (api *mgithubApi) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	return nil, []*github.RepositoryCommit{
 		{
 			SHA:         &sha,
@@ -104,16 +104,16 @@ func (api *githubApi) GetCommitsBySha(sha string) (error, []*github.RepositoryCo
 	}
 }
 
-func (api *githubApi) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
+func (api *mgithubApi) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
 	panic("Not implemented yet")
 }
 
-func (api *githubApi) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
+func (api *mgithubApi) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
 	panic("Not implemented yet")
 }
 
 func TestGetCommitBySha(t *testing.T) {
-	cachedGithub := New(&githubApi{})
+	cachedGithub := New(&mgithubApi{})
 	sha := "revision"
 	err, commit := cachedGithub.GetCommitBySha(sha)
 	if err != nil {
@@ -126,7 +126,7 @@ func TestGetCommitBySha(t *testing.T) {
 }
 
 func TestGetCommitsBySha(t *testing.T) {
-	cachedGithub := New(&githubApi{})
+	cachedGithub := New(&mgithubApi{})
 	sha := "revision"
 	err, commits := cachedGithub.GetCommitsBySha(sha)
 	if err != nil {
@@ -143,7 +143,7 @@ func TestGetCommitsBySha(t *testing.T) {
 }
 
 func TestGetUserByUsername(t *testing.T) {
-	cachedGithub := New(&githubApi{})
+	cachedGithub := New(&mgithubApi{})
 	username := "test"
 	err, user := cachedGithub.GetUserByUsername(username)
 	if err != nil {
