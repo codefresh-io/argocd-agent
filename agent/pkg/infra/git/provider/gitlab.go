@@ -27,6 +27,7 @@ func NewGitlabProvider() GitProvider {
 }
 
 func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
+	logger.GetLogger().Infof("Start handle get commit by revision for repo %s and revision %s", repoUrl, revision)
 	parts := strings.Split(repoUrl, "/")
 	// p.kostohrys/test
 	if len(parts) != 2 {
