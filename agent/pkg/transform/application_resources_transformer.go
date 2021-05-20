@@ -45,9 +45,6 @@ func (applicationResourcesTransformer *ApplicationResourcesTransformer) Transfor
 	for _, elem := range resourcestree {
 		item := elem.(map[string]interface{})
 		delete(item, "group")
-		delete(item, "resourceVersion")
-		delete(item, "version")
-		delete(item, "networkingInfo")
 
 		manifestResource := lookForRelatedManifestResource(item, dataObj.ManifestResources)
 		if manifestResource != nil {
