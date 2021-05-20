@@ -12,7 +12,7 @@ type (
 	}
 
 	GitlabApi interface {
-		ListProjects(search string) (error, []*gitlab.Project)
+		ListProjects(page int) (error, []*gitlab.Project)
 		RetrieveAvatar(email string) (error, string)
 		GetCommit(projectId int, revision string) (error, *gitlab.Commit)
 	}
@@ -55,11 +55,11 @@ func (gitlabApi *gitlabApi) RetrieveAvatar(email string) (error, string) {
 	return nil, avatar.Url
 }
 
-func (gitlabApi *gitlabApi) ListProjects(search string) (error, []*gitlab.Project) {
+func (gitlabApi *gitlabApi) ListProjects(page int) (error, []*gitlab.Project) {
 	owner := true
 	listProjectOptions := &gitlab.ListProjectsOptions{
-		Search: &search,
-		Owned:  &owner,
+		Owned:       &owner,
+		ListOptions: gitlab.ListOptions{Page: page},
 	}
 	projects, _, err := gitlabApi.git.Projects.ListProjects(listProjectOptions)
 	return err, projects
