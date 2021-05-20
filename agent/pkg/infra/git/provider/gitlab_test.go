@@ -145,3 +145,18 @@ func TestGetCommitByRevision(t *testing.T) {
 		t.Error("Wrong commit message")
 	}
 }
+
+func TestInitGitlab(t *testing.T) {
+	gl := NewGitlabProvider()
+	if gl == nil {
+		t.Error("Should be inited without error")
+	}
+}
+
+func TestGetManifestDetails(t *testing.T) {
+	gl := &Gitlab{api: &MockGitlabApi{}}
+	_, gitops := gl.GetManifestRepoInfo("test", "123")
+	if gitops == nil {
+		t.Error("Should be able retrieve manifest details")
+	}
+}
