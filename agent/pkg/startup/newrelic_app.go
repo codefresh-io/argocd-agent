@@ -1,6 +1,7 @@
 package startup
 
 import (
+	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	newrelic "github.com/newrelic/go-agent"
 	log "github.com/sirupsen/logrus"
@@ -17,11 +18,13 @@ func NewNewrelicApp(input *Input) *NewRelicApp {
 }
 
 func (NewRelicApp *NewRelicApp) Init() error {
-	newRelicLicense := store.GetStore().NewRelic.Key
+	storeState := store.GetStore()
+	newRelicLicense := storeState.NewRelic.Key
+	envName := storeState.Env.Name
 
 	if newRelicLicense != "" {
 		log.Debug("setting New Relic agent")
-		cfg := newrelic.NewConfig("argo-agent[kubernetes]", newRelicLicense)
+		cfg := newrelic.NewConfig(fmt.Sprintf("argo-agent[%s]", envName), newRelicLicense)
 		_, err := newrelic.NewApplication(cfg)
 		return err
 	}

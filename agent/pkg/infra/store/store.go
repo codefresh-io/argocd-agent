@@ -12,6 +12,9 @@ type Environment struct {
 
 type (
 	Values struct {
+		Env struct {
+			Name string
+		}
 		NewRelic struct {
 			Key string
 		}
@@ -81,6 +84,12 @@ func SetCodefresh(host string, token string, integration string) *Values {
 func SetNewRelic(key string) *Values {
 	values := GetStore()
 	values.NewRelic.Key = key
+	return values
+}
+
+func SetEnvOptions(name string) *Values {
+	values := GetStore()
+	values.Env.Name = name
 	return values
 }
 

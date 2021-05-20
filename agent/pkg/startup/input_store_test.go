@@ -18,6 +18,7 @@ func TestValidStore(t *testing.T) {
 		argoPassword:             "",
 		codefreshToken:           "token",
 		newRelicLicense:          "key",
+		envName:                  "name",
 		codefreshHost:            "http://cf-host",
 		codefreshIntegrationName: "",
 		applications:             nil,
@@ -49,6 +50,11 @@ func TestValidStore(t *testing.T) {
 
 	if newRelic.Key != input.newRelicLicense {
 		t.Error("Failed to retrieve correct information from store about newrelic creds")
+	}
+
+	env := store.GetStore().Env
+	if env.Name != input.envName {
+		t.Error("Failed to retrieve correct information from store about env name")
 	}
 
 	agent := store.GetStore().Agent
