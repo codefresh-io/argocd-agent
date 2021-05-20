@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/xanzy/go-gitlab"
 )
@@ -19,7 +20,16 @@ type (
 
 func NewGitlabApi() GitlabApi {
 	context := &store.GetStore().Git.Context
-	git, _ := gitlab.NewOAuthClient(context.Spec.Data.Auth.Password, gitlab.WithBaseURL(context.Spec.Data.Auth.ApiHost))
+
+	var clientOptions gitlab.ClientOptionFunc
+	if context.Spec.Data.Auth.ApiHost != "" {
+		clientOptions = gitlab.WithBaseURL(context.Spec.Data.Auth.ApiHost)
+	}
+
+	git, err := gitlab.NewOAuthClient(context.Spec.Data.Auth.Password, clientOptions)
+	if err != nil {
+		logger.GetLogger().Errorf("Cant initialize gitlab oauth client %s because %v ", context.Spec.Data.Auth.ApiHost, err.Error())
+	}
 	return &gitlabApi{git}
 }
 
