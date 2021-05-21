@@ -188,13 +188,7 @@ func TestProjectWatcherCreateEvent(t *testing.T) {
 }
 
 func TestNewProjectWatcher(t *testing.T) {
-
-	var watcher *projectWatcher
-	watcher, err := NewProjectWatcher()
-
-	if watcher.codefreshApi == nil || watcher.informer == nil || watcher.informerFactory == nil || watcher.argoApi == nil {
-		t.Error("Missing watcher properties")
-	}
+	_, err := NewProjectWatcher()
 
 	if err != nil {
 		t.Error(err)
