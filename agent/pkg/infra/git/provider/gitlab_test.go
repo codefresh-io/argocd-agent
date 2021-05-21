@@ -13,7 +13,7 @@ var _ = func() bool {
 type MockGitlabApi struct {
 }
 
-func (gl *MockGitlabApi) ListProjects(search string) (error, []*gitlab.Project) {
+func (gl *MockGitlabApi) ListProjects(page int) (error, []*gitlab.Project) {
 	return nil, []*gitlab.Project{
 		&gitlab.Project{
 			ID:                               0,
@@ -22,7 +22,7 @@ func (gl *MockGitlabApi) ListProjects(search string) (error, []*gitlab.Project) 
 			Public:                           false,
 			Visibility:                       "",
 			SSHURLToRepo:                     "",
-			HTTPURLToRepo:                    "",
+			HTTPURLToRepo:                    "https://gitlab.com/p.kostohrys/test.git",
 			WebURL:                           "",
 			ReadmeURL:                        "",
 			TagList:                          nil,
@@ -127,17 +127,9 @@ func (gl *MockGitlabApi) GetCommit(projectId int, revision string) (error, *gitl
 	}
 }
 
-func TestGetCommitByRevisionWithWrongAmountOfArguments(t *testing.T) {
-	gl := &Gitlab{api: nil}
-	err, _ := gl.GetCommitByRevision("p.kostohrys/test/test", "revision")
-	if err == nil || err.Error() != "wrong amount of arguments" {
-		t.Error("Should be failed with wrong amount of arguments")
-	}
-}
-
 func TestGetCommitByRevision(t *testing.T) {
 	gl := &Gitlab{api: &MockGitlabApi{}}
-	err, commit := gl.GetCommitByRevision("p.kostohrys/test", "revision")
+	err, commit := gl.GetCommitByRevision("https://gitlab.com/p.kostohrys/test.git", "revision")
 	if err != nil {
 		t.Error("SHould be executed without error")
 	}

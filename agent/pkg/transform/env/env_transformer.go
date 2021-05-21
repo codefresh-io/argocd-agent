@@ -180,6 +180,10 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 
 	err, commit := git.GetCommitByRevision(repoUrl, revision)
 
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to retrieve commit message, reason %v", err)
+	}
+
 	if commit != nil {
 		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
 		env.Commit = codefreshSdk.Commit{
