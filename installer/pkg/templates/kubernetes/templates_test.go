@@ -168,20 +168,15 @@ spec:
               name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: argo.token
         {{- end }}
-        { { - if .Env.Name } }
         - name: ENV_NAME
-          valueFrom:
-            secretKeyRef:
-              name: cf-argocd-agent{{ .Codefresh.Suffix }}
-              key: env.name
-        { { - end } }
-        { { - if .NewRelic.Key } }
+          value: {{ .Env.Name }}
+        {{ - if .NewRelic.Key }}
         - name: NEWRELIC_LICENSE_KEY
           valueFrom:
             secretKeyRef:
               name: cf-argocd-agent{{ .Codefresh.Suffix }}
               key: newrelic.key
-        { { - end } }
+        {{ - end }}
         - name: CODEFRESH_HOST
           value: {{ .Codefresh.Host }}
         - name: CODEFRESH_TOKEN
