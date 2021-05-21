@@ -4,6 +4,7 @@ comment:
   require_changes: false  # if true: only post the comment if coverage changes
 ignore:
   - "installer/pkg/obj/kubeobj"
+  - "installer/pkg/prompt"
   - "installer/pkg/templategenerator"
   - "installer/cmd"
   - "agent/pkg/main.go"
