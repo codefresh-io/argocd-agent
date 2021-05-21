@@ -46,3 +46,14 @@ func TestConvert(t *testing.T) {
 		t.Error("Wrong environment name")
 	}
 }
+
+func TestMaskLeft(t *testing.T) {
+
+	str := "12341234"
+
+	masked := MaskLeft(str)
+	if masked != "****1234" {
+		t.Error("Wrong masked password")
+	}
+
+}

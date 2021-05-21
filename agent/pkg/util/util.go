@@ -19,3 +19,11 @@ func Convert(from interface{}, to interface{}) {
 	rs, _ := json.Marshal(from)
 	_ = json.Unmarshal(rs, to)
 }
+
+func MaskLeft(s string) string {
+	rs := []rune(s)
+	for i := 0; i < len(rs)-4; i++ {
+		rs[i] = '*'
+	}
+	return string(rs)
+}
