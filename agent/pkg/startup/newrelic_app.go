@@ -2,6 +2,7 @@ package startup
 
 import (
 	"fmt"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	newrelic "github.com/newrelic/go-agent"
 )
@@ -22,6 +23,7 @@ func (NewRelicApp *NewRelicApp) Init() error {
 	envName := storeState.Env.Name
 
 	if newRelicLicense != "" {
+		logger.GetLogger().Infof("Initialize newrelic for env %s", envName)
 		cfg := newrelic.NewConfig(fmt.Sprintf("argo-agent[%s]", envName), newRelicLicense)
 		_, err := newrelic.NewApplication(cfg)
 		return err
