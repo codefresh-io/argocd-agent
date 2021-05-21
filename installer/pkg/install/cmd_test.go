@@ -157,6 +157,9 @@ func TestEnsureIntegration(t *testing.T) {
 			HttpProxy  string
 			HttpsProxy string
 		}{},
+		NewRelic: struct {
+			Key string
+		}{},
 		Agent: struct {
 			Version string
 		}{},
