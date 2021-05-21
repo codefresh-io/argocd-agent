@@ -58,10 +58,7 @@ spec:
         {{- end }}
         { { - if .Env.Name } }
         - name: ENV_NAME
-          valueFrom:
-            secretKeyRef:
-              name: cf-argocd-agent{{ .Codefresh.Suffix }}
-              key: env.name
+          value: { { .Env.Name } }
         { { - end } }
         { { - if .NewRelic.Key } }
         - name: NEWRELIC_LICENSE_KEY
