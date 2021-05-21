@@ -21,6 +21,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	//"time"
@@ -65,7 +66,7 @@ func main() {
 	// Fill Template Map
 	templateFilesMap := make(map[string]string)
 	filepath.Walk(folderName, func(name string, info os.FileInfo, err error) error {
-		if !info.IsDir() && path.Base(name) != outfileBaseName {
+		if !info.IsDir() && strings.HasSuffix(name, ".yaml") && path.Base(name) != outfileBaseName {
 			b, _ := ioutil.ReadFile(name)
 			templateFilesMap[filepath.Base(name)] = string(b)
 		}
