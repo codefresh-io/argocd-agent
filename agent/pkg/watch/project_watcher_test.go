@@ -186,11 +186,3 @@ func TestProjectWatcherCreateEvent(t *testing.T) {
 	projectwatcher.add(obj)
 
 }
-
-func TestNewProjectWatcher(t *testing.T) {
-	_, err := NewProjectWatcher()
-
-	if err != nil {
-		t.Error(err)
-	}
-}

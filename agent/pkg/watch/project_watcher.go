@@ -27,7 +27,7 @@ type projectWatcher struct {
 	argoApi         argo.ArgoAPI
 }
 
-func NewProjectWatcher() (*projectWatcher, error) {
+func NewProjectWatcher() (Watcher, error) {
 	informer, informerFactory, err := getInformer(projectCRD)
 	if err != nil {
 		return nil, err
