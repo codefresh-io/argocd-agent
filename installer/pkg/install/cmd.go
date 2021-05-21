@@ -87,6 +87,7 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 	installCmdOptions.Codefresh.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Codefresh.Token))
 	installCmdOptions.Argo.Token = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Token))
 	installCmdOptions.Argo.Password = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.Argo.Password))
+	installCmdOptions.NewRelic.Key = base64.StdEncoding.EncodeToString([]byte(installCmdOptions.NewRelic.Key))
 
 	installOptions := templates.InstallOptions{
 		Templates:        kubernetes.TemplatesMap(),
