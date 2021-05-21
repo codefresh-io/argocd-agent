@@ -21,6 +21,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	//"time"
@@ -57,14 +58,15 @@ type packageTemplateData struct {
 }
 
 func main() {
-	currentDir := filepath.Dir("/Users/pashavictorovich/Documents/work/golang/src/github.com/codefresh-io/argocd-listener/installer/pkg/templates/")
+	wd, _ := os.Getwd()
+	currentDir := filepath.Dir(fmt.Sprintf("%s/installer/pkg/templates/", wd))
 	templatesDirParam := "kubernetes"
 	var folderName = path.Join(currentDir, templatesDirParam)
 
 	// Fill Template Map
 	templateFilesMap := make(map[string]string)
 	filepath.Walk(folderName, func(name string, info os.FileInfo, err error) error {
-		if !info.IsDir() && path.Base(name) != outfileBaseName {
+		if !info.IsDir() && strings.HasSuffix(name, ".yaml") && path.Base(name) != outfileBaseName {
 			b, _ := ioutil.ReadFile(name)
 			templateFilesMap[filepath.Base(name)] = string(b)
 		}
