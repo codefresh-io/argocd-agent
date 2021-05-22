@@ -39,7 +39,7 @@ func TestApplicationResourcesTransformer(t *testing.T) {
 
 	elemToMatch := transformationResult[0].(map[string]interface{})
 
-	if len(elemToMatch) != 1 {
+	if len(elemToMatch) != 4 {
 		t.Errorf("Garbage not removed during transformation")
 	}
 
@@ -103,7 +103,7 @@ func TestApplicationResourcesTransformerInCaseManifestResourcesNotIncludeKind(t 
 
 	elemToMatch := transformationResult[0].(map[string]interface{})
 
-	if len(elemToMatch) != 2 {
+	if len(elemToMatch) != 5 {
 		t.Errorf("Garbage not removed during transformation")
 	}
 
@@ -150,7 +150,7 @@ func TestApplicationResourcesTransformerInCaseManifestResourcesIncludeSyncStatus
 
 	elemToMatch := transformationResult[0].(map[string]interface{})
 
-	if len(elemToMatch) != 7 {
+	if len(elemToMatch) != 10 {
 		t.Errorf("Garbage not removed during transformation")
 	}
 
