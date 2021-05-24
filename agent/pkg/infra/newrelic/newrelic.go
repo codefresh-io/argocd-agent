@@ -57,7 +57,7 @@ func (a *newrelicApp) Init(newRelicLicense, envName string) error {
 
 func (a *newrelicApp) RecordCustomEvent(eventType string, params EventParams) error {
 	if a.api == nil {
-		return errors.New("failed to record event because app is not initialized")
+		return errors.New("failed to record event because new relic app is not initialized")
 	}
 	var nrParams map[string]interface{}
 	util.Convert(params, &nrParams)
@@ -66,5 +66,6 @@ func (a *newrelicApp) RecordCustomEvent(eventType string, params EventParams) er
 		logger.GetLogger().Errorf("Newrelic RecordCustomEvent \"%s\" error %s", eventType, err.Error())
 		return err
 	}
+	logger.GetLogger().Infof("Successfully record new relic event %s and params %v", eventType, params)
 	return nil
 }
