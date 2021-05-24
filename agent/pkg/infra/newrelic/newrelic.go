@@ -3,6 +3,7 @@ package newrelic
 import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	nr "github.com/newrelic/go-agent"
 )
@@ -22,10 +23,14 @@ type newrelicApp struct {
 
 var app *newrelicApp
 
-func Init(newRelicLicense string, envName string) NewrelicApp {
+func GetInstance() NewrelicApp {
 	if app != nil {
 		return app
 	}
+
+	storeState := store.GetStore()
+	newRelicLicense := storeState.NewRelic.Key
+	envName := storeState.Env.Name
 
 	if newRelicLicense != "" {
 		logger.GetLogger().Infof("Initialize newrelic for env %s", envName)
@@ -40,14 +45,11 @@ func Init(newRelicLicense string, envName string) NewrelicApp {
 
 	return app
 }
-func GetInstance() NewrelicApp {
-	return app
-}
 
 func (a *newrelicApp) RecordCustomEvent(eventType string, params EventParams) error {
-	var nrParams map[string]interface{}
-	util.Convert(params, &nrParams)
 	if app == nil {
+		var nrParams map[string]interface{}
+		util.Convert(params, &nrParams)
 		err := a.api.RecordCustomEvent(fmt.Sprintf("GitopsDashboardGit::%s", eventType), nrParams)
 		if err != nil {
 			logger.GetLogger().Errorf("Newrelic RecordCustomEvent \"%s\" error %s", eventType, err.Error())
