@@ -57,11 +57,12 @@ func (a *newrelicApp) Init(newRelicLicense, envName string) error {
 
 func (a *newrelicApp) RecordCustomEvent(eventType string, params EventParams) error {
 	if a.api == nil {
+		logger.GetLogger().Infof("failed to record new relic event because new relic app is not initialized")
 		return errors.New("failed to record event because new relic app is not initialized")
 	}
 	var nrParams map[string]interface{}
 	util.Convert(params, &nrParams)
-	err := a.api.RecordCustomEvent(fmt.Sprintf("GitopsDashboardGit::%s", eventType), nrParams)
+	err := a.api.RecordCustomEvent(fmt.Sprintf("GitopsDashboardGit%s", eventType), nrParams)
 	if err != nil {
 		logger.GetLogger().Errorf("Newrelic RecordCustomEvent \"%s\" error %s", eventType, err.Error())
 		return err
