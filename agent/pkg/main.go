@@ -30,11 +30,6 @@ func main() {
 		handleError(err)
 	}
 
-	err = startup.NewInputNewrelic(input).Init()
-	if err != nil {
-		logger.GetLogger().Errorf("Failed to setup New Relic agent with provided license")
-	}
-
 	err = startup.NewRunner(input, codefresh.GetInstance()).Run()
 	if err != nil {
 		handleError(err)
