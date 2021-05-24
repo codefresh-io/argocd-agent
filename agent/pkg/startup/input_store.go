@@ -30,9 +30,6 @@ func (inputStore *InputStore) Store() error {
 
 	store.SetCodefresh(input.codefreshHost, input.codefreshToken, input.codefreshIntegrationName)
 
-	store.SetNewRelic(input.newRelicLicense)
-	store.SetEnvOptions(input.envName)
-
 	if input.agentVersion != "" {
 		store.SetAgent(input.agentVersion)
 	}

@@ -5,6 +5,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
@@ -48,6 +49,11 @@ func (runner *Runner) Run() error {
 	err := events.GetSyncHandlerInstance(codefresh.GetInstance(), argo.GetInstance()).Handle()
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
+	}
+
+	err = newrelic.GetInstance().Init(runner.input.newRelicLicense, runner.input.envName)
+	if err != nil {
+		logger.GetLogger().Errorf("Initialize newrelic error %s", err.Error())
 	}
 
 	queueProcessor := queue.EnvQueueProcessor{}

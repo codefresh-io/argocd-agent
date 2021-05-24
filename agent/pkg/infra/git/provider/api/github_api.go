@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"github.com/bradleyfalzon/ghinstallation"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
@@ -124,6 +125,7 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 
 func (a *api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
 	revisionCommit, _, err := a.Client.Repositories.GetCommit(a.Ctx, a.Owner, a.Repo, sha)
+	_ = newrelic.GetInstance().RecordCustomEvent(newrelic.EventGetCommitBySha, newrelic.EventParams{Owner: a.Owner, Repo: a.Repo})
 	if err != nil {
 		return err, nil
 	}
@@ -132,6 +134,7 @@ func (a *api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
 
 func (a *api) GetUserByUsername(username string) (error, *github.User) {
 	user, _, err := a.Client.Users.Get(a.Ctx, username)
+	_ = newrelic.GetInstance().RecordCustomEvent(newrelic.EventGetUsers, newrelic.EventParams{Owner: a.Owner, Repo: a.Repo})
 	if err != nil {
 		return err, nil
 	}
@@ -140,6 +143,7 @@ func (a *api) GetUserByUsername(username string) (error, *github.User) {
 
 func (a *api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := a.Client.Repositories.GetCommit(a.Ctx, a.Owner, a.Repo, sha)
+	_ = newrelic.GetInstance().RecordCustomEvent(newrelic.EventGetCommitsBySha, newrelic.EventParams{Owner: a.Owner, Repo: a.Repo})
 	if err != nil {
 		return err, nil
 	}
@@ -169,6 +173,7 @@ func (a *api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, 
 
 func (a *api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
 	allPullRequests, _, err := a.Client.PullRequests.List(a.Ctx, a.Owner, a.Repo, &github.PullRequestListOptions{State: "all"})
+	_ = newrelic.GetInstance().RecordCustomEvent(newrelic.EventListPullRequests, newrelic.EventParams{Owner: a.Owner, Repo: a.Repo})
 	if err != nil {
 		return err, nil, nil
 	}
@@ -187,6 +192,7 @@ func (a *api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 			}
 			if *commit.SHA == *mergeCommitSHA {
 				issue, _, err := a.Client.Issues.Get(a.Ctx, a.Owner, a.Repo, *pr.Number)
+				_ = newrelic.GetInstance().RecordCustomEvent(newrelic.EventGetIssues, newrelic.EventParams{Owner: a.Owner, Repo: a.Repo})
 				if err != nil {
 					return err, nil, nil
 				}
