@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"github.com/bradleyfalzon/ghinstallation"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/api/newrelic"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
@@ -18,11 +18,10 @@ import (
 )
 
 type api struct {
-	Client   *github.Client
-	Owner    string
-	Repo     string
-	Ctx      context.Context
-	Newrelic newrelic.NewrelicApp
+	Client *github.Client
+	Owner  string
+	Repo   string
+	Ctx    context.Context
 }
 
 type Api interface {
@@ -52,11 +51,10 @@ func GetInstance(repoUrl string) (error, Api) {
 	client := github.NewClient(ctx)
 
 	githubApi = &api{
-		Ctx:      context.Background(),
-		Client:   client,
-		Owner:    owner,
-		Repo:     repo,
-		Newrelic: newrelic.GetInstance(),
+		Ctx:    context.Background(),
+		Client: client,
+		Owner:  owner,
+		Repo:   repo,
 	}
 	return nil, githubApi
 }
@@ -127,28 +125,28 @@ func extractRepoAndOwnerFromUrl(repoUrl string) (error, string, string) {
 
 func (a *api) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
 	revisionCommit, _, err := a.Client.Repositories.GetCommit(a.Ctx, a.Owner, a.Repo, sha)
+	_ = newrelic.RecordCustomEvent("GetCommitBySha", make(map[string]interface{}, 0))
 	if err != nil {
 		return err, nil
 	}
-	_ = a.Newrelic.RecordCustomEvent("GetCommitBySha", make(map[string]interface{}, 0))
 	return nil, revisionCommit
 }
 
 func (a *api) GetUserByUsername(username string) (error, *github.User) {
 	user, _, err := a.Client.Users.Get(a.Ctx, username)
+	_ = newrelic.RecordCustomEvent("GetUsers", make(map[string]interface{}, 0))
 	if err != nil {
 		return err, nil
 	}
-	_ = a.Newrelic.RecordCustomEvent("GetUserByUsername", make(map[string]interface{}, 0))
 	return nil, user
 }
 
 func (a *api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	revisionCommit, _, err := a.Client.Repositories.GetCommit(a.Ctx, a.Owner, a.Repo, sha)
+	_ = newrelic.RecordCustomEvent("GetCommitsBySha", make(map[string]interface{}, 0))
 	if err != nil {
 		return err, nil
 	}
-	_ = a.Newrelic.RecordCustomEvent("GetCommitsBySha", make(map[string]interface{}, 0))
 	return nil, []*github.RepositoryCommit{revisionCommit}
 }
 
@@ -175,10 +173,10 @@ func (a *api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, 
 
 func (a *api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation) {
 	allPullRequests, _, err := a.Client.PullRequests.List(a.Ctx, a.Owner, a.Repo, &github.PullRequestListOptions{State: "all"})
+	_ = newrelic.RecordCustomEvent("ListPullRequests", make(map[string]interface{}, 0))
 	if err != nil {
 		return err, nil, nil
 	}
-	_ = a.Newrelic.RecordCustomEvent("GetIssuesAndPrsByCommits::PullRequests.List", make(map[string]interface{}, 0))
 
 	issues := []codefreshSdk.Annotation{}
 	pullRequests := []codefreshSdk.Annotation{}
@@ -194,10 +192,10 @@ func (a *api) GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (erro
 			}
 			if *commit.SHA == *mergeCommitSHA {
 				issue, _, err := a.Client.Issues.Get(a.Ctx, a.Owner, a.Repo, *pr.Number)
+				_ = newrelic.RecordCustomEvent("GetIssues", make(map[string]interface{}, 0))
 				if err != nil {
 					return err, nil, nil
 				}
-				_ = a.Newrelic.RecordCustomEvent("GetIssuesAndPrsByCommits::Issues.Get", make(map[string]interface{}, 0))
 
 				pullRequests = append(pullRequests, codefreshSdk.Annotation{
 					Key:   *pr.Title,
