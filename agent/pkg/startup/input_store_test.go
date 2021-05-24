@@ -46,17 +46,6 @@ func TestValidStore(t *testing.T) {
 		t.Error("Failed to retrieve correct information from store about codefresh creds")
 	}
 
-	newRelic := store.GetStore().NewRelic
-
-	if newRelic.Key != input.newRelicLicense {
-		t.Error("Failed to retrieve correct information from store about newrelic creds")
-	}
-
-	env := store.GetStore().Env
-	if env.Name != input.envName {
-		t.Error("Failed to retrieve correct information from store about env name")
-	}
-
 	agent := store.GetStore().Agent
 	if agent.Version != input.agentVersion {
 		t.Error("Failed to retrieve correct information from store about agent version")
