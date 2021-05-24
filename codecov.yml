@@ -8,6 +8,7 @@ ignore:
   - "installer/pkg/templategenerator"
   - "installer/pkg/templategenerator"
   - "agent/pkg/infra/newrelic/newrelic.go"
+  - "agent/pkg/infra/git/provider/api/github_api.go"
   - "installer/cmd"
   - "agent/pkg/main.go"
   - "agent/pkg/infra/git/provider/api/gitlab_api" # it is not possible to test
