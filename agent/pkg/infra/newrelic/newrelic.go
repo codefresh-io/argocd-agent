@@ -8,6 +8,14 @@ import (
 	nr "github.com/newrelic/go-agent"
 )
 
+const (
+	EventGetUsers         = "GetUsers"
+	EventGetIssues        = "GetIssues"
+	EventGetCommitBySha   = "GetCommitBySha"
+	EventGetCommitsBySha  = "GetCommitsBySha"
+	EventListPullRequests = "ListPullRequests"
+)
+
 type EventParams struct {
 	Owner string `json:"owner"`
 	Repo  string `json:"repo"`
