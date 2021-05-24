@@ -41,14 +41,15 @@ func GetInstance() NewrelicApp {
 
 func (a *newrelicApp) Init(newRelicLicense, envName string) error {
 	if newRelicLicense != "" && envName != "" {
-		logger.GetLogger().Infof("Initialize newrelic for env %s", envName)
+		logger.GetLogger().Infof("Initializing newrelic for env %s", envName)
 		cfg := nr.NewConfig(fmt.Sprintf("argo-agent[%s]", envName), newRelicLicense)
 		nrApp, err := nr.NewApplication(cfg)
 
 		if err != nil {
 			return err
 		}
-		a.api = nrApp
+		logger.GetLogger().Infof("Complete initialization newrelic for env %s", envName)
+		app = &newrelicApp{api: nrApp}
 		return nil
 	}
 
