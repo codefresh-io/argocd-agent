@@ -50,7 +50,11 @@ func (runner *Runner) Run() error {
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to run sync handler, reason %v", err)
 	}
-	newrelic.GetInstance()
+
+	err = newrelic.GetInstance().Init(runner.input.newRelicLicense, runner.input.envName)
+	if err != nil {
+		logger.GetLogger().Errorf("Initialize newrelic error %s", err.Error())
+	}
 
 	queueProcessor := queue.EnvQueueProcessor{}
 	go queueProcessor.Run()

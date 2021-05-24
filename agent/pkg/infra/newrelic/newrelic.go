@@ -1,9 +1,9 @@
 package newrelic
 
 import (
+	"errors"
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	nr "github.com/newrelic/go-agent"
 )
@@ -22,6 +22,7 @@ type EventParams struct {
 }
 
 type NewrelicApp interface {
+	Init(newRelicLicense, envName string) error
 	RecordCustomEvent(eventType string, params EventParams) error
 }
 
@@ -35,34 +36,35 @@ func GetInstance() NewrelicApp {
 	if app != nil {
 		return app
 	}
+	return &newrelicApp{}
+}
 
-	storeState := store.GetStore()
-	newRelicLicense := storeState.NewRelic.Key
-	envName := storeState.Env.Name
-
-	if newRelicLicense != "" {
+func (a *newrelicApp) Init(newRelicLicense, envName string) error {
+	if newRelicLicense != "" && envName != "" {
 		logger.GetLogger().Infof("Initialize newrelic for env %s", envName)
 		cfg := nr.NewConfig(fmt.Sprintf("argo-agent[%s]", envName), newRelicLicense)
 		nrApp, err := nr.NewApplication(cfg)
-		app = &newrelicApp{
-			api: nrApp,
-		}
 
-		logger.GetLogger().Errorf("Initialize newrelic error %s", err.Error())
+		if err != nil {
+			return err
+		}
+		a.api = nrApp
+		return nil
 	}
 
-	return app
+	return errors.New("failed to initiate new relic")
 }
 
 func (a *newrelicApp) RecordCustomEvent(eventType string, params EventParams) error {
-	if app == nil {
-		var nrParams map[string]interface{}
-		util.Convert(params, &nrParams)
-		err := a.api.RecordCustomEvent(fmt.Sprintf("GitopsDashboardGit::%s", eventType), nrParams)
-		if err != nil {
-			logger.GetLogger().Errorf("Newrelic RecordCustomEvent \"%s\" error %s", eventType, err.Error())
-			return err
-		}
+	if a.api == nil {
+		return errors.New("failed to record event because app is not initialized")
+	}
+	var nrParams map[string]interface{}
+	util.Convert(params, &nrParams)
+	err := a.api.RecordCustomEvent(fmt.Sprintf("GitopsDashboardGit::%s", eventType), nrParams)
+	if err != nil {
+		logger.GetLogger().Errorf("Newrelic RecordCustomEvent \"%s\" error %s", eventType, err.Error())
+		return err
 	}
 	return nil
 }
