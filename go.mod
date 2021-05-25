@@ -10,7 +10,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/codefresh-io/argocd-sdk v0.3.9
 	github.com/codefresh-io/go-infra v0.0.0-20180515110740-2198993e37c4
-	github.com/codefresh-io/go-sdk v0.25.2
+	github.com/codefresh-io/go-sdk v0.25.7-0.20210525110023-7117c21e328d
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b

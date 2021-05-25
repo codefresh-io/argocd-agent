@@ -72,6 +72,8 @@ github.com/codefresh-io/go-infra v0.0.0-20180515110740-2198993e37c4 h1:7mZ6lHhWl
 github.com/codefresh-io/go-infra v0.0.0-20180515110740-2198993e37c4/go.mod h1:yUrwygoCH0JYjy/OtSYL6UyCH011jvGpJovk8Nadl3M=
 github.com/codefresh-io/go-sdk v0.25.2 h1:isDU9gGBn4YDojuEsO/iRgoiQh51BXsy3DHTNFas7sE=
 github.com/codefresh-io/go-sdk v0.25.2/go.mod h1:b6hK9euSW+MDXUDHU1+YgP8vzcij749I31ZIZSXed+I=
+github.com/codefresh-io/go-sdk v0.25.7-0.20210525110023-7117c21e328d h1:S9c1/F1tPigPSA7JGz64jpDt2c9ow/Tr5qApEiM6f3k=
+github.com/codefresh-io/go-sdk v0.25.7-0.20210525110023-7117c21e328d/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
