@@ -68,12 +68,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cockroachdb/datadriven v0.0.0-20190809214429-80d97fb3cbaa/go.mod h1:zn76sxSg3SzpJ0PPJaLDCu+Bu0Lg3sKTORVIj19EIF8=
 github.com/codefresh-io/argocd-sdk v0.3.9 h1:FXUjkokYcy6Jc7Hdr2qUiXM6xumaiFLxYn+xooy5u9c=
 github.com/codefresh-io/argocd-sdk v0.3.9/go.mod h1:67oTaZX5zLmJwT27p2h6o45A6/eNctIVxPXCqGcy+bg=
-github.com/codefresh-io/go-infra v0.0.0-20180515110740-2198993e37c4 h1:7mZ6lHhWlCr2L4XeKFa2MEvemEpr04X2DKBj97y4cU0=
-github.com/codefresh-io/go-infra v0.0.0-20180515110740-2198993e37c4/go.mod h1:yUrwygoCH0JYjy/OtSYL6UyCH011jvGpJovk8Nadl3M=
-github.com/codefresh-io/go-sdk v0.25.2 h1:isDU9gGBn4YDojuEsO/iRgoiQh51BXsy3DHTNFas7sE=
-github.com/codefresh-io/go-sdk v0.25.2/go.mod h1:b6hK9euSW+MDXUDHU1+YgP8vzcij749I31ZIZSXed+I=
-github.com/codefresh-io/go-sdk v0.25.7-0.20210525110023-7117c21e328d h1:S9c1/F1tPigPSA7JGz64jpDt2c9ow/Tr5qApEiM6f3k=
-github.com/codefresh-io/go-sdk v0.25.7-0.20210525110023-7117c21e328d/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
+github.com/codefresh-io/go-sdk v0.25.7 h1:s6DWuv0lmpG+gpQhmDrC/mjGkAtDa7HQFBA20sucDho=
+github.com/codefresh-io/go-sdk v0.25.7/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
@@ -237,6 +233,7 @@ github.com/hashicorp/consul/sdk v0.1.1/go.mod h1:VKf9jXwCTEY1QZP2MOLRhb5i/I/ssyN
 github.com/hashicorp/errwrap v1.0.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-cleanhttp v0.5.1 h1:dH3aiDG9Jvb5r5+bYHsikaOUIpcM0xvgMXVoDkXMzJM=
 github.com/hashicorp/go-cleanhttp v0.5.1/go.mod h1:JpRdi6/HCYpAwUzNwuwqhbovhLtngrth3wmdIIUrZ80=
+github.com/hashicorp/go-hclog v0.9.2 h1:CG6TE5H9/JXsFWJCfoIVpKFIkFe6ysEuHirp4DxCsHI=
 github.com/hashicorp/go-hclog v0.9.2/go.mod h1:5CU+agLiy3J7N7QjHK5d05KxGsuXiQLrjA0H7acj2lQ=
 github.com/hashicorp/go-immutable-radix v1.0.0/go.mod h1:0y9vanUI8NX6FsYoO3zeMjhV/C5i9g4Q3DwcSNZ4P60=
 github.com/hashicorp/go-msgpack v0.5.3/go.mod h1:ahLV/dePpqEmjfWmKiqvPkv/twdG7iPBM1vqhUKIvfM=
