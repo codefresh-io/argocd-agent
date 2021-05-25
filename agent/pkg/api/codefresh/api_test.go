@@ -229,7 +229,6 @@ func TestApi_SendEnvironment(t *testing.T) {
 		SyncRevision: "",
 		Name:         "",
 		Activities:   nil,
-		Resources:    nil,
 		RepoUrl:      "",
 		Commit:       codefreshSdk.Commit{},
 		SyncPolicy:   codefreshSdk.SyncPolicy{},

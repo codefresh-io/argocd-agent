@@ -9,14 +9,12 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/codefresh-io/argocd-sdk v0.3.9
-	github.com/codefresh-io/go-infra v0.0.0-20180515110740-2198993e37c4
-	github.com/codefresh-io/go-sdk v0.25.2
+	github.com/codefresh-io/go-sdk v0.25.7
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-github/v29 v29.0.3 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gookit/color v1.2.7
 	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
