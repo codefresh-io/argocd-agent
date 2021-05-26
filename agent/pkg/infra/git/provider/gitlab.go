@@ -29,7 +29,7 @@ func NewGitlabProvider() GitProvider {
 func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
 	logger.GetLogger().Infof("Start handle get commit by revision for repo %s and revision %s", repoUrl, revision)
 
-	var page = 0
+	var page = 1
 
 	for {
 		err, projects := gitlabInstance.api.ListProjects(page)
@@ -39,7 +39,7 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 		}
 
 		if len(projects) == 0 {
-			break
+			return errors.New("failed to find gitlab project"), nil
 		}
 
 		page++
@@ -56,7 +56,7 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 		proj, ok := foundedProject.(*gitlab.Project)
 
 		if !ok {
-			return errors.New("failed to find gitlab project"), nil
+			continue
 		}
 
 		err, commit := gitlabInstance.api.GetCommit(proj.ID, revision)
