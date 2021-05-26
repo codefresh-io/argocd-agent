@@ -24,6 +24,7 @@ func TestSetGitContext(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`

@@ -44,6 +44,7 @@ func TestGetInstance(t *testing.T) {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		ApiHost        string `json:"apiHost"`
+		ApiURL         string `json:"apiURL"`
 		ApiPathPrefix  string `json:"apiPathPrefix"`
 		SshPrivateKey  string `json:"sshPrivateKey"`
 		AppId          string `json:"appId"`
@@ -56,6 +57,7 @@ func TestGetInstance(t *testing.T) {
 			Username       string `json:"username"`
 			Password       string `json:"password"`
 			ApiHost        string `json:"apiHost"`
+			ApiURL         string `json:"apiURL"`
 			ApiPathPrefix  string `json:"apiPathPrefix"`
 			SshPrivateKey  string `json:"sshPrivateKey"`
 			AppId          string `json:"appId"`
@@ -77,6 +79,7 @@ func TestGetInstance(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`
@@ -104,6 +107,7 @@ func TestGetGitHttpClientBaseOnGithubApp(t *testing.T) {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		ApiHost        string `json:"apiHost"`
+		ApiURL         string `json:"apiURL"`
 		ApiPathPrefix  string `json:"apiPathPrefix"`
 		SshPrivateKey  string `json:"sshPrivateKey"`
 		AppId          string `json:"appId"`
@@ -116,6 +120,7 @@ func TestGetGitHttpClientBaseOnGithubApp(t *testing.T) {
 			Username       string `json:"username"`
 			Password       string `json:"password"`
 			ApiHost        string `json:"apiHost"`
+			ApiURL         string `json:"apiURL"`
 			ApiPathPrefix  string `json:"apiPathPrefix"`
 			SshPrivateKey  string `json:"sshPrivateKey"`
 			AppId          string `json:"appId"`
@@ -137,6 +142,7 @@ func TestGetGitHttpClientBaseOnGithubApp(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`
@@ -168,6 +174,7 @@ func TestGetGitHttpClientBaseOnUnknownType(t *testing.T) {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		ApiHost        string `json:"apiHost"`
+		ApiURL         string `json:"apiURL"`
 		ApiPathPrefix  string `json:"apiPathPrefix"`
 		SshPrivateKey  string `json:"sshPrivateKey"`
 		AppId          string `json:"appId"`
@@ -180,6 +187,7 @@ func TestGetGitHttpClientBaseOnUnknownType(t *testing.T) {
 			Username       string `json:"username"`
 			Password       string `json:"password"`
 			ApiHost        string `json:"apiHost"`
+			ApiURL         string `json:"apiURL"`
 			ApiPathPrefix  string `json:"apiPathPrefix"`
 			SshPrivateKey  string `json:"sshPrivateKey"`
 			AppId          string `json:"appId"`
@@ -201,6 +209,7 @@ func TestGetGitHttpClientBaseOnUnknownType(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`
@@ -227,6 +236,7 @@ func TestGetGitHttpClientBaseOnWrongKey(t *testing.T) {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		ApiHost        string `json:"apiHost"`
+		ApiURL         string `json:"apiURL"`
 		ApiPathPrefix  string `json:"apiPathPrefix"`
 		SshPrivateKey  string `json:"sshPrivateKey"`
 		AppId          string `json:"appId"`
@@ -239,6 +249,7 @@ func TestGetGitHttpClientBaseOnWrongKey(t *testing.T) {
 			Username       string `json:"username"`
 			Password       string `json:"password"`
 			ApiHost        string `json:"apiHost"`
+			ApiURL         string `json:"apiURL"`
 			ApiPathPrefix  string `json:"apiPathPrefix"`
 			SshPrivateKey  string `json:"sshPrivateKey"`
 			AppId          string `json:"appId"`
@@ -260,6 +271,7 @@ func TestGetGitHttpClientBaseOnWrongKey(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`
@@ -286,6 +298,7 @@ func TestGetGitHttpClientBaseOnWrongAppId(t *testing.T) {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		ApiHost        string `json:"apiHost"`
+		ApiURL         string `json:"apiURL"`
 		ApiPathPrefix  string `json:"apiPathPrefix"`
 		SshPrivateKey  string `json:"sshPrivateKey"`
 		AppId          string `json:"appId"`
@@ -298,6 +311,7 @@ func TestGetGitHttpClientBaseOnWrongAppId(t *testing.T) {
 			Username       string `json:"username"`
 			Password       string `json:"password"`
 			ApiHost        string `json:"apiHost"`
+			ApiURL         string `json:"apiURL"`
 			ApiPathPrefix  string `json:"apiPathPrefix"`
 			SshPrivateKey  string `json:"sshPrivateKey"`
 			AppId          string `json:"appId"`
@@ -319,6 +333,7 @@ func TestGetGitHttpClientBaseOnWrongAppId(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`
@@ -345,6 +360,7 @@ func TestGetGitHttpClientBaseOnWrongInstallationId(t *testing.T) {
 		Username       string `json:"username"`
 		Password       string `json:"password"`
 		ApiHost        string `json:"apiHost"`
+		ApiURL         string `json:"apiURL"`
 		ApiPathPrefix  string `json:"apiPathPrefix"`
 		SshPrivateKey  string `json:"sshPrivateKey"`
 		AppId          string `json:"appId"`
@@ -357,6 +373,7 @@ func TestGetGitHttpClientBaseOnWrongInstallationId(t *testing.T) {
 			Username       string `json:"username"`
 			Password       string `json:"password"`
 			ApiHost        string `json:"apiHost"`
+			ApiURL         string `json:"apiURL"`
 			ApiPathPrefix  string `json:"apiPathPrefix"`
 			SshPrivateKey  string `json:"sshPrivateKey"`
 			AppId          string `json:"appId"`
@@ -378,6 +395,7 @@ func TestGetGitHttpClientBaseOnWrongInstallationId(t *testing.T) {
 					Username       string `json:"username"`
 					Password       string `json:"password"`
 					ApiHost        string `json:"apiHost"`
+					ApiURL         string `json:"apiURL"`
 					ApiPathPrefix  string `json:"apiPathPrefix"`
 					SshPrivateKey  string `json:"sshPrivateKey"`
 					AppId          string `json:"appId"`
