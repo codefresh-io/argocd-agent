@@ -23,6 +23,7 @@ func TestEnvironmentComparatorWithSameEnv(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   nil,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -35,6 +36,7 @@ func TestEnvironmentComparatorWithSameEnv(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   nil,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -81,6 +83,7 @@ func TestEnvironmentComparatorWithSameEnvAndActivities(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   activities1,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -93,6 +96,7 @@ func TestEnvironmentComparatorWithSameEnvAndActivities(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   activities2,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -138,6 +142,7 @@ func TestEnvironmentComparatorWithSameEnvAndDifferentActivities(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   activities1,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -150,6 +155,7 @@ func TestEnvironmentComparatorWithSameEnvAndDifferentActivities(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   activities2,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -172,6 +178,7 @@ func TestEnvironmentComparatorWithDiffEnv(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   nil,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
@@ -184,6 +191,7 @@ func TestEnvironmentComparatorWithDiffEnv(t *testing.T) {
 		SyncRevision: "123",
 		Name:         "Test",
 		Activities:   nil,
+		Resources:    nil,
 		RepoUrl:      "https://google.com",
 	}
 
