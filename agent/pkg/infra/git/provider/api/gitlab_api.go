@@ -23,13 +23,9 @@ func NewGitlabApi() GitlabApi {
 	context := &store.GetStore().Git.Context
 
 	var clientOptions gitlab.ClientOptionFunc
-	if context.Spec.Data.Auth.ApiHost != "" {
+	if context.Spec.Data.Auth.ApiURL != "" {
 		logger.GetLogger().Infof("Override gitlab uri with custom one %s", context.Spec.Data.Auth.ApiHost)
 		clientOptions = gitlab.WithBaseURL(context.Spec.Data.Auth.ApiHost)
-	} else {
-		//TODO: verify why Haim has empty api host, if it is not
-		logger.GetLogger().Infof("Override gitlab uri with custom one, hk  %s", "https://gitlab.hosts-app.com/api/v4/")
-		clientOptions = gitlab.WithBaseURL("https://gitlab.hosts-app.com/api/v4/")
 	}
 
 	git, err := gitlab.NewOAuthClient(context.Spec.Data.Auth.Password, clientOptions)
