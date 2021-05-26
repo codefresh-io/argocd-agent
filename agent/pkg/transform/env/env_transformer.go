@@ -114,6 +114,21 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 	return result, nil
 }
 
+func filterResources(resources interface{}) []interface{} {
+	result := make([]interface{}, 0)
+	if resources == nil {
+		return result
+	}
+	for _, resource := range resources.([]interface{}) {
+		resourceItem := resource.(map[string]interface{})
+		resourceKind := resourceItem["kind"]
+		if resourceKind == "Service" || resourceKind == "Pod" || resourceKind == "Application" {
+			result = append(result, resourceItem)
+		}
+	}
+	return result
+}
+
 func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper) {
 
 	git := provider.GetGitProvider()
