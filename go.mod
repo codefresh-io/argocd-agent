@@ -9,7 +9,7 @@ require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/bradleyfalzon/ghinstallation v1.1.1
 	github.com/codefresh-io/argocd-sdk v0.3.9
-	github.com/codefresh-io/go-sdk v0.25.8
+	github.com/codefresh-io/go-sdk v0.25.9
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
