@@ -68,7 +68,7 @@ func (gitlabApi *gitlabApi) RetrieveAvatar(email string) (error, string) {
 func (gitlabApi *gitlabApi) ListProjects(page int) (error, []*gitlab.Project) {
 	owner := true
 	listProjectOptions := &gitlab.ListProjectsOptions{
-		Owned:       &owner,
+		Membership:  &owner,
 		ListOptions: gitlab.ListOptions{Page: page},
 	}
 	projects, _, err := gitlabApi.git.Projects.ListProjects(listProjectOptions)
