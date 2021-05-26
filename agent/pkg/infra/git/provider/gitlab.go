@@ -44,9 +44,16 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 
 		page++
 
-		proj, ok := funk.Find(projects, func(proj *gitlab.Project) bool {
+		foundedProject := funk.Find(projects, func(proj *gitlab.Project) bool {
+			logger.GetLogger().Infof("Match project http %s, ssh %s to repo %s", proj.HTTPURLToRepo, proj.SSHURLToRepo, repoUrl)
 			return proj.HTTPURLToRepo == repoUrl || proj.SSHURLToRepo == repoUrl
-		}).(*gitlab.Project)
+		})
+
+		if foundedProject != nil {
+			logger.GetLogger().Infof("found gitlab project to map %v", foundedProject)
+		}
+
+		proj, ok := foundedProject.(*gitlab.Project)
 
 		if !ok {
 			return errors.New("failed to find gitlab project"), nil
