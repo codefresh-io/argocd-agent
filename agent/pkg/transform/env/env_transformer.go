@@ -114,6 +114,21 @@ func (envTransformer *EnvTransformer) prepareEnvironmentActivity(applicationName
 	return result, nil
 }
 
+func filterResources(resources interface{}) []interface{} {
+	result := make([]interface{}, 0)
+	if resources == nil {
+		return result
+	}
+	for _, resource := range resources.([]interface{}) {
+		resourceItem := resource.(map[string]interface{})
+		resourceKind := resourceItem["kind"]
+		if resourceKind == "Service" || resourceKind == "Pod" || resourceKind == "Application" {
+			result = append(result, resourceItem)
+		}
+	}
+	return result
+}
+
 func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper) {
 
 	git := provider.GetGitProvider()
@@ -126,6 +141,12 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 	if revision == "" {
 		return errors.New("revision is empty"), nil
 	}
+
+	resources, err := envTransformer.argoApi.GetResourceTreeAll(name)
+	if err != nil {
+		return err, nil
+	}
+	filteredResources := filterResources(resources)
 
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := git.GetManifestRepoInfo(repoUrl, revision)
@@ -150,6 +171,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   activities,
+		Resources:    filteredResources,
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,
