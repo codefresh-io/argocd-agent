@@ -48,6 +48,9 @@ func (comparator EnvComparator) Compare(obj1 interface{}, obj2 interface{}) bool
 	_ = deepcopier.Copy(env1).To(newEnv1)
 	_ = deepcopier.Copy(env2).To(newEnv2)
 
+	newEnv1.Resources = nil
+	newEnv2.Resources = nil
+
 	sameServices := compareServices(newEnv1.Activities, newEnv2.Activities)
 
 	newEnv1.Activities = nil

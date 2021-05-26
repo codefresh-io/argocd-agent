@@ -142,6 +142,12 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		return errors.New("revision is empty"), nil
 	}
 
+	resources, err := envTransformer.argoApi.GetResourceTreeAll(name)
+	if err != nil {
+		return err, nil
+	}
+	filteredResources := filterResources(resources)
+
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := git.GetManifestRepoInfo(repoUrl, revision)
 
@@ -165,6 +171,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		HistoryId:    historyId,
 		Name:         name,
 		Activities:   activities,
+		Resources:    filteredResources,
 		RepoUrl:      repoUrl,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,
