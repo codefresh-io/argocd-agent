@@ -20,173 +20,173 @@ steps:
     git: "cf_github"
     stage: "prepare"
 
-#  unit_test:
-#    stage: "prepare"
-#    title: 'Running unit tests'
-#    working_directory: ${{main_clone}}
-#    image: golang:1.14.2
-#    commands:
-#      - go get -u github.com/mcubik/goverreport
-#      - go test ./... -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic
-#    when:
-#      steps:
-#        - name: main_clone
-#          on:
-#            - success
-#
-#  codecov-report:
-#    stage: "prepare"
-#    title: Codecov report
-#    type: codecov-reporter
-#    arguments:
-#      codecov_integration: argocd-agent
-#
-#  export_version:
-#    title: Compare version
-#    stage: build
-#    image: codefresh/semver
-#    commands:
-#      - export ARGOCTL_VERSION=$(cat ./installer/VERSION)
-#      - echo "Argoctl version -> $ARGOCTL_VERSION "
-#      - cf_export VERSION=$ARGOCTL_VERSION
-#    when:
-#      steps:
-#        - name: main_clone
-#          on:
-#            - success
-#      branch:
-#        only:
-#          - master
-#
-#  build:
-#    title: "Building Docker image"
-#    type: "build"
-#    image_name: "${{IMAGE_NAME}}"
-#    tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
-#    dockerfile: "Dockerfile"
-#    stage: "build"
-#
-#  security_scan:
-#    stage: security_scan
-#    type: parallel
-#    success_criteria:
-#      condition:
-#        any:
-#         secScanStep: aqua_scan.result == 'success' && snyk_scan.result == 'success'
-#         secScanFail: '"${{IGNORE_SEC_SCAN}}" == "true"'
-#    steps:
-#      aqua_scan:
-#        image: aquasec/trivy:latest
-#        title: "Scanning image for security vulnerablities"
-#        commands:
-#          - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
-#          - |-
-#            set -o pipefail
-#            trivy \
-#              --quiet \
-#              ${{IMAGE_NAME}}:${{CF_BRANCH_TAG_NORMALIZED_LOWER_CASE}} &> ${{SEC_SCAN_REPORT_FILE}}
-#            trivy \
-#              --quiet \
-#              --skip-update \
-#              --ignorefile /tmp/.trivy/trivyignore \
-#              --ignore-unfixed \
-#              --exit-code 1 \
-#              --severity ${{SEC_SCAN_SEVERITY_THRESHOLD}} \
-#              ${{IMAGE_NAME}}:${{CF_BRANCH_TAG_NORMALIZED_LOWER_CASE}}
-#        on_success:
-#          metadata:
-#            set:
-#              - '${{build.imageId}}':
-#                  - SECURITY_SCAN_AQUA: true
-#
-#      snyk_scan:
-#        image: quay.io/codefresh/snyk-cli:${{SNYK_IMAGE_TAG}}
-#        title: "Scanning image for security vulnerablities"
-#        shell: bash
-#        working_directory: ${{main_clone}}
-#        environment:
-#          - SNYK_TOKEN=${{SNYK_TOKEN}}
-#          - LOCAL_IMAGE_REF=${{IMAGE_NAME}}:${{CF_BRANCH_TAG_NORMALIZED_LOWER_CASE}}
-#        commands:
-#          - |
-#            snyk test --severity-threshold=${{SNYK_SEVERITY_THRESHOLD}} || fail=1
-#            snyk container test --severity-threshold=${{SNYK_SEVERITY_THRESHOLD}} --file=Dockerfile ${LOCAL_IMAGE_REF}
-#            if [ "$fail" == "1" ]; then exit 1; fi
-#        on_success:
-#          metadata:
-#            set:
-#              - '${{build.imageId}}':
-#                  - SECURITY_SCAN_SNYK: true
-#
-#  upload_sec_scan_report:
-#    stage: security_scan
-#    image: mesosphere/aws-cli
-#    fail_fast: false
-#    when:
-#      branch:
-#        only: [ master ]
-#    environment:
-#      - AWS_ACCESS_KEY_ID=${{SEC_SCAN_AWS_KEY_ID}}
-#      - AWS_SECRET_ACCESS_KEY=${{SEC_SCAN_AWS_SECRET_KEY}}
-#    commands:
-#      - |-
-#        aws s3 cp \
-#        ${{SEC_SCAN_REPORT_FILE}} \
-#        s3://${{SEC_SCAN_S3_BUCKET}}/codefresh/${{CF_REPO_NAME}}/${{CF_REPO_NAME}}:${{VERSION}}.txt
-#
-#  push:
-#    stage: 'push'
-#    type: push
-#    title: Pushing to a registry
-#    candidate: ${{build}}
-#    tags:
-#      - stable
-#      - ${{VERSION}}
-#    registry: dockerhub
-#    image_name: codefresh/argocd-agent
-#    when:
-#      branch:
-#        only:
-#          - master
+  unit_test:
+    stage: "prepare"
+    title: 'Running unit tests'
+    working_directory: ${{main_clone}}
+    image: golang:1.14.2
+    commands:
+      - go get -u github.com/mcubik/goverreport
+      - go test ./... -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic
+    when:
+      steps:
+        - name: main_clone
+          on:
+            - success
 
-#  store_agent_version:
-#    title: Update agent version
-#    stage: 'push'
-#    type: "freestyle"
-#    image: "tutum/curl:latest"
-#    working_directory: ${{main_clone}}
-#    commands:
-#      - echo "try to store version >>$VERSION<<"
-#      - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{VERSION}}\"}'"
-#      - "curl    -XGET ${{CF_URL}}/api/admin/argo-agent/version  -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" "
-#    when:
-#      steps:
-#        - name: export_version
-#        - name: main_clone
-#      branch:
-#        only:
-#          - master
+  codecov-report:
+    stage: "prepare"
+    title: Codecov report
+    type: codecov-reporter
+    arguments:
+      codecov_integration: argocd-agent
 
-#  create_git_tag:
-#    title: Push tag to git
-#    image: codefresh/cli
-#    stage: Release
-#    commands:
-#      - export OLD_ORIGIN=$(git remote get-url origin)
-#      - git remote rm origin
-#      - git remote add origin https://${{GITHUB_TOKEN}}@github.com/codefresh-io/argocd-agent.git
-#      - git tag ${{VERSION}}
-#      - git push --tags
-#      - git remote rm origin
-#      - git remote add origin $OLD_ORIGIN
-#    fail_fast: false
-#    when:
-#      steps:
-#        - name: export_version
-#        - name: main_clone
-#      branch:
-#        only:
-#          - master
+  export_version:
+    title: Compare version
+    stage: build
+    image: codefresh/semver
+    commands:
+      - export ARGOCTL_VERSION=$(cat ./installer/VERSION)
+      - echo "Argoctl version -> $ARGOCTL_VERSION "
+      - cf_export VERSION=$ARGOCTL_VERSION
+    when:
+      steps:
+        - name: main_clone
+          on:
+            - success
+      branch:
+        only:
+          - master
+
+  build:
+    title: "Building Docker image"
+    type: "build"
+    image_name: "${{IMAGE_NAME}}"
+    tag: "${{CF_BRANCH_TAG_NORMALIZED}}"
+    dockerfile: "Dockerfile"
+    stage: "build"
+
+  security_scan:
+    stage: security_scan
+    type: parallel
+    success_criteria:
+      condition:
+        any:
+         secScanStep: aqua_scan.result == 'success' && snyk_scan.result == 'success'
+         secScanFail: '"${{IGNORE_SEC_SCAN}}" == "true"'
+    steps:
+      aqua_scan:
+        image: aquasec/trivy:latest
+        title: "Scanning image for security vulnerablities"
+        commands:
+          - '! rm ${{SEC_SCAN_REPORT_FILE}} 2>/dev/null'
+          - |-
+            set -o pipefail
+            trivy \
+              --quiet \
+              ${{IMAGE_NAME}}:${{CF_BRANCH_TAG_NORMALIZED_LOWER_CASE}} &> ${{SEC_SCAN_REPORT_FILE}}
+            trivy \
+              --quiet \
+              --skip-update \
+              --ignorefile /tmp/.trivy/trivyignore \
+              --ignore-unfixed \
+              --exit-code 1 \
+              --severity ${{SEC_SCAN_SEVERITY_THRESHOLD}} \
+              ${{IMAGE_NAME}}:${{CF_BRANCH_TAG_NORMALIZED_LOWER_CASE}}
+        on_success:
+          metadata:
+            set:
+              - '${{build.imageId}}':
+                  - SECURITY_SCAN_AQUA: true
+
+      snyk_scan:
+        image: quay.io/codefresh/snyk-cli:${{SNYK_IMAGE_TAG}}
+        title: "Scanning image for security vulnerablities"
+        shell: bash
+        working_directory: ${{main_clone}}
+        environment:
+          - SNYK_TOKEN=${{SNYK_TOKEN}}
+          - LOCAL_IMAGE_REF=${{IMAGE_NAME}}:${{CF_BRANCH_TAG_NORMALIZED_LOWER_CASE}}
+        commands:
+          - |
+            snyk test --severity-threshold=${{SNYK_SEVERITY_THRESHOLD}} || fail=1
+            snyk container test --severity-threshold=${{SNYK_SEVERITY_THRESHOLD}} --file=Dockerfile ${LOCAL_IMAGE_REF}
+            if [ "$fail" == "1" ]; then exit 1; fi
+        on_success:
+          metadata:
+            set:
+              - '${{build.imageId}}':
+                  - SECURITY_SCAN_SNYK: true
+
+  upload_sec_scan_report:
+    stage: security_scan
+    image: mesosphere/aws-cli
+    fail_fast: false
+    when:
+      branch:
+        only: [ master ]
+    environment:
+      - AWS_ACCESS_KEY_ID=${{SEC_SCAN_AWS_KEY_ID}}
+      - AWS_SECRET_ACCESS_KEY=${{SEC_SCAN_AWS_SECRET_KEY}}
+    commands:
+      - |-
+        aws s3 cp \
+        ${{SEC_SCAN_REPORT_FILE}} \
+        s3://${{SEC_SCAN_S3_BUCKET}}/codefresh/${{CF_REPO_NAME}}/${{CF_REPO_NAME}}:${{VERSION}}.txt
+
+  push:
+    stage: 'push'
+    type: push
+    title: Pushing to a registry
+    candidate: ${{build}}
+    tags:
+      - stable
+      - ${{VERSION}}
+    registry: dockerhub
+    image_name: codefresh/argocd-agent
+    when:
+      branch:
+        only:
+          - master
+
+  store_agent_version:
+    title: Update agent version
+    stage: 'push'
+    type: "freestyle"
+    image: "curlimages/curl:latest"
+    working_directory: ${{main_clone}}
+    commands:
+      - echo "try to store version >>$VERSION<<"
+      - "curl -v -XPOST ${{CF_URL}}/api/admin/argo-agent/version -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" --data '{\"version\":\"${{VERSION}}\"}'"
+      - "curl    -XGET ${{CF_URL}}/api/admin/argo-agent/version  -H \"Content-Type: application/json\" -H \"Authorization: Bearer ${{CF_API_KEY}}\" "
+    when:
+      steps:
+        - name: export_version
+        - name: main_clone
+      branch:
+        only:
+          - master
+
+  create_git_tag:
+    title: Push tag to git
+    image: codefresh/cli
+    stage: Release
+    commands:
+      - export OLD_ORIGIN=$(git remote get-url origin)
+      - git remote rm origin
+      - git remote add origin https://${{GITHUB_TOKEN}}@github.com/codefresh-io/argocd-agent.git
+      - git tag ${{VERSION}}
+      - git push --tags
+      - git remote rm origin
+      - git remote add origin $OLD_ORIGIN
+    fail_fast: false
+    when:
+      steps:
+        - name: export_version
+        - name: main_clone
+      branch:
+        only:
+          - master
 
 
   release_binaries:
@@ -197,11 +197,11 @@ steps:
     commands:
       - cd installer
       - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
-#    when:
-#      steps:
-#        - name: create_git_tag
-#          on:
-#            - finished
-#      branch:
-#        only:
-#          - master
+    when:
+      steps:
+        - name: create_git_tag
+          on:
+            - finished
+      branch:
+        only:
+          - master
