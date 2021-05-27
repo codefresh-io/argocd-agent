@@ -133,7 +133,7 @@ steps:
         aws s3 cp \
         ${{SEC_SCAN_REPORT_FILE}} \
         s3://${{SEC_SCAN_S3_BUCKET}}/codefresh/${{CF_REPO_NAME}}/${{CF_REPO_NAME}}:${{VERSION}}.txt
-  
+
   push:
     stage: 'push'
     type: push
@@ -153,7 +153,7 @@ steps:
     title: Update agent version
     stage: 'push'
     type: "freestyle"
-    image: "tutum/curl:latest"
+    image: "curlimages/curl:latest"
     working_directory: ${{main_clone}}
     commands:
       - echo "try to store version >>$VERSION<<"
@@ -187,6 +187,7 @@ steps:
       branch:
         only:
           - master
+
 
   release_binaries:
     title: Create release in Github with argo-agent CLI
