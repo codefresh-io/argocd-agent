@@ -190,7 +190,7 @@ steps:
 
   release_binaries:
     title: Create release in Github with argo-agent CLI
-    image: goreleaser/goreleaser:v0.124.1
+    image: goreleaser/goreleaser:v0.166.1
     stage: Release
     fail_fast: false
     commands:
