@@ -197,11 +197,11 @@ steps:
     commands:
       - cd installer
       - goreleaser release -f .goreleaser.yml --rm-dist --skip-validate # pre-release
-    when:
-      steps:
-        - name: create_git_tag
-          on:
-            - finished
-      branch:
-        only:
-          - master
+#    when:
+#      steps:
+#        - name: create_git_tag
+#          on:
+#            - finished
+#      branch:
+#        only:
+#          - master
