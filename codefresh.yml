@@ -153,7 +153,7 @@ steps:
     title: Update agent version
     stage: 'push'
     type: "freestyle"
-    image: "tutum/curl:latest"
+    image: "curlimages/curl:7.77.0"
     working_directory: ${{main_clone}}
     commands:
       - echo "try to store version >>$VERSION<<"
