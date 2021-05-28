@@ -3,6 +3,7 @@ package acceptance
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/dictionary"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 )
 
@@ -25,7 +26,7 @@ func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.A
 }
 
 func (acceptanceTest *ArgoCredentialsAcceptanceTest) getMessage() string {
-	return "checking argocd credentials..."
+	return dictionary.CheckArgoCredentials
 }
 
 func (acceptanceTest *ArgoCredentialsAcceptanceTest) failure() bool {
