@@ -77,3 +77,13 @@ func TestEmptyResultOfProjects(t *testing.T) {
 		t.Errorf("Acceptance test should be fail with error \"failed to retrieve projects, check token permissions or projects existence\", actual: %s", result.Error())
 	}
 }
+
+func TestFailure(t *testing.T) {
+	test := &ProjectAcceptanceTest{
+		argoApi: &PrjMockArgoApi{},
+	}
+	result := test.failure()
+	if !result {
+		t.Error("Should fail with error")
+	}
+}
