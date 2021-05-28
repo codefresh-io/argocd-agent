@@ -85,6 +85,10 @@ func (api *PMockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPa
 type MockArgoApi struct {
 }
 
+func (api *MockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func (api *MockArgoApi) CheckToken() error {
 	panic("implement me")
 }

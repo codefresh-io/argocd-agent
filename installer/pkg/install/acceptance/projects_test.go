@@ -14,6 +14,10 @@ var _ = func() bool {
 type PrjMockArgoApi struct {
 }
 
+func (api *PrjMockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func (api *PrjMockArgoApi) CheckToken() error {
 	panic("implement me")
 }
@@ -71,5 +75,15 @@ func TestEmptyResultOfProjects(t *testing.T) {
 
 	if result.Error() != "could not access your project in argocd, check credentials and whether you have an project set-up" {
 		t.Errorf("Acceptance test should be fail with error \"failed to retrieve projects, check token permissions or projects existence\", actual: %s", result.Error())
+	}
+}
+
+func TestFailure(t *testing.T) {
+	test := &ProjectAcceptanceTest{
+		argoApi: &PrjMockArgoApi{},
+	}
+	result := test.failure()
+	if !result {
+		t.Error("Should fail with error")
 	}
 }
