@@ -16,7 +16,7 @@ type MockArgoApi struct {
 }
 
 func (api *MockArgoApi) CheckToken() error {
-	panic("implement me")
+	return nil
 }
 
 func (api *MockArgoApi) GetResourceTree(applicationName string) (*argoSdk.ResourceTree, error) {

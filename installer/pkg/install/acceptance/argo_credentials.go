@@ -8,19 +8,28 @@ import (
 )
 
 type ArgoCredentialsAcceptanceTest struct {
+	argoApi            argo.ArgoAPI
+	unathorizedArgoApi argo.UnauthorizedApi
 }
 
 func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
+	if acceptanceTest.argoApi == nil {
+		acceptanceTest.argoApi = argo.GetInstance()
+	}
+	if acceptanceTest.unathorizedArgoApi == nil {
+		acceptanceTest.unathorizedArgoApi = argo.GetUnauthorizedApiInstance()
+	}
+
 	var err error
 	token := argoOptions.Token
 	if token == "" {
-		token, err = argo.GetUnauthorizedApiInstance().GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
+		token, err = acceptanceTest.unathorizedArgoApi.GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
 		if err == nil {
 			store.SetArgo(token, argoOptions.Host, "", "")
 		}
 	} else {
 		store.SetArgo(token, argoOptions.Host, "", "")
-		err = argo.GetInstance().CheckToken()
+		err = acceptanceTest.argoApi.CheckToken()
 	}
 	return err
 }
