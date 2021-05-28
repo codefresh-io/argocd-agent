@@ -1,6 +1,7 @@
 package acceptance
 
 import (
+	"github.com/codefresh-io/argocd-listener/installer/pkg/dictionary"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"testing"
@@ -62,6 +63,34 @@ func (api *MockArgoApi) CreateDefaultApp() error {
 	return nil
 }
 
+type MockPrompt struct {
+}
+
+func (p *MockPrompt) InputWithDefault(target *string, label string, defaultValue string) error {
+	*target = defaultValue
+	return nil
+}
+
+func (p *MockPrompt) InputPassword(target *string, label string) error {
+	return nil
+}
+
+func (p *MockPrompt) Input(target *string, label string) error {
+	return nil
+}
+
+func (p *MockPrompt) Confirm(label string) (error, bool) {
+	return nil, false
+}
+
+func (p *MockPrompt) Multiselect(items []string, label string) (error, []string) {
+	return nil, nil
+}
+
+func (p *MockPrompt) Select(items []string, label string) (error, string) {
+	return nil, dictionary.StopInstallation
+}
+
 func TestEmptyResultOfApplications(t *testing.T) {
 	test := &ApplicationAcceptanceTest{
 		argoApi: &MockArgoApi{},
@@ -75,5 +104,18 @@ func TestEmptyResultOfApplications(t *testing.T) {
 
 	if result.Error() != "could not access your application in argocd, check credentials and whether you have an application set-up" {
 		t.Errorf("Acceptance test should be fail with error \"failed to retrieve applications, check token permissions or applications existence\", actual: %s", result.Error())
+	}
+}
+
+func TestFailureCase(t *testing.T) {
+	test := &ApplicationAcceptanceTest{
+		argoApi: &MockArgoApi{},
+		prompt:  &MockPrompt{},
+	}
+	result := test.failure()
+
+	if result == false {
+		t.Errorf("Failure should stop an installation")
+		return
 	}
 }
