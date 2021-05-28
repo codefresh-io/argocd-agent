@@ -79,6 +79,10 @@ func (api *PMockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPa
 type PMockArgoApi struct {
 }
 
+func (api *PMockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func (api *PMockArgoApi) CheckToken() error {
 	panic("implement me")
 }

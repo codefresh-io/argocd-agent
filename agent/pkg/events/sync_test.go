@@ -38,6 +38,10 @@ func (api *MockArgoApi) GetVersion() (string, error) {
 	panic("implement me")
 }
 
+func (api *MockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func (api *MockArgoApi) GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error) {
 	panic("implement me")
 }

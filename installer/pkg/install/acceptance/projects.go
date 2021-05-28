@@ -28,3 +28,7 @@ func (acceptanceTest *ProjectAcceptanceTest) check(argoOptions *entity.ArgoOptio
 func (acceptanceTest *ProjectAcceptanceTest) getMessage() string {
 	return "checking argocd projects accessibility..."
 }
+
+func (acceptanceTest *ProjectAcceptanceTest) failure() bool {
+	return true
+}

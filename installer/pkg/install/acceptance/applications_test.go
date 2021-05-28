@@ -58,6 +58,10 @@ func (api *MockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
 	panic("implement me")
 }
 
+func (api *MockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func TestEmptyResultOfApplications(t *testing.T) {
 	test := &ApplicationAcceptanceTest{
 		argoApi: &MockArgoApi{},

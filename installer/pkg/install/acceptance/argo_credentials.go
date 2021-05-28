@@ -27,3 +27,7 @@ func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.A
 func (acceptanceTest *ArgoCredentialsAcceptanceTest) getMessage() string {
 	return "checking argocd credentials..."
 }
+
+func (acceptanceTest *ArgoCredentialsAcceptanceTest) failure() bool {
+	return true
+}
