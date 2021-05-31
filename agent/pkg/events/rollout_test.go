@@ -108,6 +108,10 @@ func (api *PMockArgoApi) GetProjectsWithCredentialsFromStorage() ([]argoSdk.Proj
 	panic("implement me")
 }
 
+func (api *PMockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func (api *PMockArgoApi) GetApplication(application string) (map[string]interface{}, error) {
 
 	resources := make([]interface{}, 0)

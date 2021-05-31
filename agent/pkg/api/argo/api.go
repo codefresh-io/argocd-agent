@@ -20,6 +20,7 @@ type ArgoAPI interface {
 	GetClusters() ([]argoSdk.ClusterItem, error)
 	GetApplications() ([]argoSdk.ApplicationItem, error)
 	GetRepositories() ([]argoSdk.RepositoryItem, error)
+	CreateDefaultApp() error
 }
 
 type argoAPI struct {
@@ -134,6 +135,19 @@ func (api *argoAPI) GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectIt
 // GetApplication get detailed application information
 func (api *argoAPI) GetApplication(application string) (map[string]interface{}, error) {
 	return api.sdk.Application().GetApplication(application)
+}
+
+func (api *argoAPI) CreateDefaultApp() error {
+	var requestOptions argoSdk.CreateApplicationOpt
+	requestOptions.Metadata.Name = "cf-guestbook"
+	requestOptions.Spec.Project = "default"
+	requestOptions.Spec.Destination.Name = ""
+	requestOptions.Spec.Destination.Namespace = ""
+	requestOptions.Spec.Destination.Server = "https://kubernetes.default.svc"
+	requestOptions.Spec.Source.RepoURL = "https://github.com/argoproj/argocd-example-apps.git"
+	requestOptions.Spec.Source.Path = "guestbook"
+	requestOptions.Spec.Source.TargetRevision = "HEAD"
+	return api.sdk.Application().CreateApplication(requestOptions)
 }
 
 // GetApplicationsWithCredentialsFromStorage get detailed application information use credentials from storage that we init during startup

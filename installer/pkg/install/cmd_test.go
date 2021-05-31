@@ -15,6 +15,10 @@ var _ = func() bool {
 type MockArgoApi struct {
 }
 
+func (api *MockArgoApi) CreateDefaultApp() error {
+	return nil
+}
+
 func (api *MockArgoApi) CheckToken() error {
 	panic("implement me")
 }

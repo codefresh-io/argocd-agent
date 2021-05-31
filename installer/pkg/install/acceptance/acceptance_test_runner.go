@@ -3,12 +3,14 @@ package acceptance
 import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
 )
 
 type (
 	acceptanceTest interface {
 		check(argoOptions *entity.ArgoOptions) error
 		getMessage() string
+		failure() bool
 	}
 
 	IAcceptanceTestRunner interface {
@@ -29,7 +31,7 @@ func New() IAcceptanceTestRunner {
 		tests = append(tests, &ArgoCredentialsAcceptanceTest{})
 
 		tests = append(tests, &ProjectAcceptanceTest{})
-		tests = append(tests, &ApplicationAcceptanceTest{})
+		tests = append(tests, &ApplicationAcceptanceTest{prompt: prompt.NewPrompt()})
 
 		runner = AcceptanceTestRunner{}
 	}
@@ -47,8 +49,11 @@ func (runner AcceptanceTestRunner) Verify(argoOptions *entity.ArgoOptions) error
 	for _, test := range tests {
 		err = test.check(argoOptions)
 		if err != nil {
-			logger.FailureTest(test.getMessage())
-			return err
+			failed := test.failure()
+			if failed {
+				logger.FailureTest(test.getMessage())
+				return err
+			}
 		}
 		logger.SuccessTest(test.getMessage())
 	}
