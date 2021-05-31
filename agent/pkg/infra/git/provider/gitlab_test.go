@@ -1,6 +1,7 @@
 package provider
 
 import (
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/xanzy/go-gitlab"
 	"testing"
 )
@@ -99,6 +100,18 @@ func (gl *MockGitlabApi) ListProjects(page int) (error, []*gitlab.Project) {
 			MergeRequestsTemplate:                     "",
 		},
 	}
+}
+
+func (gl *MockGitlabApi) GetCommitsBySha(projectId int, revision string) (error, []*gitlab.Commit) {
+	return nil, nil
+}
+
+func (gl *MockGitlabApi) GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.User) {
+	return nil, nil
+}
+
+func (gl *MockGitlabApi) GetPrsByCommits(projectId int, commits []*gitlab.Commit) (error, []codefreshSdk.Annotation) {
+	return nil, nil
 }
 
 func (gl *MockGitlabApi) RetrieveAvatar(email string) (error, string) {
