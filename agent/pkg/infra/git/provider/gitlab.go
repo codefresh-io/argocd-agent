@@ -2,7 +2,6 @@ package provider
 
 import (
 	"errors"
-	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider/api"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
@@ -26,9 +25,7 @@ func NewGitlabProvider() GitProvider {
 	return gitlabInstance
 }
 
-func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
-	logger.GetLogger().Infof("Start handle get commit by revision for repo %s and revision %s", repoUrl, revision)
-
+func (gitlabInstance *Gitlab) getProject(repoUrl string) (error, *gitlab.Project) {
 	var page = 1
 
 	for {
@@ -56,41 +53,79 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 		proj, ok := foundedProject.(*gitlab.Project)
 
 		if !ok {
-			continue
+			return errors.New("failed to parse gitlab project"), nil
 		}
 
-		err, commit := gitlabInstance.api.GetCommit(proj.ID, revision)
+		return nil, proj
+	}
+}
 
-		if err != nil {
-			return err, nil
-		}
+func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
+	logger.GetLogger().Infof("Start handle get commit by revision for repo %s and revision %s", repoUrl, revision)
 
-		err, avatar := gitlabInstance.api.RetrieveAvatar(commit.AuthorEmail)
-
-		if err != nil {
-			avatar = ""
-			logger.GetLogger().Infof("Setup empty avatar for user %s because of error", commit.AuthorEmail)
-		}
-
-		result := &service.ResourceCommit{
-			Message: &commit.Message,
-			Sha:     &revision,
-			Avatar:  &avatar,
-		}
-
-		result.Link = &commit.WebURL
-
-		return nil, result
+	err, project := gitlabInstance.getProject(repoUrl)
+	if err != nil {
+		return err, nil
 	}
 
-	return errors.New(fmt.Sprintf("Project with name %s not found in gitlab", repoUrl)), nil
+	err, commit := gitlabInstance.api.GetCommit(project.ID, revision)
+
+	if err != nil {
+		return err, nil
+	}
+
+	err, avatar := gitlabInstance.api.RetrieveAvatar(commit.AuthorEmail)
+
+	if err != nil {
+		avatar = ""
+		logger.GetLogger().Infof("Setup empty avatar for user %s because of error", commit.AuthorEmail)
+	}
+
+	result := &service.ResourceCommit{
+		Message: &commit.Message,
+		Sha:     &revision,
+		Avatar:  &avatar,
+	}
+
+	result.Link = &commit.WebURL
+
+	return nil, result
 }
 
 func (gitlab *Gitlab) GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops) {
+	logger.GetLogger().Infof("Start handle get manifest  for repo %s and revision %s", repoUrl, revision)
+
 	defaultGitInfo := codefreshSdk.Gitops{
 		Comitters: []codefreshSdk.User{},
 		Prs:       []codefreshSdk.Annotation{},
 		Issues:    []codefreshSdk.Annotation{},
 	}
-	return nil, &defaultGitInfo
+
+	err, project := gitlabInstance.getProject(repoUrl)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	err, commits := gitlabInstance.api.GetCommitsBySha(project.ID, revision)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	err, committers := gitlabInstance.api.GetComittersByCommits(commits)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	err, prs := gitlabInstance.api.GetPrsByCommits(project.ID, commits)
+	if err != nil {
+		return err, &defaultGitInfo
+	}
+
+	gitInfo := codefreshSdk.Gitops{
+		Comitters: committers,
+		Prs:       prs,
+		Issues:    []codefreshSdk.Annotation{},
+	}
+
+	return nil, &gitInfo
 }
