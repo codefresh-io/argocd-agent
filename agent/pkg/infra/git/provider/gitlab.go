@@ -53,7 +53,7 @@ func (gitlabInstance *Gitlab) getProject(repoUrl string) (error, *gitlab.Project
 		proj, ok := foundedProject.(*gitlab.Project)
 
 		if !ok {
-			return errors.New("failed to parse gitlab project"), nil
+			continue
 		}
 
 		return nil, proj
