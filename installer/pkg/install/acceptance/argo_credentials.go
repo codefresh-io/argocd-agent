@@ -24,10 +24,10 @@ func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.A
 			store.SetArgo(token, argoOptions.Host, "", "")
 		}
 	} else {
+		store.SetArgo(token, argoOptions.Host, "", "")
 		if acceptanceTest.argoApi == nil {
 			acceptanceTest.argoApi = argo.GetInstance()
 		}
-		store.SetArgo(token, argoOptions.Host, "", "")
 		err = acceptanceTest.argoApi.CheckToken()
 	}
 	return err
