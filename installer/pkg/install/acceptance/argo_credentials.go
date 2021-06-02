@@ -13,21 +13,20 @@ type ArgoCredentialsAcceptanceTest struct {
 }
 
 func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
-	if acceptanceTest.argoApi == nil {
-		acceptanceTest.argoApi = argo.GetInstance()
-	}
-	if acceptanceTest.unathorizedArgoApi == nil {
-		acceptanceTest.unathorizedArgoApi = argo.GetUnauthorizedApiInstance()
-	}
-
 	var err error
 	token := argoOptions.Token
 	if token == "" {
+		if acceptanceTest.unathorizedArgoApi == nil {
+			acceptanceTest.unathorizedArgoApi = argo.GetUnauthorizedApiInstance()
+		}
 		token, err = acceptanceTest.unathorizedArgoApi.GetToken(argoOptions.Username, argoOptions.Password, argoOptions.Host)
 		if err == nil {
 			store.SetArgo(token, argoOptions.Host, "", "")
 		}
 	} else {
+		if acceptanceTest.argoApi == nil {
+			acceptanceTest.argoApi = argo.GetInstance()
+		}
 		store.SetArgo(token, argoOptions.Host, "", "")
 		err = acceptanceTest.argoApi.CheckToken()
 	}
