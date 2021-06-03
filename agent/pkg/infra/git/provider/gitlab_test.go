@@ -15,6 +15,9 @@ type MockGitlabApi struct {
 }
 
 func (gl *MockGitlabApi) ListProjects(page int) (error, []*gitlab.Project) {
+	if page == 2 {
+		return nil, []*gitlab.Project{}
+	}
 	return nil, []*gitlab.Project{
 		&gitlab.Project{
 			ID:                               0,
