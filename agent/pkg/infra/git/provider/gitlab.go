@@ -92,7 +92,7 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 	return nil, result
 }
 
-func (gitlab *Gitlab) GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops) {
+func (gitlabInstance *Gitlab) GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops) {
 	logger.GetLogger().Infof("Start handle get manifest  for repo %s and revision %s", repoUrl, revision)
 
 	defaultGitInfo := codefreshSdk.Gitops{
@@ -106,9 +106,13 @@ func (gitlab *Gitlab) GetManifestRepoInfo(repoUrl string, revision string) (erro
 		return err, &defaultGitInfo
 	}
 
-	err, commits := gitlabInstance.api.GetCommitsBySha(project.ID, revision)
+	err, commit := gitlabInstance.api.GetCommit(project.ID, revision)
 	if err != nil {
 		return err, &defaultGitInfo
+	}
+
+	commits := []*gitlab.Commit{
+		commit,
 	}
 
 	err, committers := gitlabInstance.api.GetComittersByCommits(commits)
