@@ -25,7 +25,7 @@ type (
 
 	ResourcesWrapper struct {
 		ResourcesTree     []interface{}
-		ManifestResources []Resource
+		ManifestResources []*Resource
 	}
 
 	ApplicationWrapper struct {
@@ -47,7 +47,7 @@ const (
 
 // ArgoResourceService service for process argo resources
 type ArgoResourceService interface {
-	IdentifyChangedResources(app argoSdk.ArgoApplication, resources []Resource, commit ResourceCommit, historyId int64, updateAt string) []Resource
+	IdentifyChangedResources(app argoSdk.ArgoApplication, resources []Resource, commit ResourceCommit, historyId int64, updateAt string) []*Resource
 	AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh.AgentProject
 	AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh.AgentApplication
 	ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64)
@@ -59,21 +59,25 @@ func NewArgoResourceService() ArgoResourceService {
 }
 
 // IdentifyChangedResources understand which resources changed during current rollout
-func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit ResourceCommit, historyId int64, updateAt string) []Resource {
+func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit ResourceCommit, historyId int64, updateAt string) []*Resource {
 	result := funk.Filter(application.Status.OperationState.SyncResult.Resources, func(resource argoSdk.SyncResultResource) bool {
 		return strings.Contains(resource.Message, ChangedResourceKey)
 	})
 	syncResultResources := result.([]argoSdk.SyncResultResource)
-	result = funk.Map(syncResultResources, func(syncResultResource argoSdk.SyncResultResource) Resource {
-		resource := funk.Find(serviceResources, func(resource Resource) bool {
+	result = funk.Map(syncResultResources, func(syncResultResource argoSdk.SyncResultResource) *Resource {
+		res := funk.Find(serviceResources, func(resource Resource) bool {
 			return syncResultResource.Name == resource.Name && syncResultResource.Kind == resource.Kind
-		}).(Resource)
+		})
+		if res == nil {
+			return nil
+		}
+		resource := res.(Resource)
 		resource.Commit = commit
 		resource.HistoryId = historyId
 		resource.UpdatedAt = updateAt
-		return resource
+		return &resource
 	})
-	return result.([]Resource)
+	return result.([]*Resource)
 }
 
 func (argoResourceService *argoResourceService) AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh.AgentApplication {

@@ -165,8 +165,8 @@ func (transformer *MockApplicationResourceTransformer) Transform(data interface{
 type MockArgoResourceService struct {
 }
 
-func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit service.ResourceCommit, historyId int64, updateAt string) []service.Resource {
-	return []service.Resource{}
+func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit service.ResourceCommit, historyId int64, updateAt string) []*service.Resource {
+	return []*service.Resource{}
 }
 
 func (argoResourceService *MockArgoResourceService) AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh.AgentProject {

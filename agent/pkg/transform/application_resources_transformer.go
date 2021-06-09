@@ -18,12 +18,14 @@ func GetApplicationResourcesTransformer() Transformer {
 	return applicationResourcesTransformer
 }
 
-func lookForRelatedManifestResource(appElem interface{}, resources []service.Resource) *service.Resource {
+func lookForRelatedManifestResource(appElem interface{}, resources []*service.Resource) *service.Resource {
 	for _, resource := range resources {
+		if resource == nil {
+			continue
+		}
 		appItem := appElem.(map[string]interface{})
-
 		if resource.Kind != "" && resource.Name != "" && (resource.Name == appItem["name"]) && (resource.Kind == appItem["kind"]) {
-			return &resource
+			return resource
 		}
 	}
 	return nil

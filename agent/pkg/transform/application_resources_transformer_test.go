@@ -58,10 +58,10 @@ func TestApplicationResourcesTransformerInCaseNilInput(t *testing.T) {
 	}
 }
 
-func convert(resources interface{}) []service.Resource {
+func convert(resources interface{}) []*service.Resource {
 	manifestResourcesJson, _ := json.Marshal(resources)
 
-	var manifestResourcesStruct []service.Resource
+	var manifestResourcesStruct []*service.Resource
 
 	_ = json.Unmarshal(manifestResourcesJson, &manifestResourcesStruct)
 	return manifestResourcesStruct
