@@ -168,7 +168,7 @@ func (transformer *MockEnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplic
 type MockArgoResourceService struct {
 }
 
-func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit service.ResourceCommit, historyId int64, updateAt string) []service.Resource {
+func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit service.ResourceCommit, historyId int64, updateAt string) []*service.Resource {
 	panic("implement me")
 }
 
