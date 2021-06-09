@@ -77,6 +77,11 @@ func (argoResourceService *argoResourceService) IdentifyChangedResources(applica
 		resource.UpdatedAt = updateAt
 		return &resource
 	})
+
+	result = funk.Filter(result, func(resource *Resource) bool {
+		return resource != nil
+	})
+
 	return result.([]*Resource)
 }
 
