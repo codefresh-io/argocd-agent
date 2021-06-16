@@ -20,6 +20,14 @@ func verifySummaryItem(t *testing.T, expectedTitle string, expectedValue string,
 	}
 }
 
+func TestGetDefaultKubeConfigPath(t *testing.T) {
+	expectedValue := "/someDir/.kube/config"
+	kubeConfigPath := GetDefaultKubeConfigPath("/someDir")
+	if kubeConfigPath != expectedValue {
+		t.Errorf("Wrong default kubeconfig path %s, should be %s", kubeConfigPath, expectedValue)
+	}
+}
+
 func TestBuildSummary(t *testing.T) {
 
 	options := entity.InstallCmdOptions{
