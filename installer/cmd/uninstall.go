@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/uninstall"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/uninstall/handler"
 	"github.com/spf13/cobra"
@@ -8,7 +9,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os"
 	"os/user"
-	"path"
 )
 
 var uninstallCmdOptions = uninstall.CmdOptions{}
@@ -36,7 +36,7 @@ func init() {
 	if currentUser != nil {
 		kubeConfigPath = os.Getenv("KUBECONFIG")
 		if kubeConfigPath == "" {
-			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "config")
+			kubeConfigPath = helper.GetDefaultKubeConfigPath(currentUser.HomeDir)
 		}
 	}
 

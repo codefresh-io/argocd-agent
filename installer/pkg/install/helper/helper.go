@@ -4,6 +4,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
+	"path"
 )
 
 type SummaryItem struct {
@@ -70,6 +71,10 @@ func buildSummary(installOptions *entity.InstallCmdOptions) []SummaryItem {
 	})
 
 	return items
+}
+
+func GetDefaultKubeConfigPath(homeDir string) string {
+	return path.Join(homeDir, ".kube", "config")
 }
 
 func ShowSummary(installOptions *entity.InstallCmdOptions) {

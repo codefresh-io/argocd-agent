@@ -4,6 +4,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/fs"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
+	"github.com/codefresh-io/argocd-listener/installer/pkg/install/helper"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/logger"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/util"
 	"github.com/spf13/cobra"
@@ -11,7 +12,6 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"os"
 	"os/user"
-	"path"
 )
 
 var installCmdOptions = entity.InstallCmdOptions{}
@@ -78,7 +78,7 @@ func init() {
 	if currentUser != nil {
 		kubeConfigPath = os.Getenv("KUBECONFIG")
 		if kubeConfigPath == "" {
-			kubeConfigPath = path.Join(currentUser.HomeDir, ".kube", "cf-kubeconfig")
+			kubeConfigPath = helper.GetDefaultKubeConfigPath(currentUser.HomeDir)
 		}
 	}
 
