@@ -2,10 +2,10 @@ package acceptance
 
 import "testing"
 
-func NewTest(t *testing.T) {
+func TestCreateTests(t *testing.T) {
 	_ = New()
 
-	if len(tests) != 3 {
+	if len(tests) != 4 {
 		t.Fatalf("Wrong amount of created tests")
 	}
 
