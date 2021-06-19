@@ -123,6 +123,7 @@ func TestAskAboutArgoCredentials(t *testing.T) {
 			Password string
 			Token    string
 			Update   bool
+			FailFast bool
 		}{Host: "https://localhost", Username: "test", Password: "test", Token: "test", Update: false},
 	}
 
@@ -152,6 +153,7 @@ func TestAskAboutArgoCredentialsFromLB(t *testing.T) {
 			Password string
 			Token    string
 			Update   bool
+			FailFast bool
 		}{Username: "test", Password: "test", Token: "test", Update: false},
 	}
 
@@ -182,6 +184,7 @@ func TestAskAboutArgoCredentialsFromLBWithError(t *testing.T) {
 			Password string
 			Token    string
 			Update   bool
+			FailFast bool
 		}{Username: "test", Password: "test", Token: "test", Update: false},
 	}
 	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
@@ -210,6 +213,7 @@ func TestAskAboutArgoCredentialsFromLBWithoutError(t *testing.T) {
 			Password string
 			Token    string
 			Update   bool
+			FailFast bool
 		}{Username: "test", Password: "test", Token: "test", Update: false},
 	}
 	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}

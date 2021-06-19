@@ -40,3 +40,12 @@ func TestSetGitContext(t *testing.T) {
 		t.Error("Context should exist")
 	}
 }
+
+func TestStoreArgoHost(t *testing.T) {
+	SetArgoHost("test")
+
+	host := GetStore().Argo.Host
+	if host != "test" {
+		t.Error("Wrong host")
+	}
+}

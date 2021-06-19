@@ -21,8 +21,9 @@ import (
 )
 
 type InstallIntegration struct {
-	argoApi      argo.ArgoAPI
-	codefreshApi codefresh.CodefreshApi
+	argoApi            argo.ArgoAPI
+	unathorizedArgoApi argo.UnauthorizedApi
+	codefreshApi       codefresh.CodefreshApi
 }
 
 func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
@@ -62,7 +63,9 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 		return errors.New(err.Error()), ""
 	}
 
-	err = acceptance.New().Verify(&installCmdOptions.Argo)
+	argoOptions := &installCmdOptions.Argo
+
+	err = acceptance.New().Verify(argoOptions)
 	if err != nil {
 		msg := fmt.Sprintf("Testing requirements failed - \"%s\"", err.Error())
 		eventSender.Fail(msg)
@@ -76,7 +79,7 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 
 	questionnaire.AskAboutSyncOptions(&installCmdOptions)
 
-	installIntegration := &InstallIntegration{codefreshApi: codefresh.GetInstance(), argoApi: argo.GetInstance()}
+	installIntegration := &InstallIntegration{codefreshApi: codefresh.GetInstance(), argoApi: argo.GetInstance(), unathorizedArgoApi: argo.GetUnauthorizedApiInstance()}
 
 	err = installIntegration.ensureIntegration(&installCmdOptions, clusterName)
 	if err != nil {
@@ -122,10 +125,16 @@ func Run(installCmdOptions entity.InstallCmdOptions) (error, string) {
 }
 
 func (installCmd *InstallIntegration) ensureIntegration(installCmdOptions *entity.InstallCmdOptions, clusterName string) error {
-	serverVersion, err := installCmd.argoApi.GetVersion()
-	if err != nil {
-		return err
+	serverVersion := "unknown"
+	var err error
+
+	if !installCmdOptions.Argo.FailFast {
+		serverVersion, err = installCmd.unathorizedArgoApi.GetVersion(installCmdOptions.Argo.Host)
+		if err != nil {
+			return err
+		}
 	}
+
 	err = installCmd.codefreshApi.CreateIntegration(installCmdOptions.Codefresh.Integration, installCmdOptions.Argo.Host,
 		installCmdOptions.Argo.Username, installCmdOptions.Argo.Password, installCmdOptions.Argo.Token, serverVersion,
 		installCmdOptions.Codefresh.Provider, clusterName)

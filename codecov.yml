@@ -6,6 +6,7 @@ ignore:
   - "installer/pkg/obj/kubeobj"
   - "installer/pkg/prompt"
   - "installer/pkg/templategenerator"
+  - "installer/pkg/logger/log.go"
   - "installer/cmd"
   - "installer/main.go"
   - "agent/pkg/infra/newrelic/newrelic.go"

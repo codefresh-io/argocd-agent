@@ -51,4 +51,5 @@ type ArgoOptions struct {
 	Password string
 	Token    string
 	Update   bool
+	FailFast bool
 }
