@@ -66,7 +66,7 @@ func TestEmptyResultOfProjects(t *testing.T) {
 	test := &ProjectAcceptanceTest{
 		argoApi: &PrjMockArgoApi{},
 	}
-	result := test.check(&entity.ArgoOptions{})
+	result, _ := test.check(&entity.ArgoOptions{})
 
 	if result == nil {
 		t.Errorf("Project test should be fail with error")
@@ -82,7 +82,7 @@ func TestFailure(t *testing.T) {
 	test := &ProjectAcceptanceTest{
 		argoApi: &PrjMockArgoApi{},
 	}
-	result := test.failure()
+	result := test.failure(&entity.ArgoOptions{})
 	if !result {
 		t.Error("Should fail with error")
 	}

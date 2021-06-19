@@ -23,7 +23,7 @@ func NewRunner(input *Input, codefreshApi codefresh.CodefreshApi) *Runner {
 func (runner *Runner) ensureIntegration() {
 	input := runner.input
 	codefreshApi := runner.codefreshApi
-	serverVersion, err := argo.GetInstance().GetVersion()
+	serverVersion, err := argo.GetUnauthorizedApiInstance().GetVersion(input.argoHost)
 	if err != nil {
 		_ = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
 			input.argoUsername, input.argoPassword, input.argoToken, "",

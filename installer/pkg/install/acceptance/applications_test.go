@@ -95,7 +95,7 @@ func TestEmptyResultOfApplications(t *testing.T) {
 	test := &ApplicationAcceptanceTest{
 		argoApi: &MockArgoApi{},
 	}
-	result := test.check(&entity.ArgoOptions{})
+	result, _ := test.check(&entity.ArgoOptions{})
 
 	if result == nil {
 		t.Errorf("Acceptance test should be fail with error")
@@ -112,7 +112,14 @@ func TestFailureCase(t *testing.T) {
 		argoApi: &MockArgoApi{},
 		prompt:  &MockPrompt{},
 	}
-	result := test.failure()
+	result := test.failure(&entity.ArgoOptions{
+		Host:     "",
+		Username: "",
+		Password: "",
+		Token:    "",
+		Update:   false,
+		FailFast: false,
+	})
 
 	if result == false {
 		t.Errorf("Failure should stop an installation")

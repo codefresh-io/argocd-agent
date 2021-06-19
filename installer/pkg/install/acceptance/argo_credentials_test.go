@@ -36,10 +36,6 @@ func (api *ArgoCredsMockArgoApi) GetManagedResources(applicationName string) (*a
 	panic("implement me")
 }
 
-func (api *ArgoCredsMockArgoApi) GetVersion() (string, error) {
-	panic("implement me")
-}
-
 func (api *ArgoCredsMockArgoApi) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.ApplicationItem, error) {
 	panic("implement me")
 }
@@ -75,10 +71,14 @@ func (api *MockUnathourizedArgoApi) GetToken(username string, password string, h
 	return "token", nil
 }
 
+func (api *MockUnathourizedArgoApi) GetVersion(host string) (string, error) {
+	panic("implement me")
+}
+
 func TestArgoCredsFailure(t *testing.T) {
 	test := &ArgoCredentialsAcceptanceTest{}
 
-	result := test.failure()
+	result := test.failure(&entity.ArgoOptions{})
 	if !result {
 		t.Error("Should fail with error")
 	}
@@ -100,7 +100,7 @@ func TestArgoCredsCheckWithoutToken(t *testing.T) {
 		unathorizedArgoApi: &MockUnathourizedArgoApi{},
 	}
 
-	err := test.check(&entity.ArgoOptions{})
+	err, _ := test.check(&entity.ArgoOptions{})
 
 	if err != nil {
 		t.Error("Should be executed without an error")
@@ -119,7 +119,7 @@ func TestArgoCredsCheckWithToken(t *testing.T) {
 		unathorizedArgoApi: &MockUnathourizedArgoApi{},
 	}
 
-	err := test.check(&entity.ArgoOptions{
+	err, _ := test.check(&entity.ArgoOptions{
 		Token: "test",
 	})
 

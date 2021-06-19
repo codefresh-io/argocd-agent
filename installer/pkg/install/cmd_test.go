@@ -139,6 +139,21 @@ func (api *MockArgoApi) GetRepositories() ([]argoSdk.RepositoryItem, error) {
 	panic("implement me")
 }
 
+type MockUnathourizedArgoApi struct {
+}
+
+func (api *MockUnathourizedArgoApi) GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error) {
+	return nil, nil
+}
+
+func (api *MockUnathourizedArgoApi) GetToken(username string, password string, host string) (string, error) {
+	return "token", nil
+}
+
+func (api *MockUnathourizedArgoApi) GetVersion(host string) (string, error) {
+	return "v1", nil
+}
+
 func TestEnsureIntegration(t *testing.T) {
 	cmdOptions := entity.InstallCmdOptions{
 		Kube: entity.Kube{},
@@ -170,8 +185,9 @@ func TestEnsureIntegration(t *testing.T) {
 	}
 
 	installIntegration := InstallIntegration{
-		argoApi:      &MockArgoApi{},
-		codefreshApi: &MockCodefreshApi{},
+		argoApi:            &MockArgoApi{},
+		codefreshApi:       &MockCodefreshApi{},
+		unathorizedArgoApi: &MockUnathourizedArgoApi{},
 	}
 	err := installIntegration.ensureIntegration(&cmdOptions, "tet")
 	if err != nil {

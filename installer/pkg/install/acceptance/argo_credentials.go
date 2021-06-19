@@ -12,7 +12,11 @@ type ArgoCredentialsAcceptanceTest struct {
 	unathorizedArgoApi argo.UnauthorizedApi
 }
 
-func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.ArgoOptions) error {
+func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.ArgoOptions) (error, bool) {
+	if argoOptions.FailFast {
+		return nil, true
+	}
+
 	var err error
 	token := argoOptions.Token
 	if token == "" {
@@ -30,13 +34,13 @@ func (acceptanceTest *ArgoCredentialsAcceptanceTest) check(argoOptions *entity.A
 		}
 		err = acceptanceTest.argoApi.CheckToken()
 	}
-	return err
+	return err, false
 }
 
 func (acceptanceTest *ArgoCredentialsAcceptanceTest) getMessage() string {
 	return dictionary.CheckArgoCredentials
 }
 
-func (acceptanceTest *ArgoCredentialsAcceptanceTest) failure() bool {
+func (acceptanceTest *ArgoCredentialsAcceptanceTest) failure(argoOptions *entity.ArgoOptions) bool {
 	return true
 }

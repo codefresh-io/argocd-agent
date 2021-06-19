@@ -8,9 +8,9 @@ import (
 
 type (
 	acceptanceTest interface {
-		check(argoOptions *entity.ArgoOptions) error
+		check(argoOptions *entity.ArgoOptions) (error, bool)
 		getMessage() string
-		failure() bool
+		failure(argoOptions *entity.ArgoOptions) bool
 	}
 
 	IAcceptanceTestRunner interface {
@@ -27,7 +27,9 @@ var runner IAcceptanceTestRunner
 // New create runner and init tests suite
 func New() IAcceptanceTestRunner {
 	if runner == nil {
-		// should be first in tests array because we setup token to storage , it is super not good and should be rewritten
+		tests = append(tests, &ArgoAccessibilityAcceptanceTest{prompt: prompt.NewPrompt()})
+
+		// should be before other tests array because we setup token to storage , it is super not good and should be rewritten
 		tests = append(tests, &ArgoCredentialsAcceptanceTest{})
 
 		tests = append(tests, &ProjectAcceptanceTest{})
@@ -44,12 +46,14 @@ func (runner AcceptanceTestRunner) Verify(argoOptions *entity.ArgoOptions) error
 	logger.Info("--------------------")
 	defer logger.Info("--------------------\n")
 
-	var err error
-
 	for _, test := range tests {
-		err = test.check(argoOptions)
+		err, failfast := test.check(argoOptions)
+		if failfast {
+			logger.WarningTest(test.getMessage())
+			continue
+		}
 		if err != nil {
-			failed := test.failure()
+			failed := test.failure(argoOptions)
 			if failed {
 				logger.FailureTest(test.getMessage())
 				return err

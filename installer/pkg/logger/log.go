@@ -31,6 +31,13 @@ func SuccessTest(message string) {
 	color.Println(message)
 }
 
+func WarningTest(message string) {
+	yellow := color.New(color.Yellow, color.Bold)
+	yellow.Print("√ ")
+	_, _ = color.Reset()
+	color.Println(message)
+}
+
 func FailureTest(message string) {
 	red := color.New(color.Red, color.Bold)
 	red.Print("x ")

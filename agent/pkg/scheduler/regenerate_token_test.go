@@ -22,6 +22,10 @@ func (api *MockUnathourizedArgoApi) GetToken(username string, password string, h
 	return "token", nil
 }
 
+func (api *MockUnathourizedArgoApi) GetVersion(host string) (string, error) {
+	return "", nil
+}
+
 func TestRegenerateTokenScheduler(t *testing.T) {
 
 	store.SetArgo("", "", "test", "test")

@@ -48,6 +48,12 @@ func GetStore() *Values {
 	return store
 }
 
+func SetArgoHost(host string) *Values {
+	values := GetStore()
+	values.Argo.Host = host
+	return values
+}
+
 func SetArgo(token string, host string, username string, password string) *Values {
 	values := GetStore()
 	values.Argo.Token = token

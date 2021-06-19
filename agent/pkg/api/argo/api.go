@@ -13,7 +13,6 @@ type ArgoAPI interface {
 	GetResourceTree(applicationName string) (*argoSdk.ResourceTree, error)
 	GetResourceTreeAll(applicationName string) (interface{}, error)
 	GetManagedResources(applicationName string) (*argoSdk.ManagedResource, error)
-	GetVersion() (string, error)
 	GetProjectsWithCredentialsFromStorage() ([]argoSdk.ProjectItem, error)
 	GetApplication(application string) (map[string]interface{}, error)
 	CheckToken() error
@@ -33,6 +32,7 @@ type unauthorizedApi struct {
 type UnauthorizedApi interface {
 	GetApplications(token string, host string) ([]argoSdk.ApplicationItem, error)
 	GetToken(username string, password string, host string) (string, error)
+	GetVersion(host string) (string, error)
 }
 
 var api *argoAPI
@@ -100,8 +100,9 @@ func (api *argoAPI) GetResourceTreeAll(applicationName string) (interface{}, err
 }
 
 // GetVersion get argocd server version
-func (api *argoAPI) GetVersion() (string, error) {
-	return api.sdk.Version().GetVersion()
+func (api *unauthorizedApi) GetVersion(host string) (string, error) {
+	sdk := buildArgoSdk("", host)
+	return sdk.Version().GetVersion()
 }
 
 // GetManagedResources
