@@ -78,6 +78,22 @@ func TestEmptyResultOfProjects(t *testing.T) {
 	}
 }
 
+func TestProjectsFailFast(t *testing.T) {
+	test := &ProjectAcceptanceTest{
+		argoApi: &PrjMockArgoApi{},
+	}
+	result, warn := test.check(&entity.ArgoOptions{FailFast: true})
+
+	if result != nil {
+		t.Errorf("Acceptance test should be fail without error")
+		return
+	}
+
+	if !warn {
+		t.Error("Should be marked as warning")
+	}
+}
+
 func TestFailure(t *testing.T) {
 	test := &ProjectAcceptanceTest{
 		argoApi: &PrjMockArgoApi{},
