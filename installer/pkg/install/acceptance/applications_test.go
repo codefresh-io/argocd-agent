@@ -102,7 +102,7 @@ func TestEmptyResultOfApplications(t *testing.T) {
 		return
 	}
 
-	if result.Error() != "could not access your application in argocd, check credentials and whether you have an application set-up" {
+	if result.Error() != "could not access your application in argocd, check credentials/rbac (you can use \"argocd account can-i get applications '*'\" command) and whether you have an application set-up" {
 		t.Errorf("Acceptance test should be fail with error \"failed to retrieve applications, check token permissions or applications existence\", actual: %s", result.Error())
 	}
 }
