@@ -160,7 +160,7 @@ func TestAskAboutArgoCredentialsFromLB(t *testing.T) {
 	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
 
 	err := q.AskAboutArgoCredentials(installCmdOptions, NewKubeClient())
-	if err != nil || installCmdOptions.Argo.Host != "https://example.com" {
+	if err != nil || installCmdOptions.Argo.Host != "https://argocd-server" {
 		t.Errorf("Wrong argo host ")
 	}
 }
@@ -189,7 +189,7 @@ func TestAskAboutArgoCredentialsFromLBWithError(t *testing.T) {
 	}
 	q := &ArgoQuestionnaire{prompt: &MockPrompt{}}
 	err := q.AskAboutArgoCredentials(installCmdOptions, &MockKube{})
-	if err != nil || installCmdOptions.Argo.Host != "https://example.com" {
+	if err != nil || installCmdOptions.Argo.Host != "https://argocd-server" {
 		t.Errorf("Wrong argo host ")
 	}
 }
