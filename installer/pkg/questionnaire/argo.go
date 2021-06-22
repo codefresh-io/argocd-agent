@@ -51,7 +51,7 @@ func (argoQuestionnaire *ArgoQuestionnaire) AskAboutArgoCredentials(installOptio
 	}
 
 	if installOptions.Argo.Host == "" {
-		err := argoQuestionnaire.prompt.InputWithDefault(&installOptions.Argo.Host, "ArgoCD host", "https://example.com")
+		err := argoQuestionnaire.prompt.InputWithDefault(&installOptions.Argo.Host, "ArgoCD host", "https://domain.com for ingress or argocd-server for behind firewall usage")
 		if err != nil {
 			return err
 		}

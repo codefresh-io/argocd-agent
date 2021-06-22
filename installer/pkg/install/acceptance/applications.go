@@ -27,7 +27,7 @@ func (acceptanceTest *ApplicationAcceptanceTest) check(argoOptions *entity.ArgoO
 		return err, false
 	}
 	if len(applications) == 0 {
-		return errors.New("could not access your application in argocd, check credentials and whether you have an application set-up"), false
+		return errors.New("could not access your application in argocd, check credentials/rbac (you can use \"argocd account can-i get applications '*'\" command) and whether you have an application set-up"), false
 	}
 	return err, false
 }
