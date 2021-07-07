@@ -75,6 +75,21 @@ func TestArgoAccessibilityFailureWithStopInstallation(t *testing.T) {
 	}
 }
 
+func TestArgoAccessibilityFailureWithSpecificPrefix(t *testing.T) {
+	test := &ArgoAccessibilityAcceptanceTest{
+		unathorizedArgoApi: nil,
+		prompt:             &MMockPrompt{},
+	}
+
+	result := test.failure(&entity.ArgoOptions{
+		Host: "https://argocd-server",
+	})
+
+	if result {
+		t.Error("Wrong failure result")
+	}
+}
+
 func TestArgoAccessibilityCheck(t *testing.T) {
 	test := &ArgoAccessibilityAcceptanceTest{
 		unathorizedArgoApi: &MMockUnathourizedArgoApi{},

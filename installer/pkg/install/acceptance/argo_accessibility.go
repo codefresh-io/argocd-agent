@@ -8,6 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/installer/pkg/dictionary"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/install/entity"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/prompt"
+	"strings"
 )
 
 type ArgoAccessibilityAcceptanceTest struct {
@@ -33,6 +34,11 @@ func (acceptanceTest *ArgoAccessibilityAcceptanceTest) getMessage() string {
 }
 
 func (acceptanceTest *ArgoAccessibilityAcceptanceTest) failure(argoOptions *entity.ArgoOptions) bool {
+	if strings.HasPrefix(argoOptions.Host, "https://argocd-server") {
+		argoOptions.FailFast = true
+		return false
+	}
+
 	options := []string{
 		dictionary.StopInstallation,
 		dictionary.ContinueInstallationBehindFirewall,
