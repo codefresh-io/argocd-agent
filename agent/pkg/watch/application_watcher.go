@@ -48,7 +48,7 @@ func (watcher *applicationWatcher) add(obj interface{}) {
 	err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 
 	if err != nil {
-		logger.GetLogger().Errorf("Failed to decode argo application, reason: %v", err)
+		logger.GetLogger().Errorf("Failed to decode ArgoCD application, reason: %v", err)
 		return
 	}
 
@@ -97,7 +97,7 @@ func (watcher *applicationWatcher) delete(obj interface{}) {
 	var app argoSdk.ArgoApplication
 	err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 	if err != nil {
-		logger.GetLogger().Errorf("Failed to decode argo application, reason: %v", err)
+		logger.GetLogger().Errorf("Failed to decode ArgoCD application, reason: %v", err)
 		return
 	}
 

@@ -49,10 +49,10 @@ func (updateHandler *UpdateHandler) Run() error {
 	err = updateDeploymentWithNewVersion(kubeClient.GetClientSet(), kubeOptions.Namespace, updateHandler.cmdOptions.Codefresh.Suffix, updateHandler.version)
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
+		return errors.New(fmt.Sprintf("ArgoCD agent update finished with error , reason: %v ", err))
 	}
 
-	logger.Success(fmt.Sprintf("Argo agent update finished successfully to namespace \"%s\"", kubeOptions.Namespace))
+	logger.Success(fmt.Sprintf("ArgoCD agent update finished successfully to namespace \"%s\"", kubeOptions.Namespace))
 
 	return nil
 }
