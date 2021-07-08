@@ -32,7 +32,7 @@ func TestValidStore(t *testing.T) {
 
 	argo := store.GetStore().Argo
 	if argo.Token != input.argoToken || argo.Host != input.argoHost {
-		t.Error("Failed to retrieve correct information from store about argo")
+		t.Error("Failed to retrieve correct information from store about ArgoCD")
 	}
 
 	codefresh := store.GetStore().Codefresh

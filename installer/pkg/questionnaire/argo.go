@@ -84,17 +84,17 @@ func (argoQuestionnaire *ArgoQuestionnaire) AskAboutArgoCredentials(installOptio
 	}
 
 	if authenticationMethod == useArgocdToken {
-		err = argoQuestionnaire.prompt.InputWithDefault(&installOptions.Argo.Token, "Argo token", "")
+		err = argoQuestionnaire.prompt.InputWithDefault(&installOptions.Argo.Token, "ArgoCD token", "")
 		if err != nil {
 			return err
 		}
 	} else if authenticationMethod == useUserAndPass {
-		err = argoQuestionnaire.prompt.InputWithDefault(&installOptions.Argo.Username, "Argo username", "admin")
+		err = argoQuestionnaire.prompt.InputWithDefault(&installOptions.Argo.Username, "ArgoCD username", "admin")
 		if err != nil {
 			return err
 		}
 
-		err = argoQuestionnaire.prompt.InputPassword(&installOptions.Argo.Password, "Argo password")
+		err = argoQuestionnaire.prompt.InputPassword(&installOptions.Argo.Password, "ArgoCD password")
 		if err != nil {
 			return err
 		}

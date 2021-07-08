@@ -1,12 +1,12 @@
 package dictionary
 
 const (
-	NoApplication                = "Found no applications in your argocd installation"
-	CouldNotAccessToArgocdServer = "could not access your argocd server %v"
+	NoApplication                = "Found no applications in your ArgoCD installation"
+	CouldNotAccessToArgocdServer = "could not access your ArgoCD server %v"
 
-	CheckArgoApplicationsAccessability = "checking argocd applications accessibility..."
-	CheckArgoServerAccessability       = "checking argocd server accessibility..."
-	CheckArgoCredentials               = "checking argocd credentials..."
+	CheckArgoApplicationsAccessability = "checking ArgoCD applications accessibility..."
+	CheckArgoServerAccessability       = "checking ArgoCD server accessibility..."
+	CheckArgoCredentials               = "checking ArgoCD credentials..."
 
 	// Applications acceptance test
 	StopInstallation     = "Stop installation"

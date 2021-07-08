@@ -19,11 +19,11 @@ func AskAboutSyncOptions(installOptions *entity.InstallCmdOptions) {
 		syncMode = installOptions.Codefresh.SyncMode
 	} else {
 		syncModes := orderedmap.NewOrderedMap()
-		syncModes.Set("Import all existing Argo applications to Codefresh", "SYNC")
-		syncModes.Set("Select specific Argo applications to import", codefresh.SelectSync)
-		syncModes.Set("Do not import anything from Argo to Codefresh", codefresh.None)
+		syncModes.Set("Import all existing ArgoCD applications to Codefresh", "SYNC")
+		syncModes.Set("Select specific ArgoCD applications to import", codefresh.SelectSync)
+		syncModes.Set("Do not import anything from ArgoCD to Codefresh", codefresh.None)
 
-		_, autoSyncMode := prompt.NewPrompt().Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd sync behavior please")
+		_, autoSyncMode := prompt.NewPrompt().Select(util.ConvertIntToStringArray(syncModes.Keys()), "Select argocd application sync behavior")
 
 		syncMode, _ = syncModes.Get(autoSyncMode)
 
@@ -56,7 +56,7 @@ func AskAboutSyncOptions(installOptions *entity.InstallCmdOptions) {
 				applicationNames = append(applicationNames, prj.Metadata.Name)
 			}
 
-			_, applicationsForSync = prompt.NewPrompt().Multiselect(applicationNames, "Please select application for sync")
+			_, applicationsForSync = prompt.NewPrompt().Multiselect(applicationNames, "Select application for sync")
 		}
 
 		applicationsAsJson, _ := json.Marshal(applicationsForSync)
