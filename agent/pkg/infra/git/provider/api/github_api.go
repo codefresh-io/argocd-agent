@@ -28,7 +28,7 @@ type Api interface {
 	GetCommitBySha(sha string) (error, *github.RepositoryCommit)
 	GetUserByUsername(username string) (error, *github.User)
 	GetCommitsBySha(sha string) (error, []*github.RepositoryCommit)
-	GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User)
+	GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.GitopsUser)
 	GetIssuesAndPrsByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.Annotation, []codefreshSdk.Annotation)
 }
 
@@ -150,8 +150,8 @@ func (a *api) GetCommitsBySha(sha string) (error, []*github.RepositoryCommit) {
 	return nil, []*github.RepositoryCommit{revisionCommit}
 }
 
-func (a *api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
-	comitters := []codefreshSdk.User{}
+func (a *api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.GitopsUser) {
+	comitters := []codefreshSdk.GitopsUser{}
 	comittersSet := make(map[string]bool)
 	for _, commit := range commits {
 		author := commit.Author
@@ -161,7 +161,7 @@ func (a *api) GetComittersByCommits(commits []*github.RepositoryCommit) (error, 
 		_, exists := comittersSet[*author.Login]
 		if exists != true {
 			comittersSet[*author.Login] = true
-			comitters = append(comitters, codefreshSdk.User{
+			comitters = append(comitters, codefreshSdk.GitopsUser{
 				Name:   *author.Login,
 				Avatar: *author.AvatarURL,
 			})

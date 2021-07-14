@@ -18,7 +18,7 @@ type (
 		RetrieveAvatar(email string) (error, string)
 		GetCommit(projectId int, revision string) (error, *gitlab.Commit)
 		GetCommitsBySha(projectId int, revision string) (error, []*gitlab.Commit)
-		GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.User)
+		GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.GitopsUser)
 		GetPrsByCommits(projectId int, commits []*gitlab.Commit) (error, []codefreshSdk.Annotation)
 	}
 )
@@ -88,20 +88,20 @@ func (gitlabApi *gitlabApi) GetCommitsBySha(projectId int, revision string) (err
 	return err, commit
 }
 
-func (gitlabApi *gitlabApi) GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.User) {
-	committers := make(map[string]*codefreshSdk.User)
+func (gitlabApi *gitlabApi) GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.GitopsUser) {
+	committers := make(map[string]*codefreshSdk.GitopsUser)
 
 	for _, commit := range commits {
 		if committers[commit.CommitterName] == nil {
 			_, avatar := gitlabApi.RetrieveAvatar(commit.CommitterEmail)
-			committers[commit.CommitterName] = &codefreshSdk.User{
+			committers[commit.CommitterName] = &codefreshSdk.GitopsUser{
 				Name:   commit.CommitterName,
 				Avatar: avatar,
 			}
 		}
 	}
 
-	users := []codefreshSdk.User{}
+	users := []codefreshSdk.GitopsUser{}
 
 	for _, value := range committers {
 		users = append(users, *value)
