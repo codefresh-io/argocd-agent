@@ -31,7 +31,6 @@ steps:
       - cf_export GOPRIVATE=github.com/codefresh-io/argo-platform
       - cf_export GOSUMDB=off
       - cf_export PATH=$PATH:/codefresh/volume/gopath/bin
-      - git config --global url."https://pasha-codefresh:${GITHUB_TOKEN}@github.com".insteadOf  "https://github.com"
 
   unit_test:
     stage: "prepare"
@@ -39,6 +38,7 @@ steps:
     working_directory: ${{main_clone}}
     image: golang:1.14.2
     commands:
+      - git config --global url."https://pasha-codefresh:${GITHUB_TOKEN}@github.com".insteadOf  "https://github.com"
       - go mod tidy
       - go get -u github.com/mcubik/goverreport
       - go test ./... -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic
