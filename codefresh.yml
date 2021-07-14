@@ -39,6 +39,7 @@ steps:
     working_directory: ${{main_clone}}
     image: golang:1.14.2
     commands:
+      - go mod tidy
       - go get -u github.com/mcubik/goverreport
       - go test ./... -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic
     when:
