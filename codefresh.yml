@@ -20,6 +20,19 @@ steps:
     git: "cf_github"
     stage: "prepare"
 
+  prepare_env_vars:
+    stage: prepare
+    title: prepare-env
+    image: quay.io/codefresh/golang-ci-helper:latest
+    commands:
+      - cf_export GO111MODULE=on
+      - cf_export GOCACHE=/codefresh/volume/gocache # change gopath to codefresh shared volume
+      - cf_export GOPATH=/codefresh/volume/gopath
+      - cf_export GOPRIVATE=github.com/codefresh-io/argo-platform
+      - cf_export GOSUMDB=off
+      - cf_export PATH=$PATH:/codefresh/volume/gopath/bin
+      - git config --global url."https://github:${GITHUB_TOKEN}@github.com".insteadOf  "https://github.com"
+
   unit_test:
     stage: "prepare"
     title: 'Running unit tests'
