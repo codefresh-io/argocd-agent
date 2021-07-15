@@ -109,7 +109,7 @@ func (gl *MockGitlabApi) GetCommitsBySha(projectId int, revision string) (error,
 	return nil, nil
 }
 
-func (gl *MockGitlabApi) GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.User) {
+func (gl *MockGitlabApi) GetComittersByCommits(commits []*gitlab.Commit) (error, []codefreshSdk.GitopsUser) {
 	return nil, nil
 }
 
