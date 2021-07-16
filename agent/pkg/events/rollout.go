@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/transform"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
@@ -97,6 +98,7 @@ func (rolloutHandler *RolloutHandler) Handle(rollout interface{}) error {
 			HistoryId: env.HistoryId,
 			Revision:  env.SyncRevision,
 			Resources: appResources,
+			Context:   &store.GetStore().Codefresh.Integration,
 		}
 		logger.GetLogger().Infof("Send application resources for app %s with history %v", env.Name, env.HistoryId)
 		err = rolloutHandler.codefreshApi.SendApplicationResources(applicationResources)

@@ -74,6 +74,8 @@ github.com/codefresh-io/argocd-sdk v0.4.0 h1:gcBM8Sml4whkj641xI+LJcJLE9AOryt0oS+
 github.com/codefresh-io/argocd-sdk v0.4.0/go.mod h1:67oTaZX5zLmJwT27p2h6o45A6/eNctIVxPXCqGcy+bg=
 github.com/codefresh-io/go-sdk v0.25.9 h1:Wuk2TqQtTnH/XU2q6d2j76k85LOL7TYLVpMfegSmKGY=
 github.com/codefresh-io/go-sdk v0.25.9/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
+github.com/codefresh-io/go-sdk v1.0.0-agent h1:4yoTyx/+WJY9StWVqxIkLHt///Q0COfp0XDLeECCx7w=
+github.com/codefresh-io/go-sdk v1.0.0-agent/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=

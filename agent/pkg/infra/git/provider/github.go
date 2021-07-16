@@ -52,7 +52,7 @@ func (github *Github) GetCommitByRevision(repoUrl string, revision string) (erro
 
 func (github *Github) GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops) {
 	defaultGitInfo := codefreshSdk.Gitops{
-		Comitters: []codefreshSdk.User{},
+		Comitters: []codefreshSdk.GitopsUser{},
 		Prs:       []codefreshSdk.Annotation{},
 		Issues:    []codefreshSdk.Annotation{},
 	}

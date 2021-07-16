@@ -104,7 +104,7 @@ func (api *mgithubApi) GetCommitsBySha(sha string) (error, []*github.RepositoryC
 	}
 }
 
-func (api *mgithubApi) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.User) {
+func (api *mgithubApi) GetComittersByCommits(commits []*github.RepositoryCommit) (error, []codefreshSdk.GitopsUser) {
 	panic("Not implemented yet")
 }
 

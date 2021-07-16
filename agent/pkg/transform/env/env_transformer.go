@@ -6,6 +6,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
@@ -176,6 +177,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,
 		Date:         app.Status.OperationState.FinishedAt,
+		Context:      &store.GetStore().Codefresh.Integration,
 	}
 
 	err, commit := git.GetCommitByRevision(repoUrl, revision)

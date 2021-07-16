@@ -96,7 +96,7 @@ func (gitlabInstance *Gitlab) GetManifestRepoInfo(repoUrl string, revision strin
 	logger.GetLogger().Infof("Start handle get manifest  for repo %s and revision %s", repoUrl, revision)
 
 	defaultGitInfo := codefreshSdk.Gitops{
-		Comitters: []codefreshSdk.User{},
+		Comitters: []codefreshSdk.GitopsUser{},
 		Prs:       []codefreshSdk.Annotation{},
 		Issues:    []codefreshSdk.Annotation{},
 	}
