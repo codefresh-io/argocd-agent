@@ -49,7 +49,8 @@ func (api *PMockCodefreshApi) GetEnvironments() ([]codefreshSdk.CFEnvironment, e
 		Spec: struct {
 			Type        string `json:"type"`
 			Application string `json:"application"`
-		}{Type: "argo", Application: "app"},
+			Context     string `json:"context"`
+		}{Type: "argo", Application: "app", Context: "test"},
 	}
 	return []codefreshSdk.CFEnvironment{cfEnv}, nil
 }
