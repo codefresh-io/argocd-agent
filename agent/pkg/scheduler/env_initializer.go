@@ -46,7 +46,7 @@ func (envInitializer *envInitializerScheduler) Run() {
 
 func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironment) bool {
 	for _, env := range existingEnvs {
-		if env.Name == newEnv.Metadata.Name {
+		if env.Name == newEnv.Metadata.Name && env.Context == newEnv.Spec.Context {
 			return false
 		}
 		continue
@@ -102,7 +102,8 @@ func (envInitializer *envInitializerScheduler) handleEnvDifference() {
 		}
 
 		newEnv := store.Environment{
-			Name: env.Metadata.Name,
+			Name:    env.Metadata.Name,
+			Context: env.Spec.Context,
 		}
 		newEnvs = append(newEnvs, newEnv)
 

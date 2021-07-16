@@ -7,7 +7,8 @@ var (
 )
 
 type Environment struct {
-	Name string
+	Name    string
+	Context string
 }
 
 type (
