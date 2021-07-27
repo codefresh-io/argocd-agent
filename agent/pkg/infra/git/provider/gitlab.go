@@ -42,7 +42,6 @@ func (gitlabInstance *Gitlab) getProject(repoUrl string) (error, *gitlab.Project
 		page++
 
 		foundedProject := funk.Find(projects, func(proj *gitlab.Project) bool {
-			logger.GetLogger().Infof("Match project http %s, ssh %s to repo %s", proj.HTTPURLToRepo, proj.SSHURLToRepo, repoUrl)
 			return proj.HTTPURLToRepo == repoUrl || proj.SSHURLToRepo == repoUrl
 		})
 
