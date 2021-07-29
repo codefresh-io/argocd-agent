@@ -144,16 +144,22 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 	}
 
 	resources, err := envTransformer.argoApi.GetResourceTreeAll(name)
-	logPayloadBefore, _ := json.Marshal(resources)
-	logger.GetLogger().Infof("==> Resources BEFORE filter \"%s\", payload: \n%s", name, logPayloadBefore)
+	logsEnable := name == "sin-adplatform"
+
+	if logsEnable {
+		logPayloadBefore, _ := json.Marshal(resources)
+		logger.GetLogger().Infof("==> Resources BEFORE filter \"%s\", payload: \n%s", name, logPayloadBefore)
+	}
 
 	if err != nil {
 		return err, nil
 	}
 	filteredResources := filterResources(resources)
 
-	logPayloadAfter, _ := json.Marshal(filteredResources)
-	logger.GetLogger().Infof("==> Resources AFTER filter \"%s\", payload: \n%s", name, logPayloadAfter)
+	if logsEnable {
+		logPayloadAfter, _ := json.Marshal(filteredResources)
+		logger.GetLogger().Infof("==> Resources AFTER filter \"%s\", payload: \n%s", name, logPayloadAfter)
+	}
 
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := git.GetManifestRepoInfo(repoUrl, revision)
