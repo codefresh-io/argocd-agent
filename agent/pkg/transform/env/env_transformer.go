@@ -148,6 +148,10 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		return err, nil
 	}
 	filteredResources := filterResources(resources)
+	for _, resource := range filteredResources {
+		payload, _ := json.Marshal(resource)
+		logger.GetLogger().Infof("Put resource to app \"%s\", payload \"%s\" ", name, payload)
+	}
 
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := git.GetManifestRepoInfo(repoUrl, revision)
