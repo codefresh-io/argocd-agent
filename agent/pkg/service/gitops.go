@@ -1,23 +1,37 @@
 package service
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
 type Gitops interface {
 	MarkEnvAsRemoved(obj interface{}) (error, *codefreshSdk.Environment)
+	HandleNewApplications(applications []string) []*EnvironmentWrapper
+	ExtractNewApplication(application string) (*EnvironmentWrapper, error)
 }
 
 type EnvironmentWrapper struct {
 	Environment codefreshSdk.Environment
-	Commit      ResourceCommit
+	Commit      provider.ResourceCommit
 }
 
 type gitops struct {
+	argoApi             argo.ArgoAPI
+	argoResourceService ArgoResourceService
+	envTransformer      ETransformer
 }
 
 func NewGitopsService() Gitops {
-	return &gitops{}
+	return &gitops{
+		argoApi:             argo.GetInstance(),
+		envTransformer:      GetEnvTransformerInstance(argo.GetInstance()),
+		argoResourceService: NewArgoResourceService(),
+	}
 }
 
 func (gitops *gitops) MarkEnvAsRemoved(obj interface{}) (error, *codefreshSdk.Environment) {
@@ -37,4 +51,40 @@ func (gitops *gitops) MarkEnvAsRemoved(obj interface{}) (error, *codefreshSdk.En
 	//}
 
 	return nil, nil
+}
+
+func (gitops *gitops) ExtractNewApplication(application string) (*EnvironmentWrapper, error) {
+	applicationObj, err := gitops.argoApi.GetApplication(application)
+	if err != nil {
+		return nil, err
+	}
+
+	var app argoSdk.ArgoApplication
+
+	util.Convert(applicationObj, &app)
+
+	err, historyId := gitops.argoResourceService.ResolveHistoryId(app.Status.History, app.Status.OperationState.SyncResult.Revision, app.Metadata.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	err, envWrapper := gitops.envTransformer.PrepareEnvironment(app, historyId)
+	if err != nil {
+		return nil, err
+	}
+	return envWrapper, nil
+}
+
+func (gitops *gitops) HandleNewApplications(applications []string) []*EnvironmentWrapper {
+	var apps []*EnvironmentWrapper
+	for _, application := range applications {
+		newApp, err := gitops.ExtractNewApplication(application)
+		if err != nil {
+			logger.GetLogger().Errorf("Failed to handle new gitops application %v, reason: %v", application, err)
+			continue
+		}
+		logger.GetLogger().Infof("Detect new gitops application %s, initiate initialization", application)
+		apps = append(apps, newApp)
+	}
+	return apps
 }

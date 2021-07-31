@@ -2,11 +2,14 @@ package events
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 )
 
 type ApplicationCreatedHandler struct {
+	rolloutEventHandler EventHandler
 }
 
 var applicationCreatedHandler *ApplicationCreatedHandler
@@ -15,7 +18,9 @@ func GetApplicationCreatedHandlerInstance() *ApplicationCreatedHandler {
 	if applicationCreatedHandler != nil {
 		return applicationCreatedHandler
 	}
-	applicationCreatedHandler = &ApplicationCreatedHandler{}
+	applicationCreatedHandler = &ApplicationCreatedHandler{
+		rolloutEventHandler: GetRolloutEventHandlerInstance(),
+	}
 	return applicationCreatedHandler
 }
 
@@ -30,8 +35,14 @@ func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application a
 		return err
 	}
 
-	// TODO : we do need it , but here circular reference that require rewrite scheduler, nothing critical for platform for now
-	//scheduler.HandleNewApplications([]string{application.Metadata.Name})
+	apps := service.NewGitopsService().HandleNewApplications([]string{application.Metadata.Name})
+
+	for _, application := range apps {
+		err := applicationCreatedHandler.rolloutEventHandler.Handle(application)
+		if err != nil {
+			logger.GetLogger().Errorf("Failed to send environment, reason %v", err)
+		}
+	}
 
 	return nil
 }

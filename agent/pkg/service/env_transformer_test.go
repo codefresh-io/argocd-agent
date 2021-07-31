@@ -1,4 +1,4 @@
-package env
+package service
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider/api"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/thoas/go-funk"
 	"github.com/xanzy/go-gitlab"
@@ -59,7 +58,7 @@ func (gitlabInstance *Gitlab) getProject(repoUrl string) (error, *gitlab.Project
 	}
 }
 
-func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit) {
+func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision string) (error, *ResourceCommit) {
 	logger.GetLogger().Infof("Start handle get commit by revision for repo %s and revision %s", repoUrl, revision)
 
 	err, project := gitlabInstance.getProject(repoUrl)
@@ -80,7 +79,7 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 		logger.GetLogger().Infof("Setup empty avatar for user %s because of error", commit.AuthorEmail)
 	}
 
-	result := &service.ResourceCommit{
+	result := &ResourceCommit{
 		Message: &commit.Message,
 		Sha:     &revision,
 		Avatar:  &avatar,

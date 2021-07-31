@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"github.com/thoas/go-funk"
@@ -17,7 +18,7 @@ type (
 	Resource struct {
 		Status    string
 		Name      string
-		Commit    ResourceCommit
+		Commit    provider.ResourceCommit
 		Kind      string
 		UpdatedAt string
 		HistoryId int64
@@ -32,13 +33,6 @@ type (
 		Application argoSdk.ArgoApplication
 		HistoryId   int64
 	}
-
-	ResourceCommit struct {
-		Message *string `json:"message,omitempty"`
-		Avatar  *string `json:"avatar,omitempty"`
-		Sha     *string `json:"sha,omitempty"`
-		Link    *string `json:"link,omitempty"`
-	}
 )
 
 const (
@@ -47,7 +41,7 @@ const (
 
 // ArgoResourceService service for process argo resources
 type ArgoResourceService interface {
-	IdentifyChangedResources(app argoSdk.ArgoApplication, resources []Resource, commit ResourceCommit, historyId int64, updateAt string) []*Resource
+	IdentifyChangedResources(app argoSdk.ArgoApplication, resources []Resource, commit provider.ResourceCommit, historyId int64, updateAt string) []*Resource
 	AdaptArgoProjects(projects []argoSdk.ProjectItem) []codefresh.AgentProject
 	AdaptArgoApplications(applications []argoSdk.ApplicationItem) []codefresh.AgentApplication
 	ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64)
@@ -59,7 +53,7 @@ func NewArgoResourceService() ArgoResourceService {
 }
 
 // IdentifyChangedResources understand which resources changed during current rollout
-func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit ResourceCommit, historyId int64, updateAt string) []*Resource {
+func (argoResourceService *argoResourceService) IdentifyChangedResources(application argoSdk.ArgoApplication, serviceResources []Resource, commit provider.ResourceCommit, historyId int64, updateAt string) []*Resource {
 	result := funk.Filter(application.Status.OperationState.SyncResult.Resources, func(resource argoSdk.SyncResultResource) bool {
 		return strings.Contains(resource.Message, ChangedResourceKey)
 	})
@@ -130,7 +124,7 @@ func (argoResourceService *argoResourceService) AdaptArgoProjects(projects []arg
 func (argoResourceService *argoResourceService) ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64) {
 	if historyList == nil {
 		logger.GetLogger().Errorf("can`t find history id for application %s, because history list is empty", name)
-		return nil, -1
+		return nil, 0
 	}
 
 	sort.Slice(historyList, func(i, j int) bool {
