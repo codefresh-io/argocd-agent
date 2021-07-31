@@ -7,9 +7,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
-	env2 "github.com/codefresh-io/argocd-listener/agent/pkg/transform/env"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
-	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
@@ -18,7 +15,8 @@ type envInitializerScheduler struct {
 	rolloutEventHandler events.EventHandler
 	argoApi             argo.ArgoAPI
 	argoResourceService service.ArgoResourceService
-	envTransformer      env2.ETransformer
+	gitopsService       service.Gitops
+	envTransformer      service.ETransformer
 }
 
 func GetEnvInitializerScheduler() Scheduler {
@@ -26,8 +24,9 @@ func GetEnvInitializerScheduler() Scheduler {
 		codefreshApi:        codefresh.GetInstance(),
 		rolloutEventHandler: events.GetRolloutEventHandlerInstance(),
 		argoApi:             argo.GetInstance(),
-		envTransformer:      env2.GetEnvTransformerInstance(argo.GetInstance()),
+		envTransformer:      service.GetEnvTransformerInstance(argo.GetInstance()),
 		argoResourceService: service.NewArgoResourceService(),
+		gitopsService:       service.NewGitopsService(),
 	}
 }
 
@@ -55,40 +54,19 @@ func isNewEnv(existingEnvs []store.Environment, newEnv codefreshSdk.CFEnvironmen
 }
 
 func (envInitializer *envInitializerScheduler) extractNewApplication(application string) (*service.EnvironmentWrapper, error) {
-	applicationObj, err := envInitializer.argoApi.GetApplication(application)
-	if err != nil {
-		return nil, err
-	}
-
-	var app argoSdk.ArgoApplication
-
-	util.Convert(applicationObj, &app)
-
-	err, historyId := envInitializer.argoResourceService.ResolveHistoryId(app.Status.History, app.Status.OperationState.SyncResult.Revision, app.Metadata.Name)
-	if err != nil {
-		return nil, err
-	}
-
-	err, envWrapper := envInitializer.envTransformer.PrepareEnvironment(app, historyId)
-	if err != nil {
-		return nil, err
-	}
-	return envWrapper, nil
+	return envInitializer.gitopsService.ExtractNewApplication(application)
 }
 
 func (envInitializer *envInitializerScheduler) handleNewApplications(applications []string) {
-	for _, application := range applications {
-		newApp, err := envInitializer.extractNewApplication(application)
-		if err != nil {
-			logger.GetLogger().Errorf("Failed to handle new gitops application %v, reason: %v", application, err)
-			continue
-		}
-		logger.GetLogger().Infof("Detect new gitops application %s, initiate initialization", application)
-		err = envInitializer.rolloutEventHandler.Handle(newApp)
+	apps := envInitializer.gitopsService.HandleNewApplications(applications)
+
+	for _, application := range apps {
+		err := envInitializer.rolloutEventHandler.Handle(application)
 		if err != nil {
 			logger.GetLogger().Errorf("Failed to send environment, reason %v", err)
 		}
 	}
+
 }
 
 func (envInitializer *envInitializerScheduler) handleEnvDifference() {

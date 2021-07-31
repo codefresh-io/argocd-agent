@@ -2,7 +2,6 @@ package provider
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
@@ -15,8 +14,17 @@ type GitProvider interface {
 	// GetManifestRepoInfo information about manifest repo that include author, commits and other info
 	GetManifestRepoInfo(repoUrl string, revision string) (error, *codefreshSdk.Gitops)
 	// GetCommitByRevision retrieve git commit by sha
-	GetCommitByRevision(repoUrl string, revision string) (error, *service.ResourceCommit)
+	GetCommitByRevision(repoUrl string, revision string) (error, *ResourceCommit)
 }
+
+type (
+	ResourceCommit struct {
+		Message *string `json:"message,omitempty"`
+		Avatar  *string `json:"avatar,omitempty"`
+		Sha     *string `json:"sha,omitempty"`
+		Link    *string `json:"link,omitempty"`
+	}
+)
 
 func GetGitProvider() GitProvider {
 	context := store.GetStore().Git.Context

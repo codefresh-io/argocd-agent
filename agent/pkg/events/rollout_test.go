@@ -2,6 +2,7 @@ package events
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
@@ -166,7 +167,7 @@ func (transformer *MockApplicationResourceTransformer) Transform(data interface{
 type MockArgoResourceService struct {
 }
 
-func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit service.ResourceCommit, historyId int64, updateAt string) []*service.Resource {
+func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit provider.ResourceCommit, historyId int64, updateAt string) []*service.Resource {
 	return []*service.Resource{}
 }
 
@@ -193,7 +194,7 @@ func TestRolloutHandler(t *testing.T) {
 
 	wrapper := &service.EnvironmentWrapper{
 		Environment: codefreshSdk.Environment{},
-		Commit:      service.ResourceCommit{},
+		Commit:      provider.ResourceCommit{},
 	}
 
 	transformFunc = func() interface{} {
@@ -221,7 +222,7 @@ func TestRolloutHandlerWithAppResources(t *testing.T) {
 
 	wrapper := &service.EnvironmentWrapper{
 		Environment: codefreshSdk.Environment{},
-		Commit:      service.ResourceCommit{},
+		Commit:      provider.ResourceCommit{},
 	}
 
 	transformFunc = func() interface{} {
@@ -249,7 +250,7 @@ func TestRolloutHandlerWithoutAppResources(t *testing.T) {
 
 	wrapper := &service.EnvironmentWrapper{
 		Environment: codefreshSdk.Environment{},
-		Commit:      service.ResourceCommit{},
+		Commit:      provider.ResourceCommit{},
 	}
 
 	transformFunc = func() interface{} {

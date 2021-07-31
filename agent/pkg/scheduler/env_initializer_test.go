@@ -3,6 +3,7 @@ package scheduler
 import (
 	"fmt"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
@@ -162,14 +163,14 @@ type MockEnvTransformer struct {
 func (transformer *MockEnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper) {
 	return nil, &service.EnvironmentWrapper{
 		Environment: codefreshSdk.Environment{},
-		Commit:      service.ResourceCommit{},
+		Commit:      provider.ResourceCommit{},
 	}
 }
 
 type MockArgoResourceService struct {
 }
 
-func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit service.ResourceCommit, historyId int64, updateAt string) []*service.Resource {
+func (argoResourceService *MockArgoResourceService) IdentifyChangedResources(app argoSdk.ArgoApplication, resources []service.Resource, commit provider.ResourceCommit, historyId int64, updateAt string) []*service.Resource {
 	panic("implement me")
 }
 
@@ -183,6 +184,26 @@ func (argoResourceService *MockArgoResourceService) AdaptArgoApplications(applic
 
 func (argoResourceService *MockArgoResourceService) ResolveHistoryId(historyList []argoSdk.ApplicationHistoryItem, revision string, name string) (error, int64) {
 	return nil, 1
+}
+
+type GitopsService struct {
+}
+
+func (gitopsService *GitopsService) MarkEnvAsRemoved(obj interface{}) (error, *codefreshSdk.Environment) {
+	return nil, nil
+}
+
+func (gitopsService *GitopsService) HandleNewApplications(applications []string) []*service.EnvironmentWrapper {
+	return []*service.EnvironmentWrapper{
+		&service.EnvironmentWrapper{
+			Environment: codefreshSdk.Environment{},
+			Commit:      provider.ResourceCommit{},
+		},
+	}
+}
+
+func (gitopsService *GitopsService) ExtractNewApplication(application string) (*service.EnvironmentWrapper, error) {
+	return nil, nil
 }
 
 func TestNewEnv(t *testing.T) {
@@ -215,6 +236,7 @@ func TestHandleEnvDifference(t *testing.T) {
 		argoApi:             &MockArgoApi{},
 		argoResourceService: &MockArgoResourceService{},
 		envTransformer:      &MockEnvTransformer{},
+		gitopsService:       &GitopsService{},
 	}
 
 	result := make(chan string)

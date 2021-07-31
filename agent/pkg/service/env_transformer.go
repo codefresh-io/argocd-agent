@@ -1,13 +1,11 @@
-package env
+package service
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
@@ -18,7 +16,7 @@ type EnvTransformer struct {
 
 // This one should not exist and will be refactored soon, Env transformer should be migrated to service layer
 type ETransformer interface {
-	PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper)
+	PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *EnvironmentWrapper)
 }
 
 var envTransformer *EnvTransformer
@@ -130,7 +128,7 @@ func filterResources(resources interface{}) []interface{} {
 	return result
 }
 
-func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *service.EnvironmentWrapper) {
+func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplication, historyId int64) (error, *EnvironmentWrapper) {
 
 	git := provider.GetGitProvider()
 
@@ -139,27 +137,12 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 	repoUrl := app.Spec.Source.RepoURL
 	parentApp, _ := app.Metadata.Labels["app.kubernetes.io/instance"]
 
-	if revision == "" {
-		return errors.New("revision is empty"), nil
-	}
-
 	resources, err := envTransformer.argoApi.GetResourceTreeAll(name)
-	logsEnable := name == "sin-adplatform"
-
-	if logsEnable {
-		logPayloadBefore, _ := json.Marshal(resources)
-		logger.GetLogger().Infof("==> Resources BEFORE filter \"%s\", payload: \n%s", name, logPayloadBefore)
-	}
 
 	if err != nil {
 		return err, nil
 	}
 	filteredResources := filterResources(resources)
-
-	if logsEnable {
-		logPayloadAfter, _ := json.Marshal(filteredResources)
-		logger.GetLogger().Infof("==> Resources AFTER filter \"%s\", payload: \n%s", name, logPayloadAfter)
-	}
 
 	// we still need send env , even if we have problem with retrieve gitops info
 	err, gitops := git.GetManifestRepoInfo(repoUrl, revision)
@@ -206,7 +189,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		}
 	}
 
-	envWrapper := &service.EnvironmentWrapper{
+	envWrapper := &EnvironmentWrapper{
 		Environment: env,
 	}
 

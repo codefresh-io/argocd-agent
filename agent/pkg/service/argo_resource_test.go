@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	"testing"
 )
@@ -39,7 +40,7 @@ func TestArgoResourceIdentifyChangedResources(t *testing.T) {
 	commitMessage := "Commit message"
 	avatar := "avatar"
 
-	changedResources := service.IdentifyChangedResources(app, resources, ResourceCommit{
+	changedResources := service.IdentifyChangedResources(app, resources, provider.ResourceCommit{
 		Message: &commitMessage,
 		Avatar:  &avatar,
 	}, 0, "")
@@ -86,7 +87,7 @@ func TestArgoResourceIdentifyChangedResourcesInCaseNotMatch(t *testing.T) {
 	commitMessage := "Commit message"
 	avatar := "avatar"
 
-	changedResources := service.IdentifyChangedResources(app, resources, ResourceCommit{
+	changedResources := service.IdentifyChangedResources(app, resources, provider.ResourceCommit{
 		Message: &commitMessage,
 		Avatar:  &avatar,
 	}, 0, "")
@@ -152,7 +153,7 @@ func TestAdaptArgoProjectsEmptyState(t *testing.T) {
 func TestResolveHistoryIdWithNilList(t *testing.T) {
 	svc := NewArgoResourceService()
 	_, historyId := svc.ResolveHistoryId(nil, "123", "test")
-	if historyId != -1 {
+	if historyId != 0 {
 		t.Error("Resolve history id should fail because history array is nil")
 	}
 }
