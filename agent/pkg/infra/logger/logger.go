@@ -3,9 +3,15 @@ package logger
 import (
 	"flag"
 	"github.com/golang/glog"
+	"os"
+)
+
+const (
+	DebugLevel = "debug"
 )
 
 type Logger struct {
+	loglevel string
 }
 
 var logger *Logger
@@ -18,7 +24,7 @@ func GetLogger() *Logger {
 		// NOTE: This next line is key you have to call flag.Parse() for the command line
 		// options or "flags" that are defined in the glog module to be picked up.
 		flag.Parse()
-		logger = &Logger{}
+		logger = &Logger{loglevel: os.Getenv("LOG_LEVEL")}
 	}
 	return logger
 }
@@ -37,6 +43,12 @@ func (log *Logger) Errorf(format string, args ...interface{}) {
 
 func (log *Logger) Error(msg string) {
 	glog.Error(msg)
+}
+
+func (log *Logger) Debug(msg string) {
+	if log.loglevel == DebugLevel {
+		glog.Info(msg)
+	}
 }
 
 func (log *Logger) ErrorE(err error) {
