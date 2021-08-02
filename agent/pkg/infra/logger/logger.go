@@ -51,6 +51,12 @@ func (log *Logger) Debug(msg string) {
 	}
 }
 
+func (log *Logger) Debugf(format string, args ...interface{}) {
+	if log.loglevel == DebugLevel {
+		glog.Infof(format, args...)
+	}
+}
+
 func (log *Logger) ErrorE(err error) {
 	glog.Error(err.Error())
 }
