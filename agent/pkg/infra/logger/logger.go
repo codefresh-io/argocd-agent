@@ -2,6 +2,7 @@ package logger
 
 import (
 	"flag"
+	"fmt"
 	"github.com/golang/glog"
 	"os"
 )
@@ -47,13 +48,13 @@ func (log *Logger) Error(msg string) {
 
 func (log *Logger) Debug(msg string) {
 	if log.loglevel == DebugLevel {
-		glog.Info(msg)
+		glog.Info(fmt.Sprintf("[debug] %s", msg))
 	}
 }
 
 func (log *Logger) Debugf(format string, args ...interface{}) {
 	if log.loglevel == DebugLevel {
-		glog.Infof(format, args...)
+		glog.Infof(fmt.Sprintf("[debug] %s", format), args...)
 	}
 }
 
