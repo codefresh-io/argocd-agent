@@ -37,7 +37,7 @@ func (tokenScheduler *regenerateTokenScheduler) regenerateToken() {
 		if err == nil {
 			logger.GetLogger().Debug("==> regenerateToken")
 			store.SetArgoToken(token)
-			argo.UpdateInstance()
+			argo.ResetInstance()
 		}
 	}
 }
