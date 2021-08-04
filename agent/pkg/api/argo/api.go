@@ -51,6 +51,13 @@ func GetInstance() ArgoAPI {
 	return api
 }
 
+func UpdateInstance() {
+	argoConfig := store.GetStore().Argo
+	api = &argoAPI{
+		sdk: buildArgoSdk(argoConfig.Token, argoConfig.Host),
+	}
+}
+
 // GetUnauthorizedApiInstance build and provide singleton for unathorized argo api
 func GetUnauthorizedApiInstance() UnauthorizedApi {
 	if unauthorizedArgoApi != nil {
