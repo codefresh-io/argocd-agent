@@ -8,7 +8,7 @@ require (
 	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/bradleyfalzon/ghinstallation v1.1.1
-	github.com/codefresh-io/argocd-sdk v0.4.0
+	github.com/codefresh-io/argocd-sdk v0.4.2
 	github.com/codefresh-io/go-sdk v1.0.3-agent
 	github.com/elliotchance/orderedmap v1.3.0
 	github.com/fatih/structs v1.1.0
