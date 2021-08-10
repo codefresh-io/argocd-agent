@@ -39,10 +39,11 @@ func cleanup(KubeClientSet *kubernetes.Clientset,
 	KubeCrdClientSet *apixv1beta1client.ApiextensionsV1beta1Client,
 	kubeObjects map[string]runtime.Object,
 	Namespace string) {
+	kubeobjClient := kubeobj.New()
 
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
 	for _, key := range kubeObjectKeys {
-		kubeobj.DeleteObject(KubeClientSet, KubeCrdClientSet, kubeObjects[key.String()], Namespace)
+		kubeobjClient.DeleteObject(KubeClientSet, KubeCrdClientSet, kubeObjects[key.String()], Namespace)
 	}
 
 }
@@ -58,6 +59,7 @@ func DryRunInstall(opt *InstallOptions) (error, string, string, string) {
 
 func Install(opt *InstallOptions) (error, string, string, string) {
 	opt.TemplateValues["Namespace"] = opt.Namespace
+	kubeobjClient := kubeobj.New()
 	kubeObjects, parsedTemplates, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
 		return err, "", "", ""
@@ -69,7 +71,7 @@ func Install(opt *InstallOptions) (error, string, string, string) {
 	kubeObjectKeys := reflect.ValueOf(kubeObjects).MapKeys()
 
 	for _, key := range kubeObjectKeys {
-		kind, name, createErr := kubeobj.CreateObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
+		kind, name, createErr := kubeobjClient.CreateObject(opt.KubeClientSet, opt.KubeCrdClientSet, kubeObjects[key.String()], opt.Namespace)
 
 		if createErr == nil {
 			// skip, everything ok
@@ -90,7 +92,7 @@ func Install(opt *InstallOptions) (error, string, string, string) {
 }
 
 func Delete(opt *DeleteOptions) (error, string, string) {
-
+	kubeobjClient := kubeobj.New()
 	kubeObjects, _, err := KubeObjectsFromTemplates(opt.Templates, opt.TemplateValues)
 	if err != nil {
 		return err, "", ""
@@ -98,7 +100,7 @@ func Delete(opt *DeleteOptions) (error, string, string) {
 	var kind, name string
 	var deleteError error
 	for _, obj := range kubeObjects {
-		kind, name, deleteError = kubeobj.DeleteObject(opt.KubeClientSet, opt.KubeCrdClientSet, obj, opt.Namespace)
+		kind, name, deleteError = kubeobjClient.DeleteObject(opt.KubeClientSet, opt.KubeCrdClientSet, obj, opt.Namespace)
 		if deleteError == nil {
 			fmt.Println(fmt.Sprintf("%s \"%s\" deleted", kind, name))
 		} else if statusError, errIsStatusError := deleteError.(*errors.StatusError); errIsStatusError {

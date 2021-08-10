@@ -58,7 +58,8 @@ func (updateHandler *UpdateHandler) Run() error {
 }
 
 func updateDeploymentWithNewVersion(clientSet *kubernetes.Clientset, namespace string, suffix string, version string) error {
-	deploymentList, err := kubeobj.GetDeployments(clientSet, namespace, "app=cf-argocd-agent"+suffix)
+	kubeobjClient := kubeobj.New()
+	deploymentList, err := kubeobjClient.GetDeployments(clientSet, namespace, "app=cf-argocd-agent"+suffix)
 
 	if err != nil {
 		return errors.New(fmt.Sprintf("Argo agent update finished with error , reason: %v ", err))
@@ -83,7 +84,7 @@ func updateDeploymentWithNewVersion(clientSet *kubernetes.Clientset, namespace s
 
 	deployment.Spec.Template.Spec.Containers[0].Env = newEnvs
 
-	_, err = kubeobj.UpdateDeployment(clientSet, deployment, namespace)
+	_, err = kubeobjClient.UpdateDeployment(clientSet, deployment, namespace)
 
 	return err
 }
