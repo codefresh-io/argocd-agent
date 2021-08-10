@@ -1,6 +1,6 @@
 module github.com/codefresh-io/argocd-listener
 
-go 1.13
+go 1.16
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
