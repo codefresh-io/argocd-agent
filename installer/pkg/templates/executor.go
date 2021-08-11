@@ -6,7 +6,8 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"html/template"
-	apiextv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	v1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"regexp"
 
@@ -63,6 +64,7 @@ func GenerateSingleManifest(parsedTemplates map[string]string) string {
 func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) (map[string]runtime.Object, map[string]string, error) {
 	parsedTemplates, err := ParseTemplates(templatesMap, data)
 
+	err = v1.AddToScheme(scheme.Scheme)
 	err = apiextv1beta1.AddToScheme(scheme.Scheme)
 
 	if err != nil {
