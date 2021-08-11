@@ -11,6 +11,7 @@ import (
 	v1api "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
+	netv1 "k8s.io/api/networking/v1"
 	apiextensionv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	apixv1beta1client "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -141,10 +142,10 @@ func CreateObject(clientset *kubernetes.Clientset, apiextensionsClientSet *apixv
 		kind = objT.TypeMeta.Kind
 		_, err = clientset.ExtensionsV1beta1().Deployments(namespace).Create(objT)
 
-	case *v1beta1.NetworkPolicy:
+	case *netv1.NetworkPolicy:
 		name = objT.ObjectMeta.Name
 		kind = objT.TypeMeta.Kind
-		_, err = clientset.ExtensionsV1beta1().NetworkPolicies(namespace).Create(objT)
+		_, err = clientset.NetworkingV1().NetworkPolicies(namespace).Create(objT)
 
 	case *v1api.StatefulSet:
 		name = objT.ObjectMeta.Name
@@ -279,10 +280,10 @@ func CheckObject(clientset *kubernetes.Clientset, obj runtime.Object, namespace 
 		kind = objT.TypeMeta.Kind
 		_, err = clientset.ExtensionsV1beta1().Deployments(namespace).Get(name, metav1.GetOptions{})
 
-	case *v1beta1.NetworkPolicy:
+	case *netv1.NetworkPolicy:
 		name = objT.ObjectMeta.Name
 		kind = objT.TypeMeta.Kind
-		_, err = clientset.ExtensionsV1beta1().NetworkPolicies(namespace).Get(name, metav1.GetOptions{})
+		_, err = clientset.NetworkingV1().NetworkPolicies(namespace).Get(name, metav1.GetOptions{})
 
 	default:
 		return "", "", fmt.Errorf("Unknown object type %T\n ", objT)
@@ -465,10 +466,10 @@ func DeleteObject(clientset *kubernetes.Clientset, apiextensionsClientSet *apixv
 			PropagationPolicy: &propagationPolicy,
 		})
 
-	case *v1beta1.NetworkPolicy:
+	case *netv1.NetworkPolicy:
 		name = objT.ObjectMeta.Name
 		kind = objT.TypeMeta.Kind
-		err = clientset.ExtensionsV1beta1().NetworkPolicies(namespace).Delete(name, &metav1.DeleteOptions{
+		err = clientset.NetworkingV1().NetworkPolicies(namespace).Delete(name, &metav1.DeleteOptions{
 			PropagationPolicy: &propagationPolicy,
 		})
 
@@ -594,10 +595,10 @@ func ReplaceObject(clientset *kubernetes.Clientset, obj runtime.Object, namespac
 		kind = objT.TypeMeta.Kind
 		_, err = clientset.ExtensionsV1beta1().Deployments(namespace).Update(objT)
 
-	case *v1beta1.NetworkPolicy:
+	case *netv1.NetworkPolicy:
 		name = objT.ObjectMeta.Name
 		kind = objT.TypeMeta.Kind
-		_, err = clientset.ExtensionsV1beta1().NetworkPolicies(namespace).Update(objT)
+		_, err = clientset.NetworkingV1().NetworkPolicies(namespace).Update(objT)
 
 	default:
 		return "", "", fmt.Errorf("Unknown object type %T\n ", objT)
