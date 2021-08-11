@@ -62,11 +62,12 @@ func GenerateSingleManifest(parsedTemplates map[string]string) string {
 // see https://github.com/kubernetes/client-go/issues/193 for examples
 func KubeObjectsFromTemplates(templatesMap map[string]string, data interface{}) (map[string]runtime.Object, map[string]string, error) {
 	parsedTemplates, err := ParseTemplates(templatesMap, data)
+
+	err = apiextv1beta1.AddToScheme(scheme.Scheme)
+
 	if err != nil {
 		return nil, nil, err
 	}
-
-	_ = apiextv1beta1.AddToScheme(scheme.Scheme)
 
 	// Deserializing all kube objects from parsedTemplates
 	// see https://github.com/kubernetes/client-go/issues/193 for examples
