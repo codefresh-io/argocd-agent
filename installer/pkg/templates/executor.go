@@ -6,7 +6,7 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/codefresh-io/argocd-listener/installer/pkg/templates/kubernetes"
 	"html/template"
-	apiextv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
+	apiextv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"regexp"
 
