@@ -27,6 +27,7 @@ steps:
     image: golang:1.14.2
     commands:
       - go get -u github.com/mcubik/goverreport
+      - go mod tidy
       - go test ./... -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic
     when:
       steps:
