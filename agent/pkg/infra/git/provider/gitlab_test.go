@@ -4,6 +4,7 @@ import (
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/xanzy/go-gitlab"
 	"testing"
+	"time"
 )
 
 var _ = func() bool {
@@ -121,7 +122,15 @@ func (gl *MockGitlabApi) RetrieveAvatar(email string) (error, string) {
 	return nil, ""
 }
 
+func _getCommitTime() *time.Time {
+	commitTimeLayout := "2006-01-02T15:04:05.000Z"
+	commitTimeStr := "2014-11-12T11:45:26.371Z"
+	commitTime, _ := time.Parse(commitTimeLayout, commitTimeStr)
+	return &commitTime
+}
+
 func (gl *MockGitlabApi) GetCommit(projectId int, revision string) (error, *gitlab.Commit) {
+
 	return nil, &gitlab.Commit{
 		ID:             "",
 		ShortID:        "",
@@ -132,7 +141,7 @@ func (gl *MockGitlabApi) GetCommit(projectId int, revision string) (error, *gitl
 		CommitterName:  "",
 		CommitterEmail: "",
 		CommittedDate:  nil,
-		CreatedAt:      nil,
+		CreatedAt:      _getCommitTime(),
 		Message:        "Test",
 		ParentIDs:      nil,
 		Stats:          nil,
@@ -146,11 +155,16 @@ func (gl *MockGitlabApi) GetCommit(projectId int, revision string) (error, *gitl
 func TestGetCommitByRevision(t *testing.T) {
 	gl := &Gitlab{api: &MockGitlabApi{}}
 	err, commit := gl.GetCommitByRevision("https://gitlab.com/p.kostohrys/test.git", "revision")
+
 	if err != nil {
 		t.Error("SHould be executed without error")
 	}
 	if *commit.Message != "Test" {
 		t.Error("Wrong commit message")
+	}
+
+	if commit.Time.String() != _getCommitTime().String() {
+		t.Error("Wrong time")
 	}
 }
 
