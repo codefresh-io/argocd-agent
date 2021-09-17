@@ -3,6 +3,7 @@ package provider
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
+	"time"
 )
 
 const (
@@ -19,10 +20,11 @@ type GitProvider interface {
 
 type (
 	ResourceCommit struct {
-		Message *string `json:"message,omitempty"`
-		Avatar  *string `json:"avatar,omitempty"`
-		Sha     *string `json:"sha,omitempty"`
-		Link    *string `json:"link,omitempty"`
+		Time    *time.Time `json:"time,omitempty"`
+		Message *string    `json:"message,omitempty"`
+		Avatar  *string    `json:"avatar,omitempty"`
+		Sha     *string    `json:"sha,omitempty"`
+		Link    *string    `json:"link,omitempty"`
 	}
 )
 

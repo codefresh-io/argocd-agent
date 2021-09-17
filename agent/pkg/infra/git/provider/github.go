@@ -35,6 +35,10 @@ func (github *Github) GetCommitByRevision(repoUrl string, revision string) (erro
 		Sha:     &revision,
 	}
 
+	if commit.Commit.Committer.Date != nil {
+		result.Time = commit.Commit.Committer.Date
+	}
+
 	if commit.Author != nil {
 		result.Avatar = commit.Author.AvatarURL
 	} else {
