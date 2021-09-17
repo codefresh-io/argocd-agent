@@ -4,6 +4,7 @@ import (
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"github.com/google/go-github/github"
 	"testing"
+	"time"
 )
 
 var _ = func() bool {
@@ -14,11 +15,22 @@ var _ = func() bool {
 type mgithubApi struct {
 }
 
+func _getCommitTime() *time.Time {
+	commitTimeLayout := "2006-01-02T15:04:05.000Z"
+	commitTimeStr := "2014-11-12T11:45:26.371Z"
+	commitTime, _ := time.Parse(commitTimeLayout, commitTimeStr)
+	return &commitTime
+}
+
 func (api *mgithubApi) GetCommitBySha(sha string) (error, *github.RepositoryCommit) {
 
 	return nil, &github.RepositoryCommit{
-		SHA:         &sha,
-		Commit:      nil,
+		SHA: &sha,
+		Commit: &github.Commit{
+			Committer: &github.CommitAuthor{
+				Date: _getCommitTime(),
+			},
+		},
 		Author:      nil,
 		Committer:   nil,
 		Parents:     nil,
@@ -118,6 +130,9 @@ func TestGetCommitBySha(t *testing.T) {
 	err, commit := cachedGithub.GetCommitBySha(sha)
 	if err != nil {
 		t.Error("Should retrieve commit without error")
+	}
+	if commit.Commit.Committer.Date.String() != _getCommitTime().String() {
+		t.Error("Commit date is wrong")
 	}
 
 	if *commit.SHA != sha {
