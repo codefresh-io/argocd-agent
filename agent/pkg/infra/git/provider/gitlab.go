@@ -80,6 +80,7 @@ func (gitlabInstance *Gitlab) GetCommitByRevision(repoUrl string, revision strin
 	}
 
 	result := &ResourceCommit{
+		Time:    commit.CreatedAt,
 		Message: &commit.Message,
 		Sha:     &revision,
 		Avatar:  &avatar,
