@@ -12,6 +12,7 @@ ignore:
   - "agent/pkg/infra/newrelic/newrelic.go"
   - "agent/pkg/infra/git/provider/api/github_api.go"
   - "agent/pkg/infra/logger/logger.go"
+  - "agent/pkg/infra/git/provider/github.go"
 
   - "agent/pkg/main.go"
   - "agent/pkg/infra/git/provider/api/gitlab_api" # it is not possible to test
