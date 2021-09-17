@@ -189,6 +189,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 
 	if commit != nil {
 		logger.GetLogger().Infof("Retrieve commit message \"%s\" for repo \"%s\" ", *commit.Message, repoUrl)
+
 		env.Commit = codefreshSdk.Commit{
 			Time:    commit.Time,
 			Message: commit.Message,
