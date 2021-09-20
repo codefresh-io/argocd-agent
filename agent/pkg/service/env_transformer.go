@@ -175,6 +175,7 @@ func (envTransformer *EnvTransformer) PrepareEnvironment(app argoSdk.ArgoApplica
 		Activities:   activities,
 		Resources:    filteredResources,
 		RepoUrl:      repoUrl,
+		Namespace:    app.Spec.Destination.Namespace,
 		FinishedAt:   app.Status.OperationState.FinishedAt,
 		SyncPolicy:   syncPolicy,
 		Date:         app.Status.OperationState.FinishedAt,

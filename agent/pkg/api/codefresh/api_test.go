@@ -13,7 +13,7 @@ var _ = func() bool {
 type _gitops struct {
 }
 
-func (gitops *_gitops) CreateEnvironment(name string, project string, application string, integration string) error {
+func (gitops *_gitops) CreateEnvironment(name string, project string, application string, integration string, namespace string) error {
 	return nil
 }
 func (gitops *_gitops) SendEnvironment(environment codefreshSdk.Environment) (map[string]interface{}, error) {
@@ -246,7 +246,7 @@ func TestApi_CreateEnvironment(t *testing.T) {
 		codefreshApi: &codefresh{},
 		Integration:  "Test",
 	}
-	err := api.CreateEnvironment("test", "test", "test")
+	err := api.CreateEnvironment("test", "test", "test", "test")
 	if err != nil {
 		t.Error("Should be able create environment without error")
 	}

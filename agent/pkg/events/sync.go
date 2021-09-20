@@ -42,7 +42,7 @@ func (syncHandler *SyncHandler) Handle() error {
 			return err
 		}
 		for _, application := range applications {
-			err = syncHandler.codefreshApi.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
+			err = syncHandler.codefreshApi.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name, application.Spec.Destination.Namespace)
 			if err != nil {
 				logger.GetLogger().Errorf("Failed to create environment, reason %v", err)
 			}
@@ -59,7 +59,7 @@ func (syncHandler *SyncHandler) Handle() error {
 		}
 		for _, application := range applications {
 			if util.Contains(selectedApps, application.Metadata.Name) {
-				err = syncHandler.codefreshApi.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
+				err = syncHandler.codefreshApi.CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name, application.Spec.Destination.Namespace)
 				if err != nil {
 					logger.GetLogger().Errorf("Failed to create environment, reason %v", err)
 				}
