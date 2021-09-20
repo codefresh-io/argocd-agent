@@ -30,7 +30,7 @@ func (applicationCreatedHandler *ApplicationCreatedHandler) Handle(application a
 		return nil
 	}
 
-	err := codefresh.GetInstance().CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name)
+	err := codefresh.GetInstance().CreateEnvironment(application.Metadata.Name, application.Spec.Project, application.Metadata.Name, application.Spec.Destination.Namespace)
 	if err != nil {
 		return err
 	}

@@ -15,7 +15,7 @@ type Api struct {
 }
 
 type CodefreshApi interface {
-	CreateEnvironment(name string, project string, application string) error
+	CreateEnvironment(name string, project string, application string, namespace string) error
 	GetDefaultGitContext() (error, *codefreshSdk.ContextPayload)
 	DeleteEnvironment(name string) error
 	SendResources(kind string, items interface{}, amount int) error
@@ -121,8 +121,11 @@ func (a *Api) SendEnvironment(environment codefreshSdk.Environment) (map[string]
 	return a.codefreshApi.Gitops().SendEnvironment(environment)
 }
 
-func (a *Api) CreateEnvironment(name string, project string, application string) error {
-	err := a.codefreshApi.Gitops().CreateEnvironment(name, project, application, a.Integration)
+func (a *Api) CreateEnvironment(name string, project string, application string, namespace string) error {
+	if namespace != "" {
+
+	}
+	err := a.codefreshApi.Gitops().CreateEnvironment(name, project, application, a.Integration, namespace)
 	if err != nil {
 		return err
 	}
