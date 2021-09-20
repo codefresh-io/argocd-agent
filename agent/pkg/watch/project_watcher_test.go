@@ -53,7 +53,7 @@ func (api *PMockCodefreshApi) SendEnvironment(environment codefreshSdk.Environme
 	panic("implement me")
 }
 
-func (api *PMockCodefreshApi) CreateEnvironment(name string, project string, application string) error {
+func (api *PMockCodefreshApi) CreateEnvironment(name string, project string, application string, namespace string) error {
 	panic("implement me")
 }
 

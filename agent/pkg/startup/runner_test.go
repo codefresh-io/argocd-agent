@@ -49,7 +49,7 @@ func (api *MockCodefreshApi) SendEnvironment(environment codefreshSdk.Environmen
 	panic("implement me")
 }
 
-func (api *MockCodefreshApi) CreateEnvironment(name string, project string, application string) error {
+func (api *MockCodefreshApi) CreateEnvironment(name string, project string, application string, namespace string) error {
 	return nil
 }
 
