@@ -25,23 +25,30 @@ func getKubeconfig() (dynamic.Interface, error) {
 	return clientset, nil
 }
 
-func getInformer(crd schema.GroupVersionResource) (cache.SharedIndexInformer, dynamicinformer.DynamicSharedInformerFactory, error) {
+func getInformer(crd schema.GroupVersionResource, namespace string) (cache.SharedIndexInformer, dynamicinformer.DynamicSharedInformerFactory, error) {
 	clientset, err := getKubeconfig()
 	if err != nil {
 		return nil, nil, err
 	}
-	kubeInformerFactory := dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
+
+	var kubeInformerFactory dynamicinformer.DynamicSharedInformerFactory
+	if namespace != "" {
+		kubeInformerFactory = dynamicinformer.NewFilteredDynamicSharedInformerFactory(clientset, time.Minute*30, namespace, nil)
+	} else {
+		kubeInformerFactory = dynamicinformer.NewDynamicSharedInformerFactory(clientset, time.Minute*30)
+	}
+
 	informer := kubeInformerFactory.ForResource(crd).Informer()
 	return informer, kubeInformerFactory, nil
 }
 
-func Start() error {
-	projectWatcher, err := NewProjectWatcher()
+func Start(namespace string) error {
+	projectWatcher, err := NewProjectWatcher(namespace)
 	if err != nil {
 		return err
 	}
 
-	applicationWatcher, err := NewApplicationWatcher()
+	applicationWatcher, err := NewApplicationWatcher(namespace)
 	if err != nil {
 		return err
 	}

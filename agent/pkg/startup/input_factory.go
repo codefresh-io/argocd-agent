@@ -9,6 +9,7 @@ import (
 )
 
 type Input struct {
+	namespace                   string
 	argoHost                    string
 	argoToken                   string
 	argoUsername                string
@@ -48,6 +49,7 @@ func (inputFactory *InputFactory) Create() *Input {
 	codefreshToken, _ := os.LookupEnv("CODEFRESH_TOKEN")
 	newRelicLicense, _ := os.LookupEnv("NEWRELIC_LICENSE_KEY")
 	envName, _ := os.LookupEnv("ENV_NAME")
+	namespace, _ := os.LookupEnv("NAMESPACE")
 	codefreshHost, codefreshHostExistance := os.LookupEnv("CODEFRESH_HOST")
 	if !codefreshHostExistance {
 		codefreshHost = "https://g.codefresh.io"
@@ -69,6 +71,7 @@ func (inputFactory *InputFactory) Create() *Input {
 	password, _ := os.LookupEnv("GIT_PASSWORD")
 
 	input := &Input{
+		namespace:                namespace,
 		argoHost:                 argoHost,
 		argoToken:                argoToken,
 		argoUsername:             argoUsername,
