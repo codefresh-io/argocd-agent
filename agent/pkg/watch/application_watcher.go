@@ -33,8 +33,8 @@ type applicationWatcher struct {
 	argoApi         argo.ArgoAPI
 }
 
-func NewApplicationWatcher() (Watcher, error) {
-	informer, informerFactory, err := getInformer(applicationCRD)
+func NewApplicationWatcher(namespace string) (Watcher, error) {
+	informer, informerFactory, err := getInformer(applicationCRD, namespace)
 	if err != nil {
 		return nil, err
 	}
