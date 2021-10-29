@@ -1,4 +1,4 @@
-FROM golang:1.14.2 AS go
+FROM golang:1.16.7 AS go
 
 # set working directory
 RUN mkdir -p /go/src/github.com/codefresh-io/argocd-listener
