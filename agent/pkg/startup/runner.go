@@ -25,14 +25,20 @@ func (runner *Runner) ensureIntegration() {
 	codefreshApi := runner.codefreshApi
 	serverVersion, err := argo.GetUnauthorizedApiInstance().GetVersion(input.argoHost)
 	if err != nil {
-		_ = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
+		err = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
 			input.argoUsername, input.argoPassword, input.argoToken, "",
 			"argocd", "")
+		if err != nil {
+			logger.GetLogger().Errorf("Failed to create integration, reason: %s", err.Error())
+		}
 		return
 	}
-	_ = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
+	err = codefreshApi.CreateIntegration(input.codefreshIntegrationName, input.argoHost,
 		input.argoUsername, input.argoPassword, input.argoToken, serverVersion,
 		"argocd", "")
+	if err != nil {
+		logger.GetLogger().Errorf("Failed to create integration, reason: %s", err.Error())
+	}
 }
 
 func (runner *Runner) Run() error {
