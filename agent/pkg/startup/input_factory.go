@@ -25,6 +25,8 @@ type Input struct {
 	password                    string
 	syncMode                    string
 	createIntegrationIfNotExist bool
+	numberOfShard               int
+	replicas                    int
 }
 
 type InputFactory struct {

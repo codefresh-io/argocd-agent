@@ -8,6 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
 )
 
@@ -65,5 +66,5 @@ func (runner *Runner) Run() error {
 	queueProcessor := queue.EnvQueueProcessor{}
 	go queueProcessor.Run()
 
-	return watch.Start(runner.input.namespace)
+	return watch.Start(runner.input.namespace, util.NewSharding(runner.input.numberOfShard, runner.input.replicas))
 }

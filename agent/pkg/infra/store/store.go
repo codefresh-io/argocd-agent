@@ -37,7 +37,9 @@ type (
 		Heartbeat struct {
 			Error string
 		}
-		Environments []Environment
+		Environments  []Environment
+		NumberOfShard int
+		Replicas      int
 	}
 )
 

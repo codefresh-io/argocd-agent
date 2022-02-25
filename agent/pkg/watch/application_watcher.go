@@ -31,15 +31,17 @@ type applicationWatcher struct {
 	informer        cache.SharedIndexInformer
 	informerFactory dynamicinformer.DynamicSharedInformerFactory
 	argoApi         argo.ArgoAPI
+
+	sharding *util.Sharding
 }
 
-func NewApplicationWatcher(namespace string) (Watcher, error) {
+func NewApplicationWatcher(namespace string, sharding *util.Sharding) (Watcher, error) {
 	informer, informerFactory, err := getInformer(applicationCRD, namespace)
 	if err != nil {
 		return nil, err
 	}
 	return &applicationWatcher{codefreshApi: codefresh.GetInstance(), itemQueue: queue.GetInstance(),
-		informer: informer, informerFactory: informerFactory, argoApi: argo.GetInstance()}, nil
+		informer: informer, informerFactory: informerFactory, argoApi: argo.GetInstance(), sharding: sharding}, nil
 }
 
 func (watcher *applicationWatcher) add(obj interface{}) {
@@ -148,15 +150,57 @@ func (watcher *applicationWatcher) update(newObj interface{}) {
 
 func (watcher *applicationWatcher) Watch() (dynamicinformer.DynamicSharedInformerFactory, error) {
 
+	apps := watcher.informer.GetIndexer().List()
+
+	pickedApps := watcher.sharding.PickApplications(apps)
+
+	var appsForCurrentShard []*argoSdk.ApplicationItem
+
+	util.Convert(pickedApps, appsForCurrentShard)
+
+	if appsForCurrentShard != nil && len(appsForCurrentShard) > 0 {
+		for i := 0; i < len(appsForCurrentShard); i++ {
+			logger.GetLogger().Infof("[Sharding] Choose \"\" for processing")
+		}
+	}
+
 	watcher.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			watcher.add(obj)
+			if appsForCurrentShard != nil && len(appsForCurrentShard) > 0 {
+				var app argoSdk.ApplicationItem
+				err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
+				if err != nil {
+					logger.GetLogger().Infof("Failed to parse app , reason %s", err.Error())
+				}
+				for i := 0; i < len(appsForCurrentShard); i++ {
+					appFromShard := appsForCurrentShard[i]
+					if appFromShard.Metadata.Name == app.Metadata.Name && appFromShard.Metadata.Namespace == app.Metadata.Namespace {
+						watcher.add(obj)
+					}
+				}
+			} else {
+				watcher.add(obj)
+			}
 		},
 		DeleteFunc: func(obj interface{}) {
 			watcher.delete(obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			watcher.update(newObj)
+			if appsForCurrentShard != nil && len(appsForCurrentShard) > 0 {
+				var app argoSdk.ApplicationItem
+				err := mapstructure.Decode(newObj.(*unstructured.Unstructured).Object, &app)
+				if err != nil {
+					logger.GetLogger().Infof("Failed to parse app , reason %s", err.Error())
+				}
+				for i := 0; i < len(appsForCurrentShard); i++ {
+					appFromShard := appsForCurrentShard[i]
+					if appFromShard.Metadata.Name == app.Metadata.Name && appFromShard.Metadata.Namespace == app.Metadata.Namespace {
+						watcher.update(newObj)
+					}
+				}
+			} else {
+				watcher.update(newObj)
+			}
 		},
 	})
 
