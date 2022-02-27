@@ -72,6 +72,19 @@ func (inputFactory *InputFactory) Create() *Input {
 
 	password, _ := os.LookupEnv("GIT_PASSWORD")
 
+	numberOfShard := 0
+	replicas := 1
+
+	shard, _ := os.LookupEnv("SHARD")
+	if shard != "" {
+		numberOfShard, _ = strconv.Atoi(shard)
+	}
+
+	replicasStr, _ := os.LookupEnv("REPLICAS")
+	if replicasStr != "" {
+		replicas, _ = strconv.Atoi(replicasStr)
+	}
+
 	input := &Input{
 		namespace:                namespace,
 		argoHost:                 argoHost,
@@ -88,6 +101,8 @@ func (inputFactory *InputFactory) Create() *Input {
 		gitIntegration:           gitIntegration,
 		password:                 password,
 		syncMode:                 syncMode,
+		replicas:                 replicas,
+		numberOfShard:            numberOfShard,
 	}
 
 	createIntegrationIfNotExistBool, err := strconv.ParseBool(createIntegrationIfNotExist)

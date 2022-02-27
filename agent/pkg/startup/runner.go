@@ -10,6 +10,8 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Runner struct {
@@ -66,5 +68,24 @@ func (runner *Runner) Run() error {
 	queueProcessor := queue.EnvQueueProcessor{}
 	go queueProcessor.Run()
 
-	return watch.Start(runner.input.namespace, util.NewSharding(runner.input.numberOfShard, runner.input.replicas))
+	applicationCRD := schema.GroupVersionResource{
+		Group:    "argoproj.io",
+		Version:  "v1alpha1",
+		Resource: "applications",
+	}
+
+	resourceInterface, err := watch.GetResourceInterface(applicationCRD, runner.input.namespace)
+	if err != nil {
+		logger.GetLogger().Errorf("Initialize resource interface failed error %s", err.Error())
+	}
+
+	list, err := resourceInterface.List(v1.ListOptions{})
+	if err != nil {
+		logger.GetLogger().Errorf("failed to get list of applications, reason: %s", err.Error())
+	}
+
+	sharding := util.NewSharding(runner.input.numberOfShard, runner.input.replicas)
+	sharding.InitApplications(list.Items)
+
+	return watch.Start(runner.input.namespace, sharding)
 }
