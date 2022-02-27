@@ -75,11 +75,6 @@ func (inputFactory *InputFactory) Create() *Input {
 	numberOfShard := 0
 	replicas := 1
 
-	shard, _ := os.LookupEnv("SHARD")
-	if shard != "" {
-		numberOfShard, _ = strconv.Atoi(shard)
-	}
-
 	replicasStr, _ := os.LookupEnv("REPLICAS")
 	if replicasStr != "" {
 		replicas, _ = strconv.Atoi(replicasStr)
