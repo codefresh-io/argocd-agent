@@ -71,7 +71,7 @@ func (inputFactory *InputFactory) Create() *Input {
 
 	password, _ := os.LookupEnv("GIT_PASSWORD")
 
-	replicas := 0
+	replicas := 1
 
 	replicasStr, _ := os.LookupEnv("REPLICAS")
 	if replicasStr != "" {
