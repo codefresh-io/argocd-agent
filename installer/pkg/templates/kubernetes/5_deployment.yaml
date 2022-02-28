@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: cf-argocd-agent{{ .Codefresh.Suffix }}
-  replicas: 1
+  replicas: {{ .Replicas }}
   revisionHistoryLimit: 5
   strategy:
     rollingUpdate:
@@ -36,10 +36,8 @@ spec:
         - name: https_proxy
           value: {{ .Host.HttpsProxy }}
         {{- end }}
-        { { - if .Replicas } }
         - name: REPLICAS
           value: { { .Replicas } }
-        { { - end } }
         - name: AGENT_VERSION
           value: "{{ .Agent.Version }}"
         - name: ARGO_HOST

@@ -111,7 +111,7 @@ func TestTemplatesMapDeployment(t *testing.T) {
 	resource := templates["5_deployment.yaml"]
 
 	originalResource := `apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: cf-argocd-agent{{ .Codefresh.Suffix }}
@@ -121,7 +121,7 @@ spec:
   selector:
     matchLabels:
       app: cf-argocd-agent{{ .Codefresh.Suffix }}
-  replicas: 1
+  replicas: {{ .Replicas }}
   revisionHistoryLimit: 5
   strategy:
     rollingUpdate:
@@ -148,6 +148,8 @@ spec:
         - name: https_proxy
           value: {{ .Host.HttpsProxy }}
         {{- end }}
+        - name: REPLICAS
+          value: { { .Replicas } }
         - name: AGENT_VERSION
           value: "{{ .Agent.Version }}"
         - name: ARGO_HOST

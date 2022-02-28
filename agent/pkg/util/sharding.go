@@ -43,7 +43,7 @@ func InferShard() (int, error) {
 }
 
 func (sh *Sharding) applicationsRange(amountOfApps int) (int, int) {
-	if amountOfApps == 0 || sh.replicas == 0 {
+	if amountOfApps == 0 || sh.replicas <= 1 {
 		return 0, 0
 	}
 	// primary := sh.replicas % amountOfApps
