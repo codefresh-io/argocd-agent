@@ -30,6 +30,7 @@ type InstallCmdOptions struct {
 	Agent struct {
 		Version string
 	}
+	Replicas int
 }
 
 type Kube struct {

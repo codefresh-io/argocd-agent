@@ -73,6 +73,8 @@ func init() {
 	flags.StringVar(&installCmdOptions.NewRelic.Key, "new-relic", "", "")
 	flags.StringVar(&installCmdOptions.Env.Name, "env-name", "kubernetes", "")
 
+	flags.IntVar(&installCmdOptions.Replicas, "replicas", 0, "Amount of replicas for stateful set")
+
 	var kubeConfigPath string
 	currentUser, _ := user.Current()
 	if currentUser != nil {

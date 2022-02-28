@@ -25,7 +25,6 @@ type Input struct {
 	password                    string
 	syncMode                    string
 	createIntegrationIfNotExist bool
-	numberOfShard               int
 	replicas                    int
 }
 
@@ -72,8 +71,7 @@ func (inputFactory *InputFactory) Create() *Input {
 
 	password, _ := os.LookupEnv("GIT_PASSWORD")
 
-	numberOfShard := 0
-	replicas := 1
+	replicas := 0
 
 	replicasStr, _ := os.LookupEnv("REPLICAS")
 	if replicasStr != "" {
@@ -97,7 +95,6 @@ func (inputFactory *InputFactory) Create() *Input {
 		password:                 password,
 		syncMode:                 syncMode,
 		replicas:                 replicas,
-		numberOfShard:            numberOfShard,
 	}
 
 	createIntegrationIfNotExistBool, err := strconv.ParseBool(createIntegrationIfNotExist)

@@ -84,7 +84,7 @@ func (runner *Runner) Run() error {
 		logger.GetLogger().Errorf("failed to get list of applications, reason: %s", err.Error())
 	}
 
-	sharding := util.NewSharding(runner.input.numberOfShard, runner.input.replicas)
+	sharding := util.NewSharding(runner.input.replicas)
 	sharding.InitApplications(list.Items)
 
 	return watch.Start(runner.input.namespace, sharding)
