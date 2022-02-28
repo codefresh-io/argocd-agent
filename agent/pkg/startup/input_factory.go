@@ -25,6 +25,7 @@ type Input struct {
 	password                    string
 	syncMode                    string
 	createIntegrationIfNotExist bool
+	replicas                    int
 }
 
 type InputFactory struct {
@@ -70,6 +71,13 @@ func (inputFactory *InputFactory) Create() *Input {
 
 	password, _ := os.LookupEnv("GIT_PASSWORD")
 
+	replicas := 0
+
+	replicasStr, _ := os.LookupEnv("REPLICAS")
+	if replicasStr != "" {
+		replicas, _ = strconv.Atoi(replicasStr)
+	}
+
 	input := &Input{
 		namespace:                namespace,
 		argoHost:                 argoHost,
@@ -86,6 +94,7 @@ func (inputFactory *InputFactory) Create() *Input {
 		gitIntegration:           gitIntegration,
 		password:                 password,
 		syncMode:                 syncMode,
+		replicas:                 replicas,
 	}
 
 	createIntegrationIfNotExistBool, err := strconv.ParseBool(createIntegrationIfNotExist)

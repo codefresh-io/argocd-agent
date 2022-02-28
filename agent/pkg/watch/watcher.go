@@ -2,6 +2,7 @@ package watch
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/kube"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
@@ -25,6 +26,17 @@ func getKubeconfig() (dynamic.Interface, error) {
 	return clientset, nil
 }
 
+func GetResourceInterface(crd schema.GroupVersionResource, namespace string) (dynamic.ResourceInterface, error) {
+	clientset, err := getKubeconfig()
+	if err != nil {
+		return nil, err
+	}
+	if namespace == "" {
+		return clientset.Resource(crd), nil
+	}
+	return clientset.Resource(crd).Namespace(namespace), nil
+}
+
 func getInformer(crd schema.GroupVersionResource, namespace string) (cache.SharedIndexInformer, dynamicinformer.DynamicSharedInformerFactory, error) {
 	clientset, err := getKubeconfig()
 	if err != nil {
@@ -42,13 +54,13 @@ func getInformer(crd schema.GroupVersionResource, namespace string) (cache.Share
 	return informer, kubeInformerFactory, nil
 }
 
-func Start(namespace string) error {
+func Start(namespace string, sharding *util.Sharding) error {
 	projectWatcher, err := NewProjectWatcher(namespace)
 	if err != nil {
 		return err
 	}
 
-	applicationWatcher, err := NewApplicationWatcher(namespace)
+	applicationWatcher, err := NewApplicationWatcher(namespace, sharding)
 	if err != nil {
 		return err
 	}
