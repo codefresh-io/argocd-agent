@@ -106,7 +106,7 @@ spec:
           value: {{ .Host.HttpsProxy }}
         {{- end }}
         - name: REPLICAS
-          value: { { .Replicas } }
+          value: "{{ .Replicas }}"
         - name: AGENT_VERSION
           value: "{{ .Agent.Version }}"
         - name: ARGO_HOST
