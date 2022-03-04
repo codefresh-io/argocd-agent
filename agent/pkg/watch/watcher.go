@@ -76,10 +76,14 @@ func Start(namespace string, sharding *util.Sharding) error {
 	}
 
 	stopApplication := make(chan struct{})
+	defer close(stopApplication)
 	applicationInformerFactory.Start(stopApplication)
 
 	stopProject := make(chan struct{})
+	defer close(stopProject)
 	projectInformerFactory.Start(stopProject)
 
-	return nil
+	for {
+		time.Sleep(time.Second)
+	}
 }

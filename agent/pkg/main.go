@@ -6,8 +6,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/startup"
-	"net/http"
-	_ "net/http/pprof"
 )
 
 func handleError(err error) {
@@ -39,7 +37,5 @@ func main() {
 	if err != nil {
 		handleError(err)
 	}
-
-	http.ListenAndServe("0.0.0.0:6060", nil)
 
 }

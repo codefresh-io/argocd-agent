@@ -164,12 +164,12 @@ func (watcher *applicationWatcher) Watch() (dynamicinformer.DynamicSharedInforme
 			}
 		},
 		DeleteFunc: func(obj interface{}) {
-			//watcher.delete(obj)
+			watcher.delete(obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			//if watcher.sharding.ShouldBeProcessed(newObj) {
-			//	watcher.update(newObj)
-			//}
+			if watcher.sharding.ShouldBeProcessed(newObj) {
+				watcher.update(newObj)
+			}
 		},
 	})
 
