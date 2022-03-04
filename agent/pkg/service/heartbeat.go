@@ -8,8 +8,18 @@ import (
 
 var heartbeatAmount = 0
 
-func HeartBeatTask() {
-	err := codefresh.GetInstance().HeartBeat(store.GetStore().Heartbeat.Error)
+type heartbeat struct {
+	Api *codefresh.Api
+}
+
+func New() *heartbeat {
+	return &heartbeat{
+		Api: codefresh.GetInstance(),
+	}
+}
+
+func (h *heartbeat) HeartBeatTask() {
+	err := h.Api.HeartBeat(store.GetStore().Heartbeat.Error)
 	if err != nil {
 		logger.GetLogger().Errorf("Failed to send heartbeat status, reason %v", err)
 	}

@@ -17,19 +17,22 @@ type QueueProcessor interface {
 }
 
 type EnvQueueProcessor struct {
+	argoApi argo.ArgoAPI
 }
 
 var envQueueProcessor *EnvQueueProcessor
 
 func (processor *EnvQueueProcessor) New() QueueProcessor {
 	if envQueueProcessor == nil {
-		envQueueProcessor = &EnvQueueProcessor{}
+		envQueueProcessor = &EnvQueueProcessor{
+			argoApi: argo.GetInstance(),
+		}
 	}
 	return envQueueProcessor
 }
 
-func updateEnv(obj *argoSdk.ArgoApplication, historyId int64) (error, *codefreshSdk.Environment) {
-	envTransformer := service.GetEnvTransformerInstance(argo.GetInstance())
+func updateEnv(obj *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoAPI) (error, *codefreshSdk.Environment) {
+	envTransformer := service.GetEnvTransformerInstance(argoApi)
 	err, envWrapper := envTransformer.PrepareEnvironment(*obj, historyId)
 	if err != nil {
 		return err, nil
@@ -52,7 +55,7 @@ func (processor *EnvQueueProcessor) Run() {
 		if itemQueue.Size() > 0 {
 			item := itemQueue.Dequeue()
 			if item != nil {
-				err, _ := updateEnv(&item.Application, item.HistoryId)
+				err, _ := updateEnv(&item.Application, item.HistoryId, processor.argoApi)
 				if err != nil {
 					logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 				}

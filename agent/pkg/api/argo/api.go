@@ -164,7 +164,11 @@ func (api *argoAPI) GetApplicationsWithCredentialsFromStorage() ([]argoSdk.Appli
 	token := store.GetStore().Argo.Token
 	host := store.GetStore().Argo.Host
 	sdk := buildArgoSdk(token, host)
-	return sdk.Application().GetApplications()
+	apps, err := sdk.Application().GetApplications()
+	if err != nil {
+		return nil, err
+	}
+	return apps, nil
 }
 
 // GetApplications get applications with token as param, without init API interface

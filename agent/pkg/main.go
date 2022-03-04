@@ -6,12 +6,17 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/startup"
+	"net/http"
+	_ "net/http/pprof"
 )
 
 func handleError(err error) {
+	hb := service.New()
+
 	logger.GetLogger().Errorf("Cant run agent because %v", err.Error())
 	store.SetHeartbeatError(err.Error())
-	service.HeartBeatTask()
+
+	hb.HeartBeatTask()
 	// send heartbeat to codefresh before die
 	panic(err)
 }
@@ -34,5 +39,7 @@ func main() {
 	if err != nil {
 		handleError(err)
 	}
+
+	http.ListenAndServe("0.0.0.0:6060", nil)
 
 }
