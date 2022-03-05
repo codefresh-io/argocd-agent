@@ -9,9 +9,12 @@ import (
 )
 
 func handleError(err error) {
+	hb := service.New()
+
 	logger.GetLogger().Errorf("Cant run agent because %v", err.Error())
 	store.SetHeartbeatError(err.Error())
-	service.HeartBeatTask()
+
+	hb.HeartBeatTask()
 	// send heartbeat to codefresh before die
 	panic(err)
 }

@@ -6,7 +6,9 @@ import (
 )
 
 func StartHeartBeat() {
+	hb := service.New()
+
 	c := cron.New()
-	_, _ = c.AddFunc("@every 8s", service.HeartBeatTask)
+	_, _ = c.AddFunc("@every 8s", hb.HeartBeatTask)
 	c.Start()
 }
