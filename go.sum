@@ -68,8 +68,8 @@ github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDk
 github.com/cockroachdb/datadriven v0.0.0-20190809214429-80d97fb3cbaa/go.mod h1:zn76sxSg3SzpJ0PPJaLDCu+Bu0Lg3sKTORVIj19EIF8=
 github.com/codefresh-io/argocd-sdk v0.4.3 h1:W59fGR/AH65omGP4iHlIjPxLYn77rXd363iJAAKnBEs=
 github.com/codefresh-io/argocd-sdk v0.4.3/go.mod h1:67oTaZX5zLmJwT27p2h6o45A6/eNctIVxPXCqGcy+bg=
-github.com/codefresh-io/go-sdk v1.0.6-agent h1:mcgjCzPWSlyBdO4/hWqDcSz+qtCnPQ/3H8ww5GgLIqc=
-github.com/codefresh-io/go-sdk v1.0.6-agent/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
+github.com/codefresh-io/go-sdk v1.0.7-agent h1:uWcqyUOagfoWNAH+FH41HrCbycq/ZW65zGy3nAVWFrM=
+github.com/codefresh-io/go-sdk v1.0.7-agent/go.mod h1:NiL3YLYLX2y8eqOBpTFoGP40HO0te/FrpjbDrgCtWFA=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/etcd v3.3.13+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
