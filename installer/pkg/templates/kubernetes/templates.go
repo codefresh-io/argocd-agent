@@ -68,7 +68,7 @@ data:
   {{- end }}`
 
 	templatesMap["5_deployment.yaml"] = `apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     app: cf-argocd-agent{{ .Codefresh.Suffix }}
@@ -78,7 +78,7 @@ spec:
   selector:
     matchLabels:
       app: cf-argocd-agent{{ .Codefresh.Suffix }}
-  replicas: {{ .Replicas }}
+  replicas: 1
   revisionHistoryLimit: 5
   strategy:
     rollingUpdate:
@@ -105,8 +105,6 @@ spec:
         - name: https_proxy
           value: {{ .Host.HttpsProxy }}
         {{- end }}
-        - name: REPLICAS
-          value: "{{ .Replicas }}"
         - name: AGENT_VERSION
           value: "{{ .Agent.Version }}"
         - name: ARGO_HOST

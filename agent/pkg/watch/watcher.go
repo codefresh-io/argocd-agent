@@ -2,7 +2,6 @@ package watch
 
 import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/kube"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
@@ -54,13 +53,13 @@ func getInformer(crd schema.GroupVersionResource, namespace string) (cache.Share
 	return informer, kubeInformerFactory, nil
 }
 
-func Start(namespace string, sharding *util.Sharding) error {
+func Start(namespace string) error {
 	projectWatcher, err := NewProjectWatcher(namespace)
 	if err != nil {
 		return err
 	}
 
-	applicationWatcher, err := NewApplicationWatcher(namespace, sharding)
+	applicationWatcher, err := NewApplicationWatcher(namespace)
 	if err != nil {
 		return err
 	}

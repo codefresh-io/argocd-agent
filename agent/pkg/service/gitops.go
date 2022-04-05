@@ -1,14 +1,12 @@
 package service
 
 import (
-	"errors"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/git/provider"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 type Gitops interface {
@@ -26,7 +24,6 @@ type gitops struct {
 	argoApi             argo.ArgoAPI
 	argoResourceService ArgoResourceService
 	envTransformer      ETransformer
-	sharding            util.Sharding
 }
 
 func NewGitopsService() Gitops {
@@ -60,11 +57,6 @@ func (gitops *gitops) ExtractNewApplication(application string) (*EnvironmentWra
 	applicationObj, err := gitops.argoApi.GetApplication(application)
 	if err != nil {
 		return nil, err
-	}
-
-	process := gitops.sharding.ShouldBeProcessed(&unstructured.Unstructured{Object: applicationObj})
-	if !process {
-		return nil, errors.New("should not be processed by this shard")
 	}
 
 	var app argoSdk.ArgoApplication
