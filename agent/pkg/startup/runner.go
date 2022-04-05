@@ -8,10 +8,7 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/scheduler"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/watch"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 type Runner struct {
@@ -68,24 +65,5 @@ func (runner *Runner) Run() error {
 	queueProcessor := queue.EnvQueueProcessor{}
 	go queueProcessor.Run()
 
-	applicationCRD := schema.GroupVersionResource{
-		Group:    "argoproj.io",
-		Version:  "v1alpha1",
-		Resource: "applications",
-	}
-
-	resourceInterface, err := watch.GetResourceInterface(applicationCRD, runner.input.namespace)
-	if err != nil {
-		logger.GetLogger().Errorf("Initialize resource interface failed error %s", err.Error())
-	}
-
-	list, err := resourceInterface.List(v1.ListOptions{})
-	if err != nil {
-		logger.GetLogger().Errorf("failed to get list of applications, reason: %s", err.Error())
-	}
-
-	sharding := util.NewSharding(runner.input.replicas)
-	sharding.InitApplications(list.Items)
-
-	return watch.Start(runner.input.namespace, sharding)
+	return watch.Start(runner.input.namespace)
 }
