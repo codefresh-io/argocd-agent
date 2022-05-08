@@ -35,9 +35,11 @@ func (tokenScheduler *regenerateTokenScheduler) regenerateToken() {
 		logger.GetLogger().Info("Regenerate argocd token")
 		token, err := tokenScheduler.argoApi.GetToken(argoValues.Username, argoValues.Password, argoValues.Host)
 		if err == nil {
-			logger.GetLogger().Debug("==> regenerateToken")
+			logger.GetLogger().Info("RegenerateToken finished")
 			store.SetArgoToken(token)
 			argo.ResetInstance()
+		} else {
+			logger.GetLogger().Infof("Failed to regenerate token due to %v", err.Error())
 		}
 	}
 }
