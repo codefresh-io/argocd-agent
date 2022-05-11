@@ -12,7 +12,6 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/dynamic/dynamicinformer"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/tools/cache"
@@ -27,29 +26,20 @@ var (
 )
 
 type applicationWatcher struct {
-	codefreshApi      codefresh.CodefreshApi
-	itemQueue         *queue.ItemQueue
-	informer          cache.SharedIndexInformer
-	informerFactory   dynamicinformer.DynamicSharedInformerFactory
-	argoApi           argo.ArgoAPI
-	resourceInterface dynamic.ResourceInterface
-
-	sharding *util.Sharding
+	codefreshApi    codefresh.CodefreshApi
+	itemQueue       *queue.ItemQueue
+	informer        cache.SharedIndexInformer
+	informerFactory dynamicinformer.DynamicSharedInformerFactory
+	argoApi         argo.ArgoAPI
 }
 
-func NewApplicationWatcher(namespace string, sharding *util.Sharding) (Watcher, error) {
+func NewApplicationWatcher(namespace string) (Watcher, error) {
 	informer, informerFactory, err := getInformer(applicationCRD, namespace)
 	if err != nil {
 		return nil, err
 	}
-	resourceInterface, err := GetResourceInterface(applicationCRD, namespace)
-	if err != nil {
-		return nil, err
-	}
-
 	return &applicationWatcher{codefreshApi: codefresh.GetInstance(), itemQueue: queue.GetInstance(),
-		informer: informer, informerFactory: informerFactory, argoApi: argo.GetInstance(), sharding: sharding,
-		resourceInterface: resourceInterface}, nil
+		informer: informer, informerFactory: informerFactory, argoApi: argo.GetInstance()}, nil
 }
 
 func (watcher *applicationWatcher) add(obj interface{}) {
@@ -157,19 +147,16 @@ func (watcher *applicationWatcher) update(newObj interface{}) {
 }
 
 func (watcher *applicationWatcher) Watch() (dynamicinformer.DynamicSharedInformerFactory, error) {
+
 	watcher.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
-			if watcher.sharding.ShouldBeProcessed(obj) {
-				watcher.add(obj)
-			}
+			watcher.add(obj)
 		},
 		DeleteFunc: func(obj interface{}) {
 			watcher.delete(obj)
 		},
 		UpdateFunc: func(oldObj, newObj interface{}) {
-			if watcher.sharding.ShouldBeProcessed(newObj) {
-				watcher.update(newObj)
-			}
+			watcher.update(newObj)
 		},
 	})
 
