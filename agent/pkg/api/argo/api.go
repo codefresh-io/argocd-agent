@@ -54,7 +54,7 @@ func GetInstance() ArgoAPI {
 // We need to change api instance after after regeneration argocd token
 func ResetInstance() {
 	argoConfig := store.GetStore().Argo
-	api = &argoAPI{
+	*api = argoAPI{
 		sdk: buildArgoSdk(argoConfig.Token, argoConfig.Host),
 	}
 }
