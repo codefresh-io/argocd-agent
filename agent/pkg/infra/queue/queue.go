@@ -2,9 +2,10 @@ package queue
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
-	"sync"
 )
 
 // ItemQueue the queue of Items
@@ -44,23 +45,24 @@ func (s *ItemQueue) Enqueue(t *service.ApplicationWrapper) {
 		return
 	}
 	s.lock.Lock()
+	defer s.lock.Unlock()
+
 	logger.GetLogger().Infof("Add item to queue, revision %v, history %v", t.Application.Status.OperationState.SyncResult.Revision, t.HistoryId)
 	key := fmt.Sprintf("%s.%v", t.Application.Status.OperationState.SyncResult.Revision, t.HistoryId)
 	s.items[key] = t
-	s.lock.Unlock()
 }
 
 // Dequeue removes an Item from the start of the queue
 func (s *ItemQueue) Dequeue() *service.ApplicationWrapper {
 	s.lock.Lock()
+	defer s.lock.Unlock()
+
 	for key, element := range s.items {
 		if element != nil {
 			delete(s.items, key)
-			s.lock.Unlock()
 			return element
 		}
 	}
-	s.lock.Unlock()
 	return nil
 }
 

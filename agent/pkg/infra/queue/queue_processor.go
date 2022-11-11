@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"time"
+
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/events"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
@@ -9,7 +11,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util/comparator"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"time"
 )
 
 type QueueProcessor interface {
@@ -51,17 +52,34 @@ func updateEnv(obj *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoA
 
 func (processor *EnvQueueProcessor) Run() {
 	itemQueue := GetInstance()
-	for true {
+	for {
+		processStartTime := time.Now()
+
 		if itemQueue.Size() > 0 {
 			item := itemQueue.Dequeue()
+
+			dequeueTime := time.Since(processStartTime)
+			logger.GetLogger().Debugf("[application processor] dequeued in %s", dequeueTime)
+
 			if item != nil {
 				err, _ := updateEnv(&item.Application, item.HistoryId, processor.argoApi)
+
+				updateTime := time.Since(processStartTime.Add(dequeueTime))
+				logger.GetLogger().Debugf("env updated in %s", updateTime)
+
 				if err != nil {
 					logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
 				}
+
 			}
 			logger.GetLogger().Infof("Queue size %v", itemQueue.Size())
+
+			logger.GetLogger().Debugf("application processed in %s in total", time.Since(processStartTime))
+			// don't sleep at all in case there are more items in queue
+		} else {
+			logger.GetLogger().Debug("queue is empty, standby for 1 second...")
+			// sleep in case queue empty
+			time.Sleep(1 * time.Second)
 		}
-		time.Sleep(1 * time.Second)
 	}
 }
