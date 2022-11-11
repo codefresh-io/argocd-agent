@@ -131,14 +131,15 @@ func (watcher *applicationWatcher) delete(obj interface{}) {
 }
 
 func (watcher *applicationWatcher) update(newObj interface{}) {
-	logger.GetLogger().Info("Receive application update event")
 	var crd argoSdk.ArgoApplication
 	util.Convert(newObj, &crd)
+
+	logger.GetLogger().Infof("Receive update event of application: %s", crd.Metadata.Name)
+	logger.GetLogger().Debugf("Status: %+v", crd.Status)
 
 	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
 	if err == nil {
 		crd.Status.History = nil
-		logger.GetLogger().Infof("Add item to queue, revision %v, history %v", crd.Status.OperationState.SyncResult.Revision, historyId)
 		watcher.itemQueue.Enqueue(&service.ApplicationWrapper{
 			Application: crd,
 			HistoryId:   historyId,
