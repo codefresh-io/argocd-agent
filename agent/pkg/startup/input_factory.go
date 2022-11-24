@@ -3,9 +3,10 @@ package startup
 import (
 	"encoding/base64"
 	"encoding/json"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"os"
 	"strconv"
+
+	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 )
 
 type Input struct {
