@@ -61,8 +61,8 @@ func ProcessDataWithFilter(itemType string, key *string, data interface{}, compa
 		logger.GetLogger().Infof("Item with key \"%s\" didn't change, ignoring the callback", stateKey)
 		return nil
 	}
-	printDiff(stateKey, oldItem, data)
 	logger.GetLogger().Infof("Item with key \"%s\" was changed, executing the callback", stateKey)
+	printDiff(stateKey, oldItem, data)
 
 	err := callback()
 
