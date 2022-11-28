@@ -13,32 +13,29 @@ import (
 var previousState = make(map[string]interface{})
 
 func printDiff(stateKey string, oldItem interface{}, newItem interface{}) error {
-	printResourceDiff, printResourceDiffFound := os.LookupEnv("PRINT_RESOURCE_DIFF")
-	if !printResourceDiffFound {
-		printResourceDiff = "false"
-	}
+	printResourceDiff, _ := os.LookupEnv("PRINT_RESOURCE_DIFF")
 
 	printResourceDiffBool, err := strconv.ParseBool(printResourceDiff)
 	if err != nil {
 		printResourceDiffBool = false
 	}
 
-	if printResourceDiffBool {
-		prevState, err := json.Marshal(oldItem)
-		if err != nil {
-			return err
-		}
-		newState, err := json.Marshal(newItem)
-		if err != nil {
-			return err
-		}
-
-		dmp := diffmatchpatch.New()
-		diffs := dmp.DiffMain(string(prevState), string(newState), false)
-		logger.GetLogger().Infof(dmp.DiffPrettyText(diffs))
-
+	if !printResourceDiffBool {
 		return nil
 	}
+
+	prevState, err := json.Marshal(oldItem)
+	if err != nil {
+		return err
+	}
+	newState, err := json.Marshal(newItem)
+	if err != nil {
+		return err
+	}
+
+	dmp := diffmatchpatch.New()
+	diffs := dmp.DiffMain(string(prevState), string(newState), false)
+	logger.GetLogger().Infof(dmp.DiffPrettyText(diffs))
 
 	return nil
 }
