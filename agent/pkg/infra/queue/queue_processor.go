@@ -72,9 +72,9 @@ func (processor *EnvQueueProcessor) Run() {
 				}
 
 			}
-			logger.GetLogger().Infof("Queue size %v", itemQueue.Size())
-
 			logger.GetLogger().Debugf("application processed in %s in total", time.Since(processStartTime))
+
+			logger.GetLogger().Infof("Queue size %v", itemQueue.Size())
 			// don't sleep at all in case there are more items in queue
 		} else {
 			logger.GetLogger().Debug("queue is empty, standby for 1 second...")

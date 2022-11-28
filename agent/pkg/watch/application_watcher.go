@@ -43,7 +43,6 @@ func NewApplicationWatcher(namespace string) (Watcher, error) {
 }
 
 func (watcher *applicationWatcher) add(obj interface{}) {
-	logger.GetLogger().Info("Receive application add event")
 	var app argoSdk.ArgoApplication
 	err := mapstructure.Decode(obj.(*unstructured.Unstructured).Object, &app)
 
@@ -54,6 +53,9 @@ func (watcher *applicationWatcher) add(obj interface{}) {
 
 	var crd argoSdk.ArgoApplication
 	util.Convert(obj, &crd)
+
+	logger.GetLogger().Infof("Received create event of application: %s", crd.Metadata.Name)
+	logger.GetLogger().Debugf("Status: %+v", crd.Status)
 
 	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
 	if err == nil {
@@ -134,7 +136,7 @@ func (watcher *applicationWatcher) update(newObj interface{}) {
 	var crd argoSdk.ArgoApplication
 	util.Convert(newObj, &crd)
 
-	logger.GetLogger().Infof("Receive update event of application: %s", crd.Metadata.Name)
+	logger.GetLogger().Infof("Received update event of application: %s", crd.Metadata.Name)
 	logger.GetLogger().Debugf("Status: %+v", crd.Status)
 
 	err, historyId := service.NewArgoResourceService().ResolveHistoryId(crd.Status.History, crd.Status.OperationState.SyncResult.Revision, crd.Metadata.Name)
