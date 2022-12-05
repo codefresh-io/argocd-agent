@@ -51,6 +51,10 @@ func (comparator EnvComparator) Compare(obj1 interface{}, obj2 interface{}) bool
 	newEnv1.Resources = nil
 	newEnv2.Resources = nil
 
+	// ignore git metadata itself, we need compare only revisions
+	newEnv1.Gitops = codefreshSdk.Gitops{}
+	newEnv2.Gitops = codefreshSdk.Gitops{}
+
 	sameServices := compareServices(newEnv1.Activities, newEnv2.Activities)
 
 	newEnv1.Activities = nil
