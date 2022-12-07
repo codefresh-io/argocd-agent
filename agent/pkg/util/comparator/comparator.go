@@ -55,6 +55,13 @@ func (comparator EnvComparator) Compare(obj1 interface{}, obj2 interface{}) bool
 	newEnv1.Gitops = codefreshSdk.Gitops{}
 	newEnv2.Gitops = codefreshSdk.Gitops{}
 
+	// ignore date because we can rely on status
+	newEnv1.Date = ""
+	newEnv2.Date = ""
+
+	newEnv1.FinishedAt = ""
+	newEnv2.FinishedAt = ""
+
 	sameServices := compareServices(newEnv1.Activities, newEnv2.Activities)
 
 	newEnv1.Activities = nil

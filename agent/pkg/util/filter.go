@@ -24,6 +24,11 @@ func printDiff(stateKey string, oldItem interface{}, newItem interface{}) error 
 		return nil
 	}
 
+	if oldItem == nil || newItem == nil {
+		logger.GetLogger().Infof("Ignore diff view because one of the entities is nil")
+		return nil
+	}
+
 	prevState, err := json.Marshal(oldItem)
 	if err != nil {
 		return err
