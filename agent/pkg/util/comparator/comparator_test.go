@@ -200,3 +200,46 @@ func TestEnvironmentComparatorWithDiffEnv(t *testing.T) {
 	}
 
 }
+
+func TestEnvironmentComparatorWithDifferentGitops(t *testing.T) {
+
+	envComparator := EnvComparator{}
+
+	env1 := codefreshSdk.Environment{
+		Gitops:       codefreshSdk.Gitops{},
+		FinishedAt:   "",
+		HealthStatus: "HEALTH",
+		SyncStatus:   "OUT_OF_SYNC",
+		HistoryId:    123,
+		SyncRevision: "123",
+		Name:         "Test",
+		Activities:   nil,
+		Resources:    nil,
+		RepoUrl:      "https://google.com",
+	}
+
+	env2 := codefreshSdk.Environment{
+		Gitops: codefreshSdk.Gitops{
+			Prs: []codefreshSdk.Annotation{
+				{
+					Key:   "test",
+					Value: "test",
+				},
+			},
+		},
+		FinishedAt:   "",
+		HealthStatus: "HEALTH",
+		SyncStatus:   "OUT_OF_SYNC",
+		HistoryId:    123,
+		SyncRevision: "123",
+		Name:         "Test",
+		Activities:   nil,
+		Resources:    nil,
+		RepoUrl:      "https://google.com",
+	}
+
+	if !envComparator.Compare(&env1, &env2) {
+		t.Errorf("'EnvComparator' comparation failed")
+	}
+
+}
