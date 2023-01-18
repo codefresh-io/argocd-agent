@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 go build -o /argocd-listener ./agent/pkg
 #
 # ------ Release ------
 #
-FROM alpine:3.6
+FROM alpine:3.17
 
 RUN apk --no-cache upgrade && apk --no-cache add ca-certificates
 
