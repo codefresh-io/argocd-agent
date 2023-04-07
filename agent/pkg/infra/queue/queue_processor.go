@@ -51,23 +51,19 @@ func updateEnv(obj *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoA
 }
 
 func (processor *EnvQueueProcessor) Run() {
-	itemQueue := GetInstance()
+	queue := GetAppQueue()
 	for {
 		processStartTime := time.Now()
 
-		if itemQueue.Size() > 0 {
-			item := itemQueue.Dequeue()
-
+		if queue.Size() > 0 {
+			item := queue.Dequeue()
 			dequeueTime := time.Since(processStartTime)
-			logger.GetLogger().Debugf("[queue_processor_metric] dequeued in %s", dequeueTime)
 
 			if item != nil {
-				logger.GetLogger().Debugf("[queue_processor_metric] processing application %v", item.Application.Metadata.Name)
-
 				err, _ := updateEnv(&item.Application, item.HistoryId, processor.argoApi)
 
 				updateTime := time.Since(processStartTime.Add(dequeueTime))
-				logger.GetLogger().Debugf("[queue_processor_metric] env updated in %s", updateTime)
+				logger.GetLogger().Debugf("env updated in %s", updateTime)
 
 				if err != nil {
 					logger.GetLogger().Errorf("Failed to update environment, reason: %v", err)
@@ -76,7 +72,7 @@ func (processor *EnvQueueProcessor) Run() {
 			}
 			logger.GetLogger().Debugf("[queue_processor_metric] application processed in %s in total", time.Since(processStartTime))
 
-			logger.GetLogger().Infof("Queue size %v", itemQueue.Size())
+			logger.GetLogger().Infof("Queue size %v", queue.Size())
 			// don't sleep at all in case there are more items in queue
 		} else {
 			logger.GetLogger().Debug("queue is empty, standby for 1 second...")

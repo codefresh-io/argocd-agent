@@ -27,7 +27,7 @@ var (
 
 type applicationWatcher struct {
 	codefreshApi    codefresh.CodefreshApi
-	itemQueue       *queue.ItemQueue
+	itemQueue       *queue.AppEventsQueue
 	informer        cache.SharedIndexInformer
 	informerFactory dynamicinformer.DynamicSharedInformerFactory
 	argoApi         argo.ArgoAPI
@@ -38,7 +38,7 @@ func NewApplicationWatcher(namespace string) (Watcher, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &applicationWatcher{codefreshApi: codefresh.GetInstance(), itemQueue: queue.GetInstance(),
+	return &applicationWatcher{codefreshApi: codefresh.GetInstance(), itemQueue: queue.GetAppQueue(),
 		informer: informer, informerFactory: informerFactory, argoApi: argo.GetInstance()}, nil
 }
 

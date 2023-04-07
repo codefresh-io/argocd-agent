@@ -1,11 +1,12 @@
 package watch
 
 import (
+	"testing"
+
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/queue"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
 	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"testing"
 )
 
 var _ = func() bool {
@@ -143,10 +144,12 @@ func (api *MockCodefreshApi) GetGitContexts() (error, *[]codefreshSdk.ContextPay
 }
 
 func TestApplicationWatcherUpdateEvent(t *testing.T) {
+	appQueue := queue.GetAppQueue()
+	appQueue.Purge()
 
 	appwatcher := applicationWatcher{
 		codefreshApi:    nil,
-		itemQueue:       queue.GetInstance(),
+		itemQueue:       appQueue,
 		informer:        nil,
 		informerFactory: nil,
 	}
@@ -174,19 +177,19 @@ func TestApplicationWatcherUpdateEvent(t *testing.T) {
 
 	appwatcher.update(obj)
 
-	size := queue.GetInstance().Size()
-
-	if size != 1 {
+	if appQueue.Size() != 1 {
 		t.Error("Unable watch update events")
 	}
 
 }
 
 func TestApplicationWatcherDeleteEvent(t *testing.T) {
+	appQueue := queue.GetAppQueue()
+	appQueue.Purge()
 
 	appwatcher := applicationWatcher{
 		codefreshApi:    &MockCodefreshApi{},
-		itemQueue:       queue.GetInstance(),
+		itemQueue:       appQueue,
 		informer:        nil,
 		informerFactory: nil,
 		argoApi:         &MockArgoApi{},
@@ -206,11 +209,12 @@ func TestApplicationWatcherDeleteEvent(t *testing.T) {
 }
 
 func TestApplicationWatcherCreateEvent(t *testing.T) {
-	q := queue.GetInstance().New()
+	appQueue := queue.GetAppQueue()
+	appQueue.Purge()
 
 	appwatcher := applicationWatcher{
 		codefreshApi:    &MockCodefreshApi{},
-		itemQueue:       q,
+		itemQueue:       appQueue,
 		informer:        nil,
 		informerFactory: nil,
 		argoApi:         &MockArgoApi{},
@@ -248,7 +252,7 @@ func TestApplicationWatcherCreateEvent(t *testing.T) {
 
 	appwatcher.add(obj)
 
-	size := q.Size()
+	size := appQueue.Size()
 
 	if size != 1 {
 		t.Error("Unable watch update events")
