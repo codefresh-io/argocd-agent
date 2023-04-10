@@ -8,65 +8,59 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
 )
 
-// ItemQueue the queue of Items
-type ItemQueue struct {
-	items map[string]*service.ApplicationWrapper
+type AppEventsQueue struct {
+	items []*service.ApplicationWrapper
 	lock  sync.RWMutex
 }
 
-var queueInstance = ItemQueue{
-	items: nil,
+var queue = &AppEventsQueue{
+	items: make([]*service.ApplicationWrapper, 0),
 	lock:  sync.RWMutex{},
 }
 
-var q *ItemQueue
-
-func GetInstance() *ItemQueue {
-	if q == nil {
-		q = queueInstance.New()
-	}
-	return q
-}
-
-// New creates a new ItemQueue
-func (s *ItemQueue) New() *ItemQueue {
-	s.items = make(map[string]*service.ApplicationWrapper, 0)
-	return s
+func GetAppQueue() *AppEventsQueue {
+	return queue
 }
 
 // Enqueue adds an Item to the end of the queue
-func (s *ItemQueue) Enqueue(t *service.ApplicationWrapper) {
-	if t.HistoryId == -1 {
+func (q *AppEventsQueue) Enqueue(event *service.ApplicationWrapper) {
+	if event.HistoryId == -1 {
 		logger.GetLogger().Infof("Ignore add item to queue, history Id is unknown")
 		return
 	}
-	if t.Application.Status.OperationState.SyncResult.Revision == "" {
+	if event.Application.Status.OperationState.SyncResult.Revision == "" {
 		logger.GetLogger().Infof("Ignore add item to queue, revision is empty")
 		return
 	}
-	s.lock.Lock()
-	defer s.lock.Unlock()
+	q.lock.Lock()
+	defer q.lock.Unlock()
 
-	logger.GetLogger().Infof("Add item to queue, revision %v, history %v", t.Application.Status.OperationState.SyncResult.Revision, t.HistoryId)
-	key := fmt.Sprintf("%s.%v", t.Application.Status.OperationState.SyncResult.Revision, t.HistoryId)
-	s.items[key] = t
+	logger.GetLogger().Infof("Add item to queue, revision %v, history %v", event.Application.Status.OperationState.SyncResult.Revision, event.HistoryId)
+
+	q.items = append(q.items, event)
 }
 
 // Dequeue removes an Item from the start of the queue
-func (s *ItemQueue) Dequeue() *service.ApplicationWrapper {
-	s.lock.Lock()
-	defer s.lock.Unlock()
+func (q *AppEventsQueue) Dequeue() *service.ApplicationWrapper {
+	q.lock.Lock()
+	defer q.lock.Unlock()
 
-	for key, element := range s.items {
-		if element != nil {
-			delete(s.items, key)
-			return element
-		}
+	if len(q.items) == 0 {
+		return nil
 	}
-	return nil
+
+	dequeuedItem := q.items[0]
+	q.items = q.items[1:]
+
+	fmt.Printf("dequeued item: %v, history id: %v", dequeuedItem.Application.Status.Sync.Revision, dequeuedItem.HistoryId)
+	return dequeuedItem
 }
 
 // Size returns the number of Items in the queue
-func (s *ItemQueue) Size() int {
+func (s *AppEventsQueue) Size() int {
 	return len(s.items)
+}
+
+func (s *AppEventsQueue) Purge() {
+	s.items = make([]*service.ApplicationWrapper, 0)
 }

@@ -1,11 +1,11 @@
 package queue
 
 import (
-	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
-	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"testing"
+
+	"github.com/codefresh-io/argocd-listener/agent/pkg/service"
+	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
+	"github.com/stretchr/testify/assert"
 )
 
 var _ = func() bool {
@@ -13,102 +13,70 @@ var _ = func() bool {
 	return true
 }()
 
-func TestItemQueue(t *testing.T) {
+func TestQueueSmoke(t *testing.T) {
+	queue.Purge()
 
-	m := make(map[string]interface{})
-	m["k"] = "v"
+	aw1 := newApplicationWrapper(1)
+	aw2 := newApplicationWrapper(2)
+	aw3 := newApplicationWrapper(3)
+	aw4 := newApplicationWrapper(4)
 
-	queue := GetInstance()
+	queue.Enqueue(aw1)
+	queue.Enqueue(aw2)
+	queue.Enqueue(aw3)
+	queue.Enqueue(aw4)
 
-	var env argoSdk.ArgoApplication
+	assert.Equal(t, 4, queue.Size(), "Queue size should be 3.")
 
-	util.Convert(unstructured.Unstructured{Object: m}, env)
+	item1 := queue.Dequeue()
+	item2 := queue.Dequeue()
+	item3 := queue.Dequeue()
+	item4 := queue.Dequeue()
 
-	env.Status.OperationState.SyncResult.Revision = "123"
+	assert.Equal(t, int64(1), item1.HistoryId, "Queue order is distorted.")
+	assert.Equal(t, int64(2), item2.HistoryId, "Queue order is distorted.")
+	assert.Equal(t, int64(3), item3.HistoryId, "Queue order is distorted.")
+	assert.Equal(t, int64(4), item4.HistoryId, "Queue order is distorted.")
 
-	queue.Enqueue(&service.ApplicationWrapper{
-		Application: env,
-		HistoryId:   0,
-	})
-
-	size := queue.Size()
-	if size != 1 {
-		t.Error("Wrong size of queue")
-	}
-
-	itm := queue.Dequeue()
-
-	if itm == nil {
-		t.Error("We should be able retrieve item")
-	}
-
-	queue.Enqueue(&service.ApplicationWrapper{
-		Application: env,
-		HistoryId:   0,
-	})
-
-	queue = queue.New()
-	size = queue.Size()
-	if size != 0 {
-		t.Error("Wrong size of queue after create new one")
-	}
-
+	assert.Equal(t, 0, queue.Size(), "Queue size should be 0.")
 }
 
 func TestItemQueueWithWrongHistoryId(t *testing.T) {
+	queue.Purge()
 
-	m := make(map[string]interface{})
-	m["k"] = "v"
+	queue.Enqueue(newApplicationWrapper(-1))
 
-	queue := GetInstance()
-
-	var env argoSdk.ArgoApplication
-
-	util.Convert(unstructured.Unstructured{Object: m}, env)
-	queue.Enqueue(&service.ApplicationWrapper{
-		Application: env,
-		HistoryId:   -1,
-	})
-
-	size := queue.Size()
-	if size != 0 {
-		t.Error("Wrong size of queue")
-	}
-
+	assert.Equal(t, 0, queue.Size(), "Queue size should be 0.")
 }
 
 func TestItemQueueWithWrongRevision(t *testing.T) {
+	queue.Purge()
 
-	m := make(map[string]interface{})
-	m["k"] = "v"
-
-	queue := GetInstance()
-
-	var env argoSdk.ArgoApplication
-
-	util.Convert(unstructured.Unstructured{Object: m}, env)
+	// Application.Status.OperationState.SyncResult.Revision is nil
 	queue.Enqueue(&service.ApplicationWrapper{
-		Application: env,
+		Application: argoSdk.ArgoApplication{},
 		HistoryId:   1,
 	})
 
-	size := queue.Size()
-	if size != 0 {
-		t.Error("Wrong size of queue")
-	}
-
+	assert.Equal(t, 0, queue.Size(), "Queue size should be 0.")
 }
 
 func TestItemQueueDequeueEmptyState(t *testing.T) {
+	queue.Purge()
 
-	m := make(map[string]interface{})
-	m["k"] = "v"
+	assert.Equal(t, 0, queue.Size(), "Queue size should be 0.")
 
-	queue := GetInstance()
+	item := queue.Dequeue()
 
-	result := queue.Dequeue()
+	assert.Nil(t, item, "Should return nil when queue is empty")
+}
 
-	if result != nil {
-		t.Error("Dequeue should return nil")
+func newApplicationWrapper(historyId int64) *service.ApplicationWrapper {
+	aw := service.ApplicationWrapper{
+		Application: argoSdk.ArgoApplication{},
+		HistoryId:   historyId,
 	}
+	// required in order to put into the queue
+	aw.Application.Status.OperationState.SyncResult.Revision = "1"
+	return &aw
 }
