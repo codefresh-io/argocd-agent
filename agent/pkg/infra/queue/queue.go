@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
@@ -37,7 +36,10 @@ func (q *AppEventsQueue) Enqueue(event *service.ApplicationWrapper) {
 
 	logger.GetLogger().Infof("Add item to queue, revision %v, history %v", event.Application.Status.OperationState.SyncResult.Revision, event.HistoryId)
 
-	q.items = append(q.items, event)
+	// todo remove
+	for i := 0; i < 10; i++ {
+		q.items = append(q.items, event)
+	}
 }
 
 // Dequeue removes an Item from the start of the queue
@@ -52,7 +54,7 @@ func (q *AppEventsQueue) Dequeue() *service.ApplicationWrapper {
 	dequeuedItem := q.items[0]
 	q.items = q.items[1:]
 
-	fmt.Printf("dequeued item: %v, history id: %v", dequeuedItem.Application.Status.Sync.Revision, dequeuedItem.HistoryId)
+	logger.GetLogger().Debugf("dequeued item: %v, history id: %v", dequeuedItem.Application.Status.Sync.Revision, dequeuedItem.HistoryId)
 	return dequeuedItem
 }
 

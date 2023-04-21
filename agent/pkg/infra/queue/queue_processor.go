@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
@@ -10,7 +12,6 @@ import (
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/util/comparator"
 	argoSdk "github.com/codefresh-io/argocd-sdk/pkg/api"
-	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
 )
 
 type QueueProcessor interface {
@@ -32,22 +33,34 @@ func (processor *EnvQueueProcessor) New() QueueProcessor {
 	return envQueueProcessor
 }
 
-func updateEnv(obj *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoAPI) (error, *codefreshSdk.Environment) {
+func updateEnv(obj *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoAPI) error {
 	envTransformer := service.GetEnvTransformerInstance(argoApi)
 	err, envWrapper := envTransformer.PrepareEnvironment(*obj, historyId)
 	if err != nil {
-		return err, nil
+		return err
 	}
 
 	env := &envWrapper.Environment
 
 	envComparator := comparator.EnvComparator{}
 
-	err = util.ProcessDataWithFilter("environment", &env.Name, env, envComparator.Compare, func() error {
+	return util.ProcessDataWithFilter("environment", &env.Name, env, envComparator.Compare, func() error {
+		return events.GetRolloutEventHandlerInstance().Handle(envWrapper)
+	})
+}
+
+func updateEnvShallowFiltering(argoApp *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoAPI) error {
+	err := util.ProcessDataWithFilter("environment", &argoApp.Metadata.Name, argoApp, comparator.ArgoAppComparator{}.Compare, func() error {
+		envTransformer := service.GetEnvTransformerInstance(argoApi)
+		err, envWrapper := envTransformer.PrepareEnvironment(*argoApp, historyId)
+		if err != nil {
+			return err
+		}
+
 		return events.GetRolloutEventHandlerInstance().Handle(envWrapper)
 	})
 
-	return err, env
+	return err
 }
 
 func (processor *EnvQueueProcessor) Run() {
@@ -60,7 +73,15 @@ func (processor *EnvQueueProcessor) Run() {
 			dequeueTime := time.Since(processStartTime)
 
 			if item != nil {
-				err, _ := updateEnv(&item.Application, item.HistoryId, processor.argoApi)
+				LIGHTWEIGHT_QUEUE, _ := os.LookupEnv("LIGHTWEIGHT_QUEUE")
+
+				var err error
+				if enabled, err := strconv.ParseBool(LIGHTWEIGHT_QUEUE); err == nil && enabled {
+					err = updateEnvShallowFiltering(&item.Application, item.HistoryId, processor.argoApi)
+				} else {
+					// verify it works
+					err = updateEnv(&item.Application, item.HistoryId, processor.argoApi)
+				}
 
 				updateTime := time.Since(processStartTime.Add(dequeueTime))
 				logger.GetLogger().Debugf("env updated in %s", updateTime)
