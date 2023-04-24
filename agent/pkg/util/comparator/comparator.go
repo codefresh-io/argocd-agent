@@ -72,9 +72,14 @@ func (comparator EnvComparator) Compare(obj1 interface{}, obj2 interface{}) bool
 	newEnv1.Activities = nil
 	newEnv2.Activities = nil
 
-	// add printdiff
+	isDeepEqual := reflect.DeepEqual(newEnv1, newEnv2)
 
-	return reflect.DeepEqual(newEnv1, newEnv2) && sameServices
+	if !isDeepEqual {
+		logger.GetLogger().Debugf("env change detected")
+		logger.GetLogger().Diff(newEnv1, newEnv2)
+	}
+
+	return isDeepEqual && sameServices
 }
 
 type ArgoAppComparator struct {

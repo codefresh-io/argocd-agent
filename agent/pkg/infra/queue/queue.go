@@ -36,10 +36,7 @@ func (q *AppEventsQueue) Enqueue(event *service.ApplicationWrapper) {
 
 	logger.GetLogger().Infof("Add item to queue, revision %v, history %v", event.Application.Status.OperationState.SyncResult.Revision, event.HistoryId)
 
-	// todo remove
-	for i := 0; i < 10; i++ {
-		q.items = append(q.items, event)
-	}
+	q.items = append(q.items, event)
 }
 
 // Dequeue removes an Item from the start of the queue

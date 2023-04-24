@@ -76,10 +76,9 @@ func (processor *EnvQueueProcessor) Run() {
 				LIGHTWEIGHT_QUEUE, _ := os.LookupEnv("LIGHTWEIGHT_QUEUE")
 
 				var err error
-				if enabled, err := strconv.ParseBool(LIGHTWEIGHT_QUEUE); err == nil && enabled {
+				if enabled, _err := strconv.ParseBool(LIGHTWEIGHT_QUEUE); _err == nil && enabled {
 					err = updateEnvShallowFiltering(&item.Application, item.HistoryId, processor.argoApi)
 				} else {
-					// verify it works
 					err = updateEnv(&item.Application, item.HistoryId, processor.argoApi)
 				}
 
