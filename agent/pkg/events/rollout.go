@@ -3,6 +3,7 @@ package events
 import (
 	"encoding/json"
 	"errors"
+
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/codefresh"
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"

@@ -1,10 +1,14 @@
 package logger
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/golang/glog"
 	"os"
+	"strconv"
+
+	"github.com/golang/glog"
+	"github.com/sergi/go-diff/diffmatchpatch"
 )
 
 const (
@@ -58,6 +62,37 @@ func (log *Logger) Debugf(format string, args ...interface{}) {
 	}
 }
 
+func (log *Logger) Diff(obj1 interface{}, obj2 interface{}) {
+	if log.loglevel == DebugLevel {
+		printResourceDiff, _ := os.LookupEnv("PRINT_RESOURCE_DIFF")
+		if truthy, err := strconv.ParseBool(printResourceDiff); err == nil && truthy {
+			log.printDiff(obj1, obj2)
+		}
+	}
+}
+
 func (log *Logger) ErrorE(err error) {
 	glog.Error(err.Error())
+}
+
+func (log *Logger) printDiff(oldItem interface{}, newItem interface{}) error {
+	if oldItem == nil || newItem == nil {
+		log.Debug("[DIFF] ignore diff view because one of the entities is nil")
+		return nil
+	}
+
+	prevState, err := json.Marshal(oldItem)
+	if err != nil {
+		return err
+	}
+	newState, err := json.Marshal(newItem)
+	if err != nil {
+		return err
+	}
+
+	dmp := diffmatchpatch.New()
+	diffs := dmp.DiffMain(string(prevState), string(newState), false)
+	log.Debugf("[DIFF] %s", dmp.DiffPrettyText(diffs))
+
+	return nil
 }

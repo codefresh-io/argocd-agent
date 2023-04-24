@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/logger"
@@ -52,7 +51,7 @@ func (q *AppEventsQueue) Dequeue() *service.ApplicationWrapper {
 	dequeuedItem := q.items[0]
 	q.items = q.items[1:]
 
-	fmt.Printf("dequeued item: %v, history id: %v", dequeuedItem.Application.Status.Sync.Revision, dequeuedItem.HistoryId)
+	logger.GetLogger().Debugf("dequeued item: %v, history id: %v", dequeuedItem.Application.Status.Sync.Revision, dequeuedItem.HistoryId)
 	return dequeuedItem
 }
 
