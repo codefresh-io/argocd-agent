@@ -77,6 +77,7 @@ func (processor *EnvQueueProcessor) Run() {
 
 				var err error
 				if enabled, _err := strconv.ParseBool(LIGHTWEIGHT_QUEUE); _err == nil && enabled {
+					logger.GetLogger().Debug("using lightweight queue processing")
 					err = updateEnvShallowFiltering(&item.Application, item.HistoryId, processor.argoApi)
 				} else {
 					err = updateEnv(&item.Application, item.HistoryId, processor.argoApi)
