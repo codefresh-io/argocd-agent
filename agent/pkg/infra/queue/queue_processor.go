@@ -1,8 +1,6 @@
 package queue
 
 import (
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/codefresh-io/argocd-listener/agent/pkg/api/argo"
@@ -33,22 +31,6 @@ func (processor *EnvQueueProcessor) New() QueueProcessor {
 	return envQueueProcessor
 }
 
-func updateEnv(obj *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoAPI) error {
-	envTransformer := service.GetEnvTransformerInstance(argoApi)
-	err, envWrapper := envTransformer.PrepareEnvironment(*obj, historyId)
-	if err != nil {
-		return err
-	}
-
-	env := &envWrapper.Environment
-
-	envComparator := comparator.EnvComparator{}
-
-	return util.ProcessDataWithFilter("environment", &env.Name, env, envComparator.Compare, func() error {
-		return events.GetRolloutEventHandlerInstance().Handle(envWrapper)
-	})
-}
-
 func updateEnvShallowFiltering(argoApp *argoSdk.ArgoApplication, historyId int64, argoApi argo.ArgoAPI) error {
 	err := util.ProcessDataWithFilter("environment", &argoApp.Metadata.Name, argoApp, comparator.ArgoAppComparator{}.Compare, func() error {
 		envTransformer := service.GetEnvTransformerInstance(argoApi)
@@ -73,15 +55,9 @@ func (processor *EnvQueueProcessor) Run() {
 			dequeueTime := time.Since(processStartTime)
 
 			if item != nil {
-				LIGHTWEIGHT_QUEUE, _ := os.LookupEnv("LIGHTWEIGHT_QUEUE")
 
-				var err error
-				if enabled, _err := strconv.ParseBool(LIGHTWEIGHT_QUEUE); _err == nil && enabled {
-					logger.GetLogger().Debug("using lightweight queue processing")
-					err = updateEnvShallowFiltering(&item.Application, item.HistoryId, processor.argoApi)
-				} else {
-					err = updateEnv(&item.Application, item.HistoryId, processor.argoApi)
-				}
+				logger.GetLogger().Debug("using lightweight queue processing")
+				err := updateEnvShallowFiltering(&item.Application, item.HistoryId, processor.argoApi)
 
 				updateTime := time.Since(processStartTime.Add(dequeueTime))
 				logger.GetLogger().Debugf("env updated in %s", updateTime)
