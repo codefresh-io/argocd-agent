@@ -4,17 +4,18 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"github.com/bradleyfalzon/ghinstallation"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
-	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
-	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
-	"github.com/google/go-github/github"
-	"github.com/whilp/git-urls"
-	"golang.org/x/oauth2"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/bradleyfalzon/ghinstallation/v2"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/newrelic"
+	"github.com/codefresh-io/argocd-listener/agent/pkg/infra/store"
+	codefreshSdk "github.com/codefresh-io/go-sdk/pkg/codefresh"
+	"github.com/google/go-github/github"
+	giturls "github.com/whilp/git-urls"
+	"golang.org/x/oauth2"
 )
 
 type api struct {
